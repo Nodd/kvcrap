@@ -11,28 +11,77 @@ class _Pile:
         self._cards = []
 
     def add_card(self, origin, card):
+        """Add a card to the pile
+
+        Available only if `can_add_card` is ``True``
+        """
         assert self.can_add_card(origin, card)
         self._cards.append(card)
 
     def pop_card(self):
+        """Take the top card from the pile"""
         assert self._cards, f"No card to pop in {self._name}"
         return self._cards.pop()
 
     def can_add_card(self, origin, card):
+        """Ckeck if the card can be added to the pile"""
         raise NotImplementedError
 
     def can_pop_card(self, player):
+        """Ckeck if the top card can be taken from the pile"""
         raise NotImplementedError
 
     def __iter__(self):
         yield from self._cards
 
+    def __getitem__(self, index):
+        """Index pile to get card"""
+        return self._cards[index]
+
+    def __len__(self):
+        return len(self._cards)
+
+    @property
+    def top_card(self):
+        """topmost card of the pile"""
+        return self._cards[-1]
+
+    @property
+    def rank(self):
+        """Rank of the topmost card of the pile"""
+        return self._cards[-1].rank
+
+    @property
+    def suit(self):
+        """Suit of the topmost card of the pile"""
+        return self._cards[-1].suit
+
+    @property
+    def player(self):
+        """Initial player of the topmost card of the pile"""
+        return self._cards[-1].player
+
+    @property
+    def face_up(self):
+        """State of the topmost card of the pile"""
+        return self._cards[-1].face_up
+
+    @face_up.setter
+    def face_up(self, is_face_up):
+        """Setter of the state of the topmost card of the pile"""
+        self._cards[-1].face_up = is_face_up
+
     def set_cards(self, cards):
+        """Replaces the cards in the pile
+
+        Warning, nothing is checked !
+        """
         # TODO: Checks for each pile type
         self._cards = cards
 
-    def num_cards(self):
-        return len(self._cards)
+    def clear(self):
+        """Empty the pile"""
+        self.cards = []
 
 
 class FoundationPile(_Pile):
@@ -50,7 +99,9 @@ class FoundationPile(_Pile):
     def can_pop_card(self, player):
         return False
 
+    @property
     def is_full(self):
+        """If the pile is full from Ace to King"""
         return len(self._cards) == Card.MAX_RANK
 
 
@@ -78,6 +129,8 @@ class TableauPile(_Pile):
 
 
 class _PlayerPile(_Pile):
+    """Piles specific to the player"""
+
     def __init__(self, player):
         assert player in {0, 1}
         super().__init__(self._name_tpl.format(player=player))
@@ -123,8 +176,10 @@ class CrapettePile(_PlayerPile):
         raise NotImplementedError
 
 
+# namedtuple for all piles specific to a player
 PlayerPiles = namedtuple("PlayerPiles", ["stock", "waste", "crapette"])
 
 
 def player_piles(player):
+    """Return a PlayerPiles instance with the 3 piles for a player"""
     return PlayerPiles(StockPile(player), WastePile(player), CrapettePile(player))

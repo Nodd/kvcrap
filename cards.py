@@ -24,34 +24,58 @@ class Card:
 
     @property
     def rank(self):
+        """Rank of the card, between MIN_RANK (1) and MAX_RANK (13)"""
         return self._rank
 
     @property
     def suit(self):
+        """Caracter representing the suit of the card
+
+        - c: Clubs
+        - d: Diamonds
+        - h: Hearts
+        - s: Spades
+        """
         return self._suit
 
     @property
     def player(self):
+        """Original player for the card
+
+        Useful to get the decoration on the back of the card.
+        """
         return self._player
 
     @property
     def face_up(self):
+        """State of the card, facing up (True) or down (False)"""
         return self._face_up
 
     @face_up.setter
     def face_up(self, is_face_up):
+        """Setter for the satate of the card"""
         self._face_up = bool(is_face_up)
 
     def is_same_color(self, other):
+        """Check if this card has the same color (red or black) as another card
+        """
         return self._is_red == other._is_red
 
     def __str__(self):
+        """Sting representation of the card"""
         txt = f"{self._rank}{self._suit}"
         if self._face_up:
             txt += " up"
         return txt
 
+    def __repr__(self):
+        return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
+
     def image(self):
+        """Returns the image file for the card
+
+        The returne image depends on the facing of the card.
+        """
         # TODO: Customize cards
         if self._face_up:
             return f"images/face_{self._rank}{self._suit}.png"
