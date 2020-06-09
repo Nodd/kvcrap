@@ -1,0 +1,144 @@
+#:kivy 1.11.0
+
+BackGround:
+    canvas:
+        Color:
+            rgb: 0, 0.5, 0
+        Rectangle:
+            size: self.size
+
+    FoundationBackground:
+        pos_hint: {'center_x': 0.4, 'center_y': 5/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.4, 'center_y': 5/16}
+        source: "images/png/2x/suit-diamond.png"
+    FoundationBackground:
+        pos_hint: {'center_x': 0.4, 'center_y': 7/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.4, 'center_y': 7/16}
+        source: "images/png/2x/suit-club.png"
+    FoundationBackground:
+        pos_hint: {'center_x': 0.4, 'center_y': 9/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.4, 'center_y': 9/16}
+        source: "images/png/2x/suit-heart.png"
+    FoundationBackground:
+        pos_hint: {'center_x': 0.4, 'center_y': 11/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.4, 'center_y': 11/16}
+        source: "images/png/2x/suit-spade.png"
+    FoundationBackground:
+        pos_hint: {'center_x': 0.6, 'center_y': 5/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.6, 'center_y': 5/16}
+        source: "images/png/2x/suit-diamond.png"
+    FoundationBackground:
+        pos_hint: {'center_x': 0.6, 'center_y': 7/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.6, 'center_y': 7/16}
+        source: "images/png/2x/suit-club.png"
+    FoundationBackground:
+        pos_hint: {'center_x': 0.6, 'center_y': 9/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.6, 'center_y': 9/16}
+        source: "images/png/2x/suit-heart.png"
+    FoundationBackground:
+        pos_hint: {'center_x': 0.6, 'center_y': 11/16}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.6, 'center_y': 11/16}
+        source: "images/png/2x/suit-spade.png"
+
+    PileBackground:
+        pos_hint: {'center_x': 0.3, 'center_y': 3/16}
+    PileBackground:
+        pos_hint: {'center_x': 0.5, 'center_y': 3/16}
+    PileBackground:
+        pos_hint: {'center_x': 0.7, 'center_y': 3/16}
+    PileBackground:
+        pos_hint: {'center_x': 0.3, 'center_y': 13/16}
+    PileBackground:
+        pos_hint: {'center_x': 0.5, 'center_y': 13/16}
+    PileBackground:
+        pos_hint: {'center_x': 0.7, 'center_y': 13/16}
+    NbCards:
+        pos_hint: {'center_x': 0.3, 'center_y': 1/16}
+    NbCards:
+        pos_hint: {'center_x': 0.5, 'center_y': 1/16}
+    NbCards:
+        pos_hint: {'center_x': 0.7, 'center_y': 1/16}
+    NbCards:
+        pos_hint: {'center_x': 0.3, 'center_y': 15/16}
+    NbCards:
+        pos_hint: {'center_x': 0.5, 'center_y': 15/16}
+    NbCards:
+        pos_hint: {'center_x': 0.7, 'center_y': 15/16}
+
+
+    # BoxLayout:
+    #     orientation: 'horizontal'
+    #     size_hint: 1, None
+    #     # height: app.menu_height
+    #     # spacing: 0.01*win.Window.width
+    #     # padding: app.pad_by, app.pad_by, app.pad_by, app.pad_by
+
+    #     canvas.before:
+    #         Color:
+    #             rgba: 0.1, 0.4, 0.1, 1
+    #         Rectangle:
+    #             pos: self.pos
+    #             size: self.size
+
+    #     Spinner:
+    #         id: menu
+    #         text: "Menu"
+    #         size_hint: None, None
+    #         # size: 0.18*win.Window.width, app.menu_height-2*app.pad_by
+
+    #     Button:
+    #         text: 'CRAPETTE'
+    #         on_press: app.crapette()
+
+    #     Spinner:
+    #         id: menu_smileys
+    #         text: "Smileys :o)"
+    #         size_hint: None, None
+    #         # size: 0.18*win.Window.width, app.menu_height-2*app.pad_by
+
+
+<PileBackground@Image>:
+    source: 'images/png/2x/card-base.png'
+    keep_ratio: True
+    allow_stretch: True
+    size_hint: 1/8, 1/8
+    opacity: 0.1
+
+<FoundationBackground@PileBackground>:
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: 90
+            axis: 0, 0, 1
+            origin: root.center
+    canvas.after:
+        PopMatrix
+
+<FoundationSuit@Image>:
+    id: parent
+    keep_ratio: True
+    allow_stretch: True
+    size_hint: 1/24, 1/24
+    opacity: 0.3
+
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: 90 if "center_x" in parent.pos_hint and parent.pos_hint["center_x"] < 0.5 else -90
+            axis: 0, 0, 1
+            origin: root.center
+    canvas.after:
+        PopMatrix
+
+<NbCards@Label>:
+    halign: "center"
+    valign: "top"
+    text: "99"
