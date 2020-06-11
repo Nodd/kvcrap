@@ -1,78 +1,45 @@
 #:kivy 1.11.0
 
-BackGround:
+BoxLayout:
+    orientation: "vertical"
     canvas:
         Color:
             rgb: 0, 0.5, 0
         Rectangle:
             size: self.size
 
-    FoundationBackground:
-        pos_hint: {'center_x': 0.4, 'center_y': 5/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.4, 'center_y': 5/16}
-        source: "images/png/2x/suit-diamond.png"
-    FoundationBackground:
-        pos_hint: {'center_x': 0.4, 'center_y': 7/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.4, 'center_y': 7/16}
-        source: "images/png/2x/suit-club.png"
-    FoundationBackground:
-        pos_hint: {'center_x': 0.4, 'center_y': 9/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.4, 'center_y': 9/16}
-        source: "images/png/2x/suit-heart.png"
-    FoundationBackground:
-        pos_hint: {'center_x': 0.4, 'center_y': 11/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.4, 'center_y': 11/16}
-        source: "images/png/2x/suit-spade.png"
-    FoundationBackground:
-        pos_hint: {'center_x': 0.6, 'center_y': 5/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.6, 'center_y': 5/16}
-        source: "images/png/2x/suit-diamond.png"
-    FoundationBackground:
-        pos_hint: {'center_x': 0.6, 'center_y': 7/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.6, 'center_y': 7/16}
-        source: "images/png/2x/suit-club.png"
-    FoundationBackground:
-        pos_hint: {'center_x': 0.6, 'center_y': 9/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.6, 'center_y': 9/16}
-        source: "images/png/2x/suit-heart.png"
-    FoundationBackground:
-        pos_hint: {'center_x': 0.6, 'center_y': 11/16}
-    FoundationSuit:
-        pos_hint: {'center_x': 0.6, 'center_y': 11/16}
-        source: "images/png/2x/suit-spade.png"
-
-    PileBackground:
-        pos_hint: {'center_x': 0.3, 'center_y': 3/16}
-    PileBackground:
-        pos_hint: {'center_x': 0.5, 'center_y': 3/16}
-    PileBackground:
-        pos_hint: {'center_x': 0.7, 'center_y': 3/16}
-    PileBackground:
-        pos_hint: {'center_x': 0.3, 'center_y': 13/16}
-    PileBackground:
-        pos_hint: {'center_x': 0.5, 'center_y': 13/16}
-    PileBackground:
-        pos_hint: {'center_x': 0.7, 'center_y': 13/16}
-    NbCards:
-        pos_hint: {'center_x': 0.3, 'center_y': 1/16}
-    NbCards:
-        pos_hint: {'center_x': 0.5, 'center_y': 1/16}
-    NbCards:
-        pos_hint: {'center_x': 0.7, 'center_y': 1/16}
-    NbCards:
-        pos_hint: {'center_x': 0.3, 'center_y': 15/16}
-    NbCards:
-        pos_hint: {'center_x': 0.5, 'center_y': 15/16}
-    NbCards:
-        pos_hint: {'center_x': 0.7, 'center_y': 15/16}
-
+    BoxLayout:
+        Spacer:
+        PlayerPileWidget:
+        PlayerPileWidget:
+        PlayerPileWidget:
+        Spacer:
+    BoxLayout:
+        TableauWidgetLeft:
+        FoundationWidget:
+        FoundationWidget:
+        TableauWidgetRight:
+    BoxLayout:
+        TableauWidgetLeft:
+        FoundationWidget:
+        FoundationWidget:
+        TableauWidgetRight:
+    BoxLayout:
+        TableauWidgetLeft:
+        FoundationWidget:
+        FoundationWidget:
+        TableauWidgetRight:
+    BoxLayout:
+        TableauWidgetLeft:
+        FoundationWidget:
+        FoundationWidget:
+        TableauWidgetRight:
+    BoxLayout:
+        Spacer:
+        PlayerPileWidget:
+        PlayerPileWidget:
+        PlayerPileWidget:
+        Spacer:
 
     # BoxLayout:
     #     orientation: 'horizontal'
@@ -105,11 +72,46 @@ BackGround:
     #         # size: 0.18*win.Window.width, app.menu_height-2*app.pad_by
 
 
+<FoundationWidget@RelativeLayout>:
+    size_hint: None, 1
+    size: self.height, self.height
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+    FoundationBackground:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    FoundationSuit:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        source: "images/png/2x/suit-heart.png"
+
+<TableauWidgetRight@RelativeLayout>:
+    size_hint: 0.5, 1
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+    PileBackground:
+        pos_hint: {'left': 1, 'center_y': 0.5}
+
+<TableauWidgetLeft@RelativeLayout>:
+    size_hint: 0.5, 1
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+    PileBackground:
+        pos_hint: {'right': 1, 'center_y': 0.5}
+
+<PlayerPileWidget@RelativeLayout>:
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    size_hint: None, 1
+    size: image.size
+
+    PileBackground:
+        id: image
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
 <PileBackground@Image>:
     source: 'images/png/2x/card-base.png'
     keep_ratio: True
     allow_stretch: True
-    size_hint: 1/8, 1/8
+    size_hint: None, 1
+    size: self.texture_size[0] / self.texture.size[1] * self.height, self.height
     opacity: 0.1
 
 <FoundationBackground@PileBackground>:
@@ -118,7 +120,7 @@ BackGround:
         Rotate:
             angle: 90
             axis: 0, 0, 1
-            origin: root.center
+            origin: self.center
     canvas.after:
         PopMatrix
 
@@ -126,7 +128,8 @@ BackGround:
     id: parent
     keep_ratio: True
     allow_stretch: True
-    size_hint: 1/24, 1/24
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    size_hint: 1/3, 1/3
     opacity: 0.3
 
     canvas.before:
@@ -138,7 +141,12 @@ BackGround:
     canvas.after:
         PopMatrix
 
+<Spacer@Widget>:
+    size_hint: 0.5, 1
+
 <NbCards@Label>:
+    size_hint: None, None
+    size: 50, 20
     halign: "center"
     valign: "top"
     text: "99"
