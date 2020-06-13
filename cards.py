@@ -11,6 +11,8 @@ class Card:
     RED = "dh"  # Clubs, Diamonds, Hearts, Spades
     BLACK = "cs"  # Clubs, Diamonds, Hearts, Spades
     PLAYERS = [0, 1]
+    SUIT_SYMBOL = {"c": "\u2663", "d": "\u2666", "h": "\u2665", "s": "\u2660"}
+    RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
 
     def __init__(self, rank, suit, player, face_up=False):
         assert rank in self.RANKS
@@ -39,6 +41,17 @@ class Card:
         return self._suit
 
     @property
+    def suit_symbol(self):
+        return self.SUIT_SYMBOL[self._suit]
+
+    @property
+    def rank_symbol(self):
+        try:
+            return self.RANK_SYMBOL[self._rank]
+        except KeyError:
+            return str(self._rank)
+
+    @property
     def player(self):
         """Original player for the card
 
@@ -63,7 +76,7 @@ class Card:
 
     def __str__(self):
         """Sting representation of the card"""
-        txt = f"{self._rank}{self._suit}"
+        txt = f"{self.rank_symbol}{self.suit_symbol}"
         if self._face_up:
             txt += " up"
         return txt

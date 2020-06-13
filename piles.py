@@ -42,9 +42,21 @@ class _Pile:
         return len(self._cards)
 
     @property
+    def name(self):
+        """Name of the pile"""
+        return self._name
+
+    @property
+    def is_empty(self):
+        return not len(self._cards)
+
+    @property
     def top_card(self):
         """topmost card of the pile"""
-        return self._cards[-1]
+        try:
+            return self._cards[-1]
+        except IndexError:
+            return None
 
     @property
     def rank(self):
@@ -166,10 +178,10 @@ class WastePile(_PlayerPile):
         return False
 
 
-class CrapettePile(_PlayerPile):
+class CrapePile(_PlayerPile):
     """Smallest and high-priorty pile the player has to empty"""
 
-    _name_tpl = "CrapettePlayer{player}"
+    _name_tpl = "CrapePlayer{player}"
 
     def can_add_card(self, origin, card):
         # TODO : depends from where comes the card...
@@ -177,9 +189,9 @@ class CrapettePile(_PlayerPile):
 
 
 # namedtuple for all piles specific to a player
-PlayerPiles = namedtuple("PlayerPiles", ["stock", "waste", "crapette"])
+PlayerPiles = namedtuple("PlayerPiles", ["stock", "waste", "crape"])
 
 
 def player_piles(player):
     """Return a PlayerPiles instance with the 3 piles for a player"""
-    return PlayerPiles(StockPile(player), WastePile(player), CrapettePile(player))
+    return PlayerPiles(StockPile(player), WastePile(player), CrapePile(player))
