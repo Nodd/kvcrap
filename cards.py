@@ -7,9 +7,9 @@ class Card:
     MIN_RANK = 1
     MAX_RANK = 13
     RANKS = list(range(MIN_RANK, MAX_RANK + 1))
-    SUITS = "cdhs"  # Clubs, Diamonds, Hearts, Spades
-    RED = "dh"  # Clubs, Diamonds, Hearts, Spades
-    BLACK = "cs"  # Clubs, Diamonds, Hearts, Spades
+    RED = "dh"  # Diamonds, Hearts
+    BLACK = "cs"  # Clubs, Spades
+    SUITS = RED + BLACK
     PLAYERS = [0, 1]
     SUIT_SYMBOL = {"c": "\u2663", "d": "\u2666", "h": "\u2665", "s": "\u2660"}
     RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
