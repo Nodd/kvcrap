@@ -4,11 +4,13 @@ kivy.require("1.11.0")
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.scatterlayout import ScatterLayout
 from kivy.uix.image import Image
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty
+from kivy.core.window import Window
 
 from board import Board
-from card_deck import card2img
+from card_deck import CardDeck
 
 
 class BackGround(FloatLayout):
@@ -23,30 +25,66 @@ class PileWidget(RelativeLayout):
     def set_pile(self, pile):
         self.pile = pile
 
-    def on_touch_down(self, touch):
-        if self.collide_point(touch.x, touch.y):
-            if self.pile.is_empty:
-                top_card = "Empty"
-            else:
-                top_card = self.pile.top_card
-            print(self.pile.name, top_card)
+    # def on_touch_down(self, touch):
+    #     if not self.collide_point(touch.x, touch.y):
+    #         return
+
+    #     if self.pile.is_empty:
+    #         print("DOWN", self.pile.name, "Empty")
+    #         return
+
+    #     top_card = self.pile.top_card
+    #     print("DOWN", self.pile.name, top_card)
+
+    # def on_touch_up(self, touch):
+    #     if not self.collide_point(touch.x, touch.y):
+    #         return
+
+    #     if self.pile.is_empty:
+    #         top_card = "Empty"
+    #     else:
+    #         top_card = self.pile.top_card
+    #     print("UP", self.pile.name, top_card)
 
 
-class SquaredPileWidget(PileWidget):
-    image = StringProperty()
+class FoundationPileWidget(PileWidget):
+    source = StringProperty()
     is_empty = BooleanProperty()
 
     def redraw(self):
-        self.image = card2img(self.pile.top_card)
+        self.source = card2img(self.pile.top_card)
         self.is_empty = self.pile.is_empty
 
 
-class FoundationPileWidget(SquaredPileWidget):
-    pass
+class PlayerPileWidget(PileWidget):
+    source = StringProperty()
+    is_empty = BooleanProperty()
 
+    def redraw(self):
+        if self.pile.is_empty:
+            self.is_empty = True
+            return
+        self.is_empty = False
 
-class PlayerPileWidget(SquaredPileWidget):
-    pass
+        if not self.pile[-1].face_up:
+            self.source = card2img(self.pile[-1])
+            return
+
+        if len(self.pile) > 1:
+            self.source = card2img(self.pile[-2])
+
+        self.moving_card = MovingCard(self.pile[-1])
+        app = App.get_running_app()
+        app.root.add_widget(self.moving_card)
+        self.moving_card.pos = self.to_parent(*self.pos)
+        print(
+            self.pile.name,
+            self.pos,
+            self.to_parent(*self.pos),
+            self.to_parent(*self.pos, relative=True),
+            self.to_window(*self.pos, relative=False),
+            self.to_window(*self.pos, relative=True),
+        )
 
 
 class TableauPileWidget(PileWidget):
@@ -91,31 +129,60 @@ class TableauRightPileWidget(TableauPileWidget):
         return self.pos_offset_factor * i_card
 
 
+class MovingCard(ScatterLayout):
+    source = StringProperty()
+
+    def __init__(self, card):
+        super().__init__()
+        self._card = card
+        self.source = card2img(card)
+
+    def on_touch_down(self, touch):
+        if not self.collide_point(touch.x, touch.y):
+            return
+
+        if touch.is_double_tap:
+            print("double tap")
+            return True
+
+        return super().on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        super().on_touch_up(touch)
+        if touch.grab_current is not None:
+            return
+        print("UP UP UP", touch, touch.grab_current)
+        return False
+
+
 # main app
 class CrapetteApp(App):
     title = "Crapette in Kivy"
     icon = "images/png/2x/suit-spade.png"
 
-    card_ratio = NumericProperty()
+    card_width = NumericProperty()
+    card_height = NumericProperty()
     card_overlap = NumericProperty()
 
     def build(self):
         self.board = Board()
+        self.cards_deck = CardDeck()
+
+        # Just set the property so that it's available in kv
+        self.card_overlap = self.cards_deck.overlap
+
+        # Resize callback
+        self.on_window_resize(Window, *Window.size)
+        Window.bind(on_resize=self.on_window_resize)
+
+        # Setup UI piles with game piles
         ids = self.root.ids
-
-        card_x = 338
-        card_y = 498
-
-        self.card_ratio = card_x / card_y
-        self.card_overlap = 0.15
-
         for player, player_piles in enumerate(self.board.players_piles):
             ids[f"player{player}stock"].set_pile(player_piles.stock)
             ids[f"player{player}waste"].set_pile(player_piles.waste)
             ids[f"player{player}crape"].set_pile(player_piles.crape)
         for tableau, tableau_pile in enumerate(self.board.tableau_piles):
             ids[f"tableau{tableau}"].set_pile(tableau_pile)
-            ids[f"tableau{tableau}"].build()
         for foundation, foundation_pile in enumerate(self.board.foundation_piles):
             ids[f"foundation{foundation}"].set_pile(foundation_pile)
 
@@ -131,6 +198,10 @@ class CrapetteApp(App):
             ids[f"tableau{tableau}"].redraw()
         for foundation, foundation_pile in enumerate(self.board.foundation_piles):
             ids[f"foundation{foundation}"].redraw()
+
+    def on_window_resize(self, window, width, height):
+        self.card_height = height / self.board.NB_ROWS
+        self.card_width = self.card_height * self.cards_deck.ratio
 
 
 if __name__ == "__main__":

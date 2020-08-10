@@ -1,11 +1,12 @@
 import random
 
-from cards import new_deck
+from decks import new_deck
 from piles import FoundationPile, TableauPile, player_piles
 
 
 class Board:
     NB_PILES = 8
+    NB_ROWS = 6  # 4 foundations + 2 players
     NB_PLAYERS = 2
     FOUNDATION_SUITES = "dchsshcd"
     assert len(FOUNDATION_SUITES) == NB_PILES
@@ -92,8 +93,3 @@ class Board:
         else:
             # Extreme measures
             return random.randint(0, 1)
-
-
-if __name__ == "__main__":
-    b = Board()
-    print(b.compute_first_player())

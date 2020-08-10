@@ -1,6 +1,3 @@
-import random
-
-
 class Card:
     """Card information"""
 
@@ -83,22 +80,3 @@ class Card:
 
     def __repr__(self):
         return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
-
-    def image(self):
-        """Returns the image file for the card
-
-        The returne image depends on the facing of the card.
-        """
-        # TODO: Customize cards
-        if self._face_up:
-            return f"images/face_{self._rank}{self._suit}.png"
-        else:
-            return f"images/deck{self._player}.png"
-
-
-def new_deck(player):
-    """Build a new shuffled deck"""
-    assert player in [0, 1]
-    cards = [Card(r, s, player) for s in Card.SUITS for r in Card.RANKS]
-    random.shuffle(cards)
-    return cards
