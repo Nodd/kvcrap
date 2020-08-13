@@ -164,7 +164,8 @@ FloatLayout:
 
 <PlayerPileWidget@RelativeLayout>:
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-    size: app.card_width, app.card_height
+    size_hint: None, 1
+    size: self.height, self.height
     id: parent
 
     # canvas:
