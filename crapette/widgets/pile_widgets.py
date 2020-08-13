@@ -1,29 +1,19 @@
-import kivy
-
-kivy.require("1.11.0")
-from kivy.app import App
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.scatterlayout import ScatterLayout
-from kivy.uix.image import Image
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty
-from kivy.core.window import Window
+from kivy.app import App
 
-from board import Board
-from card_deck import CardDeck
-
-
-class BackGround(FloatLayout):
-    pass
-
-
-class CardImage(Image):
-    pass
+from .board_widgets import BoardWidget
 
 
 class PileWidget(RelativeLayout):
     def set_pile(self, pile):
         self.pile = pile
+
+    def card_pos(self, index):
+        assert index >= 0
+
+        # Default implementation
+        return self.pos
 
     # def on_touch_down(self, touch):
     #     if not self.collide_point(touch.x, touch.y):
@@ -127,82 +117,3 @@ class TableauRightPileWidget(TableauPileWidget):
 
     def pos_anchor(self, i_card):
         return self.pos_offset_factor * i_card
-
-
-class MovingCard(ScatterLayout):
-    source = StringProperty()
-
-    def __init__(self, card):
-        super().__init__()
-        self._card = card
-        self.source = card2img(card)
-
-    def on_touch_down(self, touch):
-        if not self.collide_point(touch.x, touch.y):
-            return
-
-        if touch.is_double_tap:
-            print("double tap")
-            return True
-
-        return super().on_touch_down(touch)
-
-    def on_touch_up(self, touch):
-        super().on_touch_up(touch)
-        if touch.grab_current is not None:
-            return
-        print("UP UP UP", touch, touch.grab_current)
-        return False
-
-
-# main app
-class CrapetteApp(App):
-    title = "Crapette in Kivy"
-    icon = "images/png/2x/suit-spade.png"
-
-    card_width = NumericProperty()
-    card_height = NumericProperty()
-    card_overlap = NumericProperty()
-
-    def build(self):
-        self.board = Board()
-        self.cards_deck = CardDeck()
-
-        # Just set the property so that it's available in kv
-        self.card_overlap = self.cards_deck.overlap
-
-        # Resize callback
-        self.on_window_resize(Window, *Window.size)
-        Window.bind(on_resize=self.on_window_resize)
-
-        # Setup UI piles with game piles
-        ids = self.root.ids
-        for player, player_piles in enumerate(self.board.players_piles):
-            ids[f"player{player}stock"].set_pile(player_piles.stock)
-            ids[f"player{player}waste"].set_pile(player_piles.waste)
-            ids[f"player{player}crape"].set_pile(player_piles.crape)
-        for tableau, tableau_pile in enumerate(self.board.tableau_piles):
-            ids[f"tableau{tableau}"].set_pile(tableau_pile)
-        for foundation, foundation_pile in enumerate(self.board.foundation_piles):
-            ids[f"foundation{foundation}"].set_pile(foundation_pile)
-
-        self.draw()
-
-    def draw(self):
-        ids = self.root.ids
-        for player, player_piles in enumerate(self.board.players_piles):
-            ids[f"player{player}stock"].redraw()
-            ids[f"player{player}waste"].redraw()
-            ids[f"player{player}crape"].redraw()
-        for tableau, tableau_pile in enumerate(self.board.tableau_piles):
-            ids[f"tableau{tableau}"].redraw()
-        for foundation, foundation_pile in enumerate(self.board.foundation_piles):
-            ids[f"foundation{foundation}"].redraw()
-
-    def on_window_resize(self, window, width, height):
-        self.card_height = height / self.board.NB_ROWS
-        self.card_width = self.card_height * self.cards_deck.ratio
-
-
-if __name__ == "__main__":
-    CrapetteApp().run()

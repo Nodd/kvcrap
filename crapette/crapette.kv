@@ -1,6 +1,7 @@
 #:kivy 1.11.0
 
 FloatLayout:
+
     BoxLayout:
         orientation: "vertical"
         size: root.size
@@ -73,6 +74,12 @@ FloatLayout:
             PlayerPileWidget:
                 id: player0crape
             SpacerHalf:
+    Button:
+        text: 'CRAPETTE'
+        on_press: app.test()
+        pos: 0, 0
+        size: 100, 100
+        size_hint: None, None
 
         # BoxLayout:
         #     orientation: 'horizontal'
@@ -153,7 +160,7 @@ FloatLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     FoundationSuit:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        source: "images/png/2x/suit-heart.png"
+        source: "crapette/images/png/2x/suit-heart.png"
 
 <PlayerPileWidget@RelativeLayout>:
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -181,7 +188,7 @@ FloatLayout:
     size: app.card_width, app.card_height
 
 <PileBackground@CardImage>:
-    source: 'images/png/2x/card-base.png'
+    source: 'crapette/images/png/2x/card-base.png'
     opacity: 0.1
 
 <FoundationBackground@PileBackground>:

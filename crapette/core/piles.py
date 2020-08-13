@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from cards import Card
+from .cards import Card
 
 
 class _Pile:

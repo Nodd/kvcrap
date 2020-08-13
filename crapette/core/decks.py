@@ -1,6 +1,6 @@
 import random
 
-from cards import Card
+from .cards import Card
 
 
 def new_deck(player):

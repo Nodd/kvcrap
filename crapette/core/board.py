@@ -1,7 +1,7 @@
 import random
 
-from decks import new_deck
-from piles import FoundationPile, TableauPile, player_piles
+from .decks import new_deck
+from .piles import FoundationPile, TableauPile, player_piles
 
 
 class Board:
@@ -93,3 +93,11 @@ class Board:
         else:
             # Extreme measures
             return random.randint(0, 1)
+
+
+class _PrintBoard:
+    def __init__(self, board):
+        self.board = board
+
+    def row1(self):
+        ...
