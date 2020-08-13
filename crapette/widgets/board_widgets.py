@@ -9,7 +9,7 @@ class BoardWidget:
         self.board = board
         self.app = app
 
-        self.card_widgets = []
+        self.card_widgets = {}
 
     def build(self):
         for pile in self.app.piles:
@@ -18,7 +18,7 @@ class BoardWidget:
                 print(pile.card_pos(index), card)
                 card_widget = MovingCard(card)
                 card_widget.pos = pile.card_pos(index)
-                self.card_widgets.append(card_widget)
+                self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)
 
 

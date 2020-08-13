@@ -80,3 +80,18 @@ class Card:
 
     def __repr__(self):
         return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
+
+    def __eq__(self, other):
+        if not isinstance(other, Card):
+            raise ValueError("Not a Card")
+        return (
+            self._rank == other._rank
+            and self._suit == self._suit
+            and self._player == self._player
+        )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash((self._rank, self._suit, self._player))
