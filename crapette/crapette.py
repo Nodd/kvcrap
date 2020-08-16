@@ -38,7 +38,7 @@ class CrapetteApp(App):
         self.board = Board()
 
         # Just set the property so that it's available in kv
-        self.card_overlap = CARD_IMG.OVERLAP
+        self.card_overlap = CARD_IMG.OFFSET_FACTOR
 
         # Resize callback
         self.on_window_resize(Window, *Window.size)

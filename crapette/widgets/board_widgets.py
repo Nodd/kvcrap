@@ -1,7 +1,7 @@
 from kivy.uix.scatterlayout import ScatterLayout
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 
-from ..images.card_deck import card2img
+from ..images.card_deck import card2img, CARD_IMG
 
 
 class BoardWidget:
@@ -17,7 +17,11 @@ class BoardWidget:
             for index, card in enumerate(pile.pile):
                 print(pile.card_pos(index), card)
                 card_widget = MovingCard(card)
-                card_widget.pos = pile.card_pos(index)
+                card_center_pos = pile.card_pos(index)
+                card_widget.pos = (
+                    card_center_pos[0] - self.app.card_width / 2,
+                    card_center_pos[1] - self.app.card_height / 2,
+                )
                 self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)
 
