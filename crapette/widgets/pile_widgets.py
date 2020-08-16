@@ -10,10 +10,11 @@ class PileWidget(RelativeLayout):
         self.pile = pile
 
     def card_pos(self, index):
+        """Position of the center of the index-th card."""
         assert index >= 0
 
         # Default implementation
-        return self.pos
+        return self.pos[0] + self.width / 2, self.pos[1] + self.height / 2
 
     # def on_touch_down(self, touch):
     #     if not self.collide_point(touch.x, touch.y):
