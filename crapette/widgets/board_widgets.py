@@ -44,20 +44,18 @@ class MovingCard(ScatterLayout):
         self.source = card2img(card)
 
     def set_center_pos(self, x, y):
-        self.pos = (
-            x - self._app.card_width / 2,
-            y - self._app.card_height / 2,
-        )
+        self.pos = (x - self._app.card_width / 2, y - self._app.card_height / 2)
 
     def on_touch_down(self, touch):
         if not self.collide_point(touch.x, touch.y):
             return
 
         if touch.is_double_tap:
-            print("double tap")
+            print("DOUBLE TOUCH DOWN", self._card)
             return True
 
-        print("tap", self._card)
+        print("TOUCH DOWN", self._card)
+
         self._last_pos = self.pos
 
         return super().on_touch_down(touch)
@@ -78,7 +76,7 @@ class MovingCard(ScatterLayout):
             print("Not dropped on a pile")
             if self._last_pos:  # Just in case...
                 self.pos = self._last_pos
-            return False
+        self._last_pos = None
 
-        print("UP UP UP", touch, touch.grab_current, self._card)
+        print("TOUCH UP", touch.grab_current, self._card)
         return False
