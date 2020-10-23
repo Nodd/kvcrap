@@ -2,7 +2,7 @@ from pathlib import Path
 
 import kivy
 
-kivy.require("1.11.0")
+kivy.require("1.10.0")
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
