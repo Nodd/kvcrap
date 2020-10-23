@@ -9,21 +9,29 @@ class BoardWidget:
         self.board = board
         self.app = app
 
+        self.pile_widgets = self.app.pile_widgets
+
         self.card_widgets = {}
 
     def build(self):
-        for pile in self.app.piles:
-            print(pile.pile.name)
-            for index, card in enumerate(pile.pile):
-                print(pile.card_pos(index), card)
+        for pile_widget in self.pile_widgets:
+            # print(pile_widget.pile.name)
+            for index, card in enumerate(pile_widget.pile):
+                # print(pile_widget.card_pos(index), card)
                 card_widget = MovingCard(card, self.app)
-                card_center_pos = pile.card_pos(index)
-                card_widget.pos = (
-                    card_center_pos[0] - self.app.card_width / 2,
-                    card_center_pos[1] - self.app.card_height / 2,
-                )
+                card_widget.set_center_pos(*pile_widget.card_pos(index))
+                card_widget.do_translation = False
                 self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)
+
+    def set_player_turn(self, player):
+        self.active_player = player
+        for pile_widget in self.pile_widgets:
+            pile = pile_widget.pile
+            print(pile.name, len(pile))
+            if pile:
+                print(pile.can_pop_card(player))
+                self.card_widgets[pile[-1]].do_translation = pile.can_pop_card(player)
 
 
 class MovingCard(ScatterLayout):
@@ -34,6 +42,12 @@ class MovingCard(ScatterLayout):
         self._card = card
         self._app = app
         self.source = card2img(card)
+
+    def set_center_pos(self, x, y):
+        self.pos = (
+            x - self._app.card_width / 2,
+            y - self._app.card_height / 2,
+        )
 
     def on_touch_down(self, touch):
         if not self.collide_point(touch.x, touch.y):
@@ -56,7 +70,7 @@ class MovingCard(ScatterLayout):
             return
 
         # Look for the pile the card was dropped
-        for pile in self._app.piles:
+        for pile in self._app.pile_widgets:
             if pile.collide_point(touch.x, touch.y):
                 print(pile.pile.name)
                 break

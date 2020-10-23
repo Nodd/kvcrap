@@ -46,19 +46,19 @@ class CrapetteApp(App):
 
         # Setup UI piles with game piles
         ids = self.root.ids
-        self.piles = []
+        self.pile_widgets = []
         for player, player_piles in enumerate(self.board.players_piles):
-            self.piles.append(ids[f"player{player}stock"])
-            self.piles.append(ids[f"player{player}waste"])
-            self.piles.append(ids[f"player{player}crape"])
+            self.pile_widgets.append(ids[f"player{player}stock"])
+            self.pile_widgets.append(ids[f"player{player}waste"])
+            self.pile_widgets.append(ids[f"player{player}crape"])
             ids[f"player{player}stock"].set_pile(player_piles.stock)
             ids[f"player{player}waste"].set_pile(player_piles.waste)
             ids[f"player{player}crape"].set_pile(player_piles.crape)
         for tableau, tableau_pile in enumerate(self.board.tableau_piles):
-            self.piles.append(ids[f"tableau{tableau}"])
+            self.pile_widgets.append(ids[f"tableau{tableau}"])
             ids[f"tableau{tableau}"].set_pile(tableau_pile)
         for foundation, foundation_pile in enumerate(self.board.foundation_piles):
-            self.piles.append(ids[f"foundation{foundation}"])
+            self.pile_widgets.append(ids[f"foundation{foundation}"])
             ids[f"foundation{foundation}"].set_pile(foundation_pile)
 
         # self.draw()
@@ -66,9 +66,10 @@ class CrapetteApp(App):
     def test(self):
         self.board_widget = BoardWidget(self.board, self)
         self.board_widget.build()
+        self.board_widget.set_player_turn(0)
 
     def draw(self):
-        for pile in self.piles:
+        for pile in self.pile_widgets:
             pile.redraw()
 
     def on_window_resize(self, window, width, height):
