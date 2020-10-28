@@ -11,10 +11,9 @@ from kivy.uix.image import Image
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 from kivy.core.window import Window
 
-from .core.board import Board
 from .images.card_deck import CARD_IMG
-from .widgets import pile_widgets  # Load widgets
-from .widgets.board_widgets import BoardWidget
+from .board_manager import BoardManager
+from .core.board import Board
 
 
 class BackGround(FloatLayout):
@@ -35,8 +34,6 @@ class CrapetteApp(App):
     card_overlap = NumericProperty()
 
     def build(self):
-        self.board = Board()
-
         # Just set the property so that it's available in kv
         self.card_overlap = CARD_IMG.OFFSET_FACTOR
 
@@ -44,36 +41,12 @@ class CrapetteApp(App):
         self.on_window_resize(Window, *Window.size)
         Window.bind(on_resize=self.on_window_resize)
 
-        # Setup UI piles with game piles
-        ids = self.root.ids
-        self.pile_widgets = []
-        for player, player_piles in enumerate(self.board.players_piles):
-            self.pile_widgets.append(ids[f"player{player}stock"])
-            self.pile_widgets.append(ids[f"player{player}waste"])
-            self.pile_widgets.append(ids[f"player{player}crape"])
-            ids[f"player{player}stock"].set_pile(player_piles.stock)
-            ids[f"player{player}waste"].set_pile(player_piles.waste)
-            ids[f"player{player}crape"].set_pile(player_piles.crape)
-        for tableau, tableau_pile in enumerate(self.board.tableau_piles):
-            self.pile_widgets.append(ids[f"tableau{tableau}"])
-            ids[f"tableau{tableau}"].set_pile(tableau_pile)
-        for foundation, foundation_pile in enumerate(self.board.foundation_piles):
-            self.pile_widgets.append(ids[f"foundation{foundation}"])
-            ids[f"foundation{foundation}"].set_pile(foundation_pile)
-
-        # self.draw()
-
-    def test(self):
-        self.board_widget = BoardWidget(self.board, self)
-        self.board_widget.build()
-        self.board_widget.set_player_turn(0)
-
-    def draw(self):
-        for pile in self.pile_widgets:
-            pile.redraw()
+    def new_game(self):
+        self.board_manager = BoardManager(self)
+        self.board_manager.new_game()
 
     def on_window_resize(self, window, width, height):
-        self.card_height = height / self.board.NB_ROWS
+        self.card_height = height / Board.NB_ROWS
         self.card_width = self.card_height * CARD_IMG.RATIO
 
 

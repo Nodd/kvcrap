@@ -76,7 +76,7 @@ FloatLayout:
             SpacerHalf:
     Button:
         text: 'CRAPETTE'
-        on_press: app.test()
+        on_press: app.new_game()
         pos: 0, 0
         size: 100, 100
         size_hint: None, None
@@ -176,11 +176,6 @@ FloatLayout:
 
     PileBackground:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-
-    CardImage:
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        source: parent.source
-        opacity: 0 if parent.is_empty else 1
 
 <CardImage@Image>:
     keep_ratio: True

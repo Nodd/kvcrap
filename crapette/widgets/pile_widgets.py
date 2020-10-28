@@ -2,51 +2,34 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 from kivy.app import App
 
-from .board_widgets import BoardWidget
 from ..images.card_deck import CARD_IMG
 
 
 class PileWidget(RelativeLayout):
     """Parent widget for all pile types"""
 
-    source = StringProperty()
     is_empty = BooleanProperty()
 
     def set_pile(self, pile):
         self.pile = pile
 
-    def card_pos(self, index):
-        """Position of the center of the index-th card."""
-        assert index >= 0
-
-        # Default implementation
+    def card_pos(self, index=None):
+        """Position of the center of the index-th card.
+        
+        If no index is given, the position for the top card is returned.
+        """
+        # Default implementation, all cards in the center of the pile
         return self.pos[0] + self.width / 2, self.pos[1] + self.height / 2
 
     def card_rot(self):
         """Rotation of the cards in the deck in degrees"""
         return 0
 
-    # def on_touch_down(self, touch):
-    #     if not self.collide_point(touch.x, touch.y):
-    #         return
+    def pop_card(self):
+        self.pile.pop_card()
 
-    #     if self.pile.is_empty:
-    #         print("DOWN", self.pile.name, "Empty")
-    #         return
-
-    #     top_card = self.pile.top_card
-    #     print("DOWN", self.pile.name, top_card)
-
-    # def on_touch_up(self, touch):
-    #     if not self.collide_point(touch.x, touch.y):
-    #         return
-
-    #     if self.pile.is_empty:
-    #         top_card = "Empty"
-    #     else:
-    #         top_card = self.pile.top_card
-    #     print("UP", self.pile.name, top_card)
-
+    def add_card(self, card_widget):
+        self.pile.add_card(card_widget.card)
 
 class FoundationPileWidget(PileWidget):
     """Piles for fondations
@@ -56,7 +39,6 @@ class FoundationPileWidget(PileWidget):
     """
 
     def redraw(self):
-        self.source = card2img(self.pile.top_card)
         self.is_empty = self.pile.is_empty
 
     def card_rot(self):
@@ -102,11 +84,20 @@ class TableauLeftPileWidget(TableauPileWidget):
     def pos_anchor(self, i_card):
         return 1 - (self.pos_offset_factor * i_card)
 
-    def card_pos(self, index):
-        """Position of the center of the index-th card."""
+    def card_pos(self, index=None):
+        """Position of the center of the index-th card.
+        
+        If no index is given, the position for the top card is returned.
+        """
+        if index is None:
+            index = len(self.pile) - 1
         assert index >= 0
 
-        return self.pos[0] + self.width / 2, self.pos[1] + self.height / 2
+        offset = App.get_running_app().card_width * (0.5 + CARD_IMG.OFFSET_FACTOR * index)
+        return (
+            self.pos[0] + self.width - offset,
+            self.pos[1] + self.height / 2,
+        )
 
 
 class TableauRightPileWidget(TableauPileWidget):
@@ -115,12 +106,19 @@ class TableauRightPileWidget(TableauPileWidget):
     def pos_anchor(self, i_card):
         return self.pos_offset_factor * i_card
 
-    def card_pos(self, index):
-        """Position of the center of the index-th card."""
+    def card_pos(self, index=None):
+        """Position of the center of the index-th card.
+        
+        If no index is given, the position for the top card is returned.
+        """
+        if index is None:
+            index = len(self.pile) - 1
         assert index >= 0
 
         # TODO : card width instead of widget width
+        
+        offset = App.get_running_app().card_width * (0.5 + CARD_IMG.OFFSET_FACTOR * index)
         return (
-            self.pos[0] + self.width * (0.5 + CARD_IMG.OFFSET_FACTOR * index),
+            self.pos[0] + offset,
             self.pos[1] + self.height / 2,
         )

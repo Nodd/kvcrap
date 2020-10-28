@@ -10,12 +10,8 @@ class _Pile:
         self._name = str(name)
         self._cards = []
 
-    def add_card(self, origin, card):
-        """Add a card to the pile
-
-        Available only if `can_add_card` is ``True``
-        """
-        assert self.can_add_card(origin, card)
+    def add_card(self, card):
+        """Add a card to the pile"""
         self._cards.append(card)
 
     def pop_card(self):
