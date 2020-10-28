@@ -37,6 +37,7 @@ class FoundationPileWidget(PileWidget):
     Left and right foundations sould be different, because the rotation is not
     the same.
     """
+    background = StringProperty()
 
     def redraw(self):
         self.is_empty = self.pile.is_empty

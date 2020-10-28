@@ -27,8 +27,10 @@ FloatLayout:
                 id: tableau4
             FoundationPileWidget:
                 id: foundation4
+                background: "crapette/images/png/2x/suit-spade.png"
             FoundationPileWidget:
                 id: foundation3
+                background: "crapette/images/png/2x/suit-spade.png"
             TableauRightPileWidget:
                 id: tableau3
             SpacerHalf:
@@ -38,8 +40,10 @@ FloatLayout:
                 id: tableau5
             FoundationPileWidget:
                 id: foundation5
+                background: "crapette/images/png/2x/suit-heart.png"
             FoundationPileWidget:
                 id: foundation2
+                background: "crapette/images/png/2x/suit-heart.png"
             TableauRightPileWidget:
                 id: tableau2
             SpacerHalf:
@@ -49,8 +53,10 @@ FloatLayout:
                 id: tableau6
             FoundationPileWidget:
                 id: foundation6
+                background: "crapette/images/png/2x/suit-club.png"
             FoundationPileWidget:
                 id: foundation1
+                background: "crapette/images/png/2x/suit-club.png"
             TableauRightPileWidget:
                 id: tableau1
             SpacerHalf:
@@ -60,8 +66,10 @@ FloatLayout:
                 id: tableau7
             FoundationPileWidget:
                 id: foundation7
+                background: "crapette/images/png/2x/suit-diamond.png"
             FoundationPileWidget:
                 id: foundation0
+                background: "crapette/images/png/2x/suit-diamond.png"
             TableauRightPileWidget:
                 id: tableau0
             SpacerHalf:
@@ -146,6 +154,7 @@ FloatLayout:
         #         pos: self.pos
 
 <FoundationPileWidget@RelativeLayout>:
+    id: parent
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     size_hint: None, 1
     size: self.height, self.height
@@ -160,7 +169,7 @@ FloatLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     FoundationSuit:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        source: "crapette/images/png/2x/suit-heart.png"
+        source: parent.background
 
 <PlayerPileWidget@RelativeLayout>:
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
