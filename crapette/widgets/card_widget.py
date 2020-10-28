@@ -17,7 +17,8 @@ class CardWidget(ScatterLayout):
         self._last_pos = None
         self._moving = False
 
-    def set_center_pos(self, x, y):
+    def set_center_pos(self, pos):
+        x, y = pos
         self.pos = (x - self.app.card_width / 2, y - self.app.card_height / 2)
 
     @property
