@@ -41,8 +41,9 @@ class CrapetteApp(App):
         self.on_window_resize(Window, *Window.size)
         Window.bind(on_resize=self.on_window_resize)
 
-    def new_game(self):
         self.board_manager = BoardManager(self)
+
+    def new_game(self):
         self.board_manager.new_game()
 
     def on_window_resize(self, window, width, height):

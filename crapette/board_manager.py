@@ -38,6 +38,9 @@ class BoardManager:
             ids[f"foundation{foundation}"].set_pile(foundation_pile)
 
     def fill_piles(self):
+        if self.card_widgets:
+            for card_widget in self.card_widgets.values():
+                self.app.root.remove_widget(card_widget)
         self.card_widgets = {}
         for pile_widget in self.pile_widgets:
             # print(pile_widget.pile.name)
