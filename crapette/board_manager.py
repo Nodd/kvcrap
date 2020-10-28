@@ -60,11 +60,22 @@ class BoardManager:
                 self.card_widgets[pile[-1]].do_translation = pile.can_pop_card(player)
 
     def move_card(self, card_widget, pile_widget):
-        # Remove from previous pile
+        """Move a card to another pile.
+
+        Return True if the card was moved, or False if the move is not possible.
+        """
         old_pile_widget = card_widget.pile_widget
+
+        if not pile_widget.pile.can_add_card(old_pile_widget.pile, card_widget.card):
+            print("Dropped on an incompatible pile")
+            return False
+
+        # Remove from previous pile
         old_pile_widget.pop_card()
 
         # Add to new pile
         pile_widget.add_card(card_widget)
         card_widget.pile_widget = pile_widget
         card_widget.set_center_pos(pile_widget.card_pos())
+
+        return True

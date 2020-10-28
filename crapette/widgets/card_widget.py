@@ -16,6 +16,7 @@ class CardWidget(ScatterLayout):
         self.pile_widget = None
         self._last_pos = None
         self._moving = False
+        self._flipping = False
 
     def set_center_pos(self, pos):
         x, y = pos
@@ -30,7 +31,7 @@ class CardWidget(ScatterLayout):
             return
 
         if not self.is_top:
-            print("Card not on top of its pile")
+            # print("Card not on top of its pile")
             return
 
         if touch.is_double_tap:
@@ -38,18 +39,26 @@ class CardWidget(ScatterLayout):
             return True
 
         print("TOUCH DOWN", self.card)
-        self._moving = True
-        self._last_pos = self.pos
+        if self.card.face_up:
+            self._moving = True
+            self._last_pos = self.pos
 
-        return super().on_touch_down(touch)
+            return super().on_touch_down(touch)
+        else:
+            # TODO: test flippable by player
+            self._flipping = True
+            return True
 
     def on_touch_up(self, touch):
         super().on_touch_up(touch)
         if not self._moving:
-            return
-        if touch.grab_current is not None:
-            return
-        if not self.collide_point(touch.x, touch.y):
+            if self._flipping:
+                if self.collide_point(touch.x, touch.y):
+                    # Do the flip
+                    self.card.face_up = True
+                    self.source = card2img(self.card)
+                    self.do_translation = True
+                self._flipping = False
             return
 
         self._moving = False
@@ -69,12 +78,10 @@ class CardWidget(ScatterLayout):
             print("Dropped on origin pile")
             if self._last_pos:  # Just in case...
                 self.pos = self._last_pos
-        elif not pile_widget.pile.can_add_card(..., self.card):
-            print("Dropped on an incompatible pile")
-            if self._last_pos:  # Just in case...
-                self.pos = self._last_pos
         else:
-            self.app.board_manager.move_card(self, pile_widget)
+            moved = self.app.board_manager.move_card(self, pile_widget)
+            if not moved and self._last_pos:  # Just in case...
+                self.pos = self._last_pos
 
         self._last_pos = None
 
