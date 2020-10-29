@@ -67,8 +67,7 @@ class Card:
         self._face_up = bool(is_face_up)
 
     def is_same_color(self, other):
-        """Check if this card has the same color (red or black) as another card
-        """
+        """Check if this card has the same color (red or black) as another card"""
         return self._is_red == other._is_red
 
     def __str__(self):
