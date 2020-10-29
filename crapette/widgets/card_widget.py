@@ -41,6 +41,10 @@ class CardWidget(ScatterLayout):
             print("DOUBLE TOUCH DOWN", self.card)
             return True
 
+        if self.app.board_manager.active_player is None:
+            print("End of game")
+            return True
+
         print("TOUCH DOWN", self.card)
         can_pop = self.pile_widget.pile.can_pop_card(
             self.app.board_manager.active_player
@@ -61,6 +65,11 @@ class CardWidget(ScatterLayout):
 
     def on_touch_up(self, touch):
         super().on_touch_up(touch)
+
+        if self.app.board_manager.active_player is None:
+            print("End of game")
+            return True
+
         if not self._moving:
             if self._flipping:
                 if self.collide_point(touch.x, touch.y):
