@@ -28,11 +28,14 @@ class CardWidget(ScatterLayout):
 
     def on_touch_down(self, touch):
         if not self.collide_point(touch.x, touch.y):
-            return
+            return False
 
         if not self.is_top:
             # print("Card not on top of its pile")
-            return
+            return False
+
+        if not self.pile_widget.pile.can_pop_card(self.app.board_manager.active_player):
+            return True
 
         if touch.is_double_tap:
             print("DOUBLE TOUCH DOWN", self.card)
@@ -57,9 +60,10 @@ class CardWidget(ScatterLayout):
                     # Do the flip
                     self.card.face_up = True
                     self.source = card2img(self.card)
-                    self.do_translation = True
                 self._flipping = False
-            return
+                return True
+            else:
+                return False
 
         self._moving = False
 
@@ -86,4 +90,4 @@ class CardWidget(ScatterLayout):
         self._last_pos = None
 
         print("TOUCH UP", touch.grab_current, self.card)
-        return False
+        return True
