@@ -62,7 +62,7 @@ class BoardManager:
         """
         old_pile_widget = card_widget.pile_widget
 
-        if not pile_widget.pile.can_add_card(old_pile_widget.pile, card_widget.card):
+        if not pile_widget.pile.can_add_card(card_widget.card, old_pile_widget.pile, self.active_player):
             print("Dropped on an incompatible pile")
             return False
 

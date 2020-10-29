@@ -19,7 +19,7 @@ class _Pile:
         assert self._cards, f"No card to pop in {self._name}"
         return self._cards.pop()
 
-    def can_add_card(self, origin, card):
+    def can_add_card(self, card, origin, player):
         """Ckeck if the card can be added to the pile"""
         raise NotImplementedError
 
@@ -101,7 +101,7 @@ class FoundationPile(_Pile):
         self._foundation_id = foundation_id
         self._suit = suit
 
-    def can_add_card(self, origin, card):
+    def can_add_card(self, card, origin, player):
         return card.suit == self._suit and card.rank == len(self._cards) + 1
 
     def can_pop_card(self, player):
@@ -120,7 +120,7 @@ class TableauPile(_Pile):
         super().__init__(f"Tableau{tableau_id}")
         self._id = tableau_id
 
-    def can_add_card(self, origin, card):
+    def can_add_card(self, card, origin, player):
         # Empty pile can accept any card
         if not self._cards:
             return True
@@ -157,7 +157,7 @@ class StockPile(_PlayerPile):
 
     _name_tpl = "StockPlayer{player}"
 
-    def can_add_card(self, origin, card):
+    def can_add_card(self, card, origin, player):
         return False
 
 
@@ -166,9 +166,15 @@ class WastePile(_PlayerPile):
 
     _name_tpl = "WastePlayer{player}"
 
-    def can_add_card(self, origin, card):
-        # TODO : depends from where comes the card...
-        raise NotImplementedError
+    def can_add_card(self, card, origin, player):
+        if self._player == player:
+            return isinstance(origin, StockPile) and origin.player == player
+        else:
+            if not self:
+                return False
+            suit = self.top_card.suit
+            rank = self.top_card.rank
+            return card.suit == suit and card.rank in [rank - 1, rank + 1]
 
     def can_pop_card(self, player):
         return False
@@ -179,9 +185,15 @@ class CrapePile(_PlayerPile):
 
     _name_tpl = "CrapePlayer{player}"
 
-    def can_add_card(self, origin, card):
-        # TODO : depends from where comes the card...
-        raise NotImplementedError
+    def can_add_card(self, card, origin, player):
+        if self._player == player:
+            return False
+        else:
+            if not self:
+                return False
+            suit = self.top_card.suit
+            rank = self.top_card.rank
+            return card.suit == suit and card.rank in [rank - 1, rank + 1]
 
 
 # namedtuple for all piles specific to a player
