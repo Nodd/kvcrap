@@ -8,8 +8,6 @@ from ..images.card_deck import CARD_IMG
 class PileWidget(RelativeLayout):
     """Parent widget for all pile types"""
 
-    is_empty = BooleanProperty()
-
     def set_pile(self, pile):
         self.pile = pile
 
@@ -39,9 +37,6 @@ class FoundationPileWidget(PileWidget):
     """
     background = StringProperty()
 
-    def redraw(self):
-        self.is_empty = self.pile.is_empty
-
     def card_rot(self):
         """Rotation of the cards in the deck in degrees"""
         return 90
@@ -56,27 +51,6 @@ class TableauPileWidget(PileWidget):
     def pos_offset_factor(self):
         app = App.get_running_app()
         return app.card_overlap / (1 + 12 * app.card_overlap)
-
-    def build(self):
-        self.card_images = []
-        for i_card in range(13):
-            card_image = CardImage()
-            card_image.opacity = 1
-            card_image.pos_hint = {
-                self.anchor: self.pos_anchor(i_card),
-                "center_y": 0.5,
-            }
-            card_image.source = card2img(None)
-            self.add_widget(card_image)
-            self.card_images.append(card_image)
-
-    def redraw(self):
-        for card, card_image in zip(self.pile, self.card_images):
-            card_image.source = card2img(card)
-            card_image.opacity = 1
-        for card_image in self.card_images[len(self.pile) :]:
-            card_image.source = card2img(None)
-            card_image.opacity = 0
 
 
 class TableauLeftPileWidget(TableauPileWidget):
@@ -115,8 +89,6 @@ class TableauRightPileWidget(TableauPileWidget):
         if index is None:
             index = len(self.pile) - 1
         assert index >= 0
-
-        # TODO : card width instead of widget width
         
         offset = App.get_running_app().card_width * (0.5 + CARD_IMG.OFFSET_FACTOR * index)
         return (
