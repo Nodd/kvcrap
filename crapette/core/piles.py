@@ -89,7 +89,7 @@ class _Pile:
 
     def clear(self):
         """Empty the pile"""
-        self.cards = []
+        self._cards = []
 
 
 class FoundationPile(_Pile):
