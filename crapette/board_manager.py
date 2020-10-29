@@ -76,6 +76,18 @@ class BoardManager:
         card_widget.pile_widget = pile_widget
         card_widget.set_center_pos(pile_widget.card_pos())
 
+        # Check win
+        ids = self.app.root.ids
+        stock_widget = ids[f"player{self.active_player}stock"]
+        waste_widget = ids[f"player{self.active_player}waste"]
+        crape_widget = ids[f"player{self.active_player}crape"]
+        if not stock_widget.pile and not waste_widget.pile and not crape_widget.pile:
+            print(f"Player {self.active_player} wins !!!")
+            self.active_player = None
+            for card_widget in self.card_widgets.values():
+                card_widget.do_translation = False
+            return True
+
         # Check end of player turn
         if (
             isinstance(pile_widget.pile, WastePile)
