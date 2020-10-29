@@ -14,7 +14,7 @@ class PileWidget(RelativeLayout):
 
     def card_pos(self, index=None):
         """Position of the center of the index-th card.
-        
+
         If no index is given, the position for the top card is returned.
         """
         # Default implementation, all cards in the center of the pile
@@ -30,12 +30,14 @@ class PileWidget(RelativeLayout):
     def add_card(self, card_widget):
         self.pile.add_card(card_widget.card)
 
+
 class FoundationPileWidget(PileWidget):
     """Piles for fondations
 
     Left and right foundations sould be different, because the rotation is not
     the same.
     """
+
     background = StringProperty()
 
     def card_rot(self):
@@ -97,14 +99,16 @@ class TableauLeftPileWidget(TableauPileWidget):
 
     def card_pos(self, index=None):
         """Position of the center of the index-th card.
-        
+
         If no index is given, the position for the top card is returned.
         """
         if index is None:
             index = len(self.pile) - 1
         assert index >= 0
 
-        offset = App.get_running_app().card_width * (0.5 + CARD_IMG.OFFSET_FACTOR * index)
+        offset = App.get_running_app().card_width * (
+            0.5 + CARD_IMG.OFFSET_FACTOR * index
+        )
         return (
             self.pos[0] + self.width - offset,
             self.pos[1] + self.height / 2,
@@ -119,14 +123,16 @@ class TableauRightPileWidget(TableauPileWidget):
 
     def card_pos(self, index=None):
         """Position of the center of the index-th card.
-        
+
         If no index is given, the position for the top card is returned.
         """
         if index is None:
             index = len(self.pile) - 1
         assert index >= 0
-        
-        offset = App.get_running_app().card_width * (0.5 + CARD_IMG.OFFSET_FACTOR * index)
+
+        offset = App.get_running_app().card_width * (
+            0.5 + CARD_IMG.OFFSET_FACTOR * index
+        )
         return (
             self.pos[0] + offset,
             self.pos[1] + self.height / 2,
