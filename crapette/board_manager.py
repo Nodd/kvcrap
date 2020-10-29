@@ -62,7 +62,9 @@ class BoardManager:
         """
         old_pile_widget = card_widget.pile_widget
 
-        if not pile_widget.pile.can_add_card(card_widget.card, old_pile_widget.pile, self.active_player):
+        if not pile_widget.pile.can_add_card(
+            card_widget.card, old_pile_widget.pile, self.active_player
+        ):
             print("Dropped on an incompatible pile")
             return False
 
@@ -75,7 +77,31 @@ class BoardManager:
         card_widget.set_center_pos(pile_widget.card_pos())
 
         # Check end of player turn
-        if isinstance(pile_widget.pile, WastePile) and pile_widget.pile.player == self.active_player:
+        if (
+            isinstance(pile_widget.pile, WastePile)
+            and pile_widget.pile.player == self.active_player
+        ):
             self.set_player_turn(1 - self.active_player)
 
         return True
+
+    def flip_waste_to_stock(self):
+        ids = self.app.root.ids
+        stock_widget = ids[f"player{self.active_player}stock"]
+        waste_widget = ids[f"player{self.active_player}waste"]
+
+        # Update model
+        stock_widget.pile.set_cards(waste_widget.pile[::-1])
+        waste_widget.pile.clear()
+
+        # Update cards
+        for index, card in enumerate(stock_widget.pile):
+            card.face_up = False
+            card_widget = self.card_widgets[card]
+            card_widget.update_image()
+            card_widget.pile_widget = stock_widget
+            card_widget.set_center_pos(stock_widget.card_pos(index))
+
+            # Re-add widget for correct order
+            self.app.root.remove_widget(card_widget)
+            self.app.root.add_widget(card_widget)

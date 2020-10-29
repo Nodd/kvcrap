@@ -3,6 +3,7 @@ from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 from kivy.app import App
 
 from ..images.card_deck import CARD_IMG
+from ..core.piles import StockPile
 
 
 class PileWidget(RelativeLayout):
@@ -43,7 +44,26 @@ class FoundationPileWidget(PileWidget):
 
 
 class PlayerPileWidget(PileWidget):
-    ...
+    def on_touch_down(self, touch):
+        if not self.collide_point(touch.x, touch.y):
+            return False
+
+        if not touch.is_double_tap:
+            return False
+
+        if not isinstance(self.pile, StockPile):
+            return False
+
+        if not self.pile.is_empty:
+            return False
+
+        board_manager = App.get_running_app().board_manager
+        player = board_manager.active_player
+        if player != self.pile.player:
+            return False
+
+        board_manager.flip_waste_to_stock()
+        return True
 
 
 class TableauPileWidget(PileWidget):

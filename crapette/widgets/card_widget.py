@@ -22,6 +22,9 @@ class CardWidget(ScatterLayout):
         x, y = pos
         self.pos = (x - self.app.card_width / 2, y - self.app.card_height / 2)
 
+    def update_image(self):
+        self.source = card2img(self.card)
+
     @property
     def is_top(self):
         return self.card == self.pile_widget.pile.top_card
@@ -59,7 +62,7 @@ class CardWidget(ScatterLayout):
                 if self.collide_point(touch.x, touch.y):
                     # Do the flip
                     self.card.face_up = True
-                    self.source = card2img(self.card)
+                    self.update_image()
                 self._flipping = False
                 return True
             else:
