@@ -37,14 +37,18 @@ class CardWidget(ScatterLayout):
             # print("Card not on top of its pile")
             return False
 
-        if not self.pile_widget.pile.can_pop_card(self.app.board_manager.active_player):
-            return True
-
         if touch.is_double_tap:
             print("DOUBLE TOUCH DOWN", self.card)
             return True
 
         print("TOUCH DOWN", self.card)
+        can_pop = self.pile_widget.pile.can_pop_card(
+            self.app.board_manager.active_player
+        )
+        assert can_pop in (True, False), can_pop
+        if not can_pop:
+            return True
+
         if self.card.face_up:
             self._moving = True
             self._last_pos = self.pos
@@ -63,26 +67,29 @@ class CardWidget(ScatterLayout):
                     # Do the flip
                     self.card.face_up = True
                     self.update_image()
+                else:
+                    print("Cancel flip")
                 self._flipping = False
                 return True
             else:
                 return False
 
+        print("TOUCH UP", self.card)
         self._moving = False
 
         # Look for the pile the card was dropped on
         pile_widget = None
         for pile_widget in self.app.board_manager.pile_widgets:
             if pile_widget.collide_point(touch.x, touch.y):
-                print(pile_widget.pile.name)
+                # print(pile_widget.pile.name)
                 break
 
         if pile_widget is None:
-            print("Not dropped on a pile")
+            print(f"{self.card} not dropped on a pile, return it")
             if self._last_pos:  # Just in case...
                 self.pos = self._last_pos
         elif pile_widget == self.pile_widget:
-            print("Dropped on origin pile")
+            print(f"{self.card} dropped on same pile, return it")
             if self._last_pos:  # Just in case...
                 self.pos = self._last_pos
         else:
@@ -91,6 +98,4 @@ class CardWidget(ScatterLayout):
                 self.pos = self._last_pos
 
         self._last_pos = None
-
-        print("TOUCH UP", touch.grab_current, self.card)
         return True

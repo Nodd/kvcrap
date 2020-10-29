@@ -73,9 +73,7 @@ class Card:
 
     def __str__(self):
         """Sting representation of the card"""
-        txt = f"{self.rank_symbol}{self.suit_symbol}"
-        if self._face_up:
-            txt += " up"
+        txt = f"{self.rank_symbol}{self.suit_symbol}{'^' if self._face_up else 'v'}"
         return txt
 
     def __repr__(self):

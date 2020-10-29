@@ -102,9 +102,19 @@ class FoundationPile(_Pile):
         self._suit = suit
 
     def can_add_card(self, card, origin, player):
-        return card.suit == self._suit and card.rank == len(self._cards) + 1
+        if card.suit != self._suit:
+            print(f"Add {self.name}: Impossible, {card} has not suit {self._suit}")
+            return False
+        if card.rank != len(self._cards) + 1:
+            print(
+                f"Add {self.name}: Impossible, {card} has not rank {len(self._cards) + 1}"
+            )
+            return False
+        print(f"Add {self.name}: Possible, {card} can be added")
+        return True
 
     def can_pop_card(self, player):
+        print(f"Pop {self.name}: Impossible, it's never possible to pop card from here")
         return False
 
     @property
@@ -123,16 +133,30 @@ class TableauPile(_Pile):
     def can_add_card(self, card, origin, player):
         # Empty pile can accept any card
         if not self._cards:
+            print(
+                f"Add {self.name}: Possible, empty pile can accept any card, including {card}"
+            )
             return True
 
-        # New card must be 1 rank lower that last card in pile
-        if card.rank != self._cards[-1].rank - 1:
+        # Need alternate colors
+        if card.is_same_color(self.top_card):
+            print(
+                f"Add {self.name}: Impossible, {card} has same color as top card {self.top_card}"
+            )
             return False
 
-        # Need alternate colors
-        return not card.is_same_color(self._cards[-1])
+        # New card must be 1 rank lower that last card in pile
+        if card.rank != self.top_card.rank - 1:
+            print(
+                f"Add {self.name}: Impossible, {card} is not a rank lower than {self.top_card}"
+            )
+            return False
+
+        print(f"Add {self.name}: Possible, {card} can go over {self.top_card}")
+        return True
 
     def can_pop_card(self, player):
+        print(f"Pop {self.name}: Possible, can always pop card from here")
         return True
 
 
@@ -145,7 +169,13 @@ class _PlayerPile(_Pile):
         self._player = player
 
     def can_pop_card(self, player):
-        return player == self._player
+        if player != self._player:
+            print(
+                f"Pop {self.name}: Impossible, only the player can pop cards from its piles"
+            )
+            return False
+        print(f"Pop {self.name}: Possible, the player can pop cards from its piles")
+        return True
 
     @property
     def player(self):
@@ -158,6 +188,7 @@ class StockPile(_PlayerPile):
     _name_tpl = "StockPlayer{player}"
 
     def can_add_card(self, card, origin, player):
+        print(f"Add {self.name}: Impossible, it's never allowed to add cards here")
         return False
 
 
@@ -168,15 +199,39 @@ class WastePile(_PlayerPile):
 
     def can_add_card(self, card, origin, player):
         if self._player == player:
-            return isinstance(origin, StockPile) and origin.player == player
+            if not isinstance(origin, StockPile) and origin.player == player:
+                print(
+                    f"Add {self.name}: Impossible, the player can only put cards here from its stock pile ({card})"
+                )
+                return False
+            print(
+                f"Add {self.name}: Possible, the player can put card {card} here from its stock pile"
+            )
+            return True
         else:
             if not self:
+                print(
+                    f"Add {self.name}: Impossible, the other player can not put card {card} on an empty waste pile"
+                )
                 return False
-            suit = self.top_card.suit
+            if card.suit != self.top_card.suit:
+                print(
+                    f"Add {self.name}: Impossible, the other player can not put card {card} with a different suit than {self.top_card}"
+                )
+                return False
             rank = self.top_card.rank
-            return card.suit == suit and card.rank in [rank - 1, rank + 1]
+            if card.rank not in [rank - 1, rank + 1]:
+                print(
+                    f"Add {self.name}: Impossible, the other player can only put card one rank above or below {self.top_card}, not {card}"
+                )
+                return False
+            print(
+                f"Add {self.name}: Possible, the other player can put {card} over {self.top_card}"
+            )
+            return True
 
     def can_pop_card(self, player):
+        print(f"Pop {self.name}: Impossible, cards can never be taken from here")
         return False
 
 
@@ -187,13 +242,31 @@ class CrapePile(_PlayerPile):
 
     def can_add_card(self, card, origin, player):
         if self._player == player:
+            print(
+                "Add {self.name}: Impossible, player can never put cards ({card}) on its own crapette pile"
+            )
             return False
         else:
             if not self:
+                print(
+                    f"Add {self.name}: Impossible, the other player can not put card {card} on an empty crapette pile"
+                )
                 return False
-            suit = self.top_card.suit
+            if card.suit != self.top_card.suit:
+                print(
+                    f"Add {self.name}: Impossible, the other player can not put card {card} with a different suit than {self.top_card}"
+                )
+                return False
             rank = self.top_card.rank
-            return card.suit == suit and card.rank in [rank - 1, rank + 1]
+            if card.rank not in [rank - 1, rank + 1]:
+                print(
+                    f"Add {self.name}: Impossible, the other player can only put card one rank above or below {self.top_card}, not {card}"
+                )
+                return False
+            print(
+                f"Add {self.name}: Possible, the other player can put {card} over {self.top_card})"
+            )
+            return True
 
 
 # namedtuple for all piles specific to a player
