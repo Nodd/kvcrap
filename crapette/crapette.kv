@@ -1,16 +1,19 @@
 #:kivy 1.10.0
 
 FloatLayout:
+    background: "images/background.png"
+
+    canvas.before:
+        Rectangle:
+            id: background
+            pos: self.pos
+            size: self.size
+            source: self.background
 
     BoxLayout:
         orientation: "vertical"
         size: root.size
 
-        canvas:
-            Color:
-                rgb: 0, 0.5, 0
-            Rectangle:
-                size: self.size
 
         BoxLayout:
             SpacerHalf:

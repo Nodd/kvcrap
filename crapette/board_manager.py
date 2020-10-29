@@ -54,6 +54,7 @@ class BoardManager:
 
     def set_player_turn(self, player):
         self.active_player = player
+        self.app.root.background = f"images/background-player{player}.png"
 
     def move_card(self, card_widget, pile_widget):
         """Move a card to another pile.
