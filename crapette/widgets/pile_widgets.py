@@ -44,11 +44,14 @@ class FoundationPileWidget(PileWidget):
 
 
 class PlayerPileWidget(PileWidget):
-    def on_touch_down(self, touch):
-        if not self.collide_point(touch.x, touch.y):
-            return False
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        if not touch.is_double_tap:
+        self._flipping = False
+
+    def on_touch_down(self, touch):
+        # Initialize flip on empty stock pile
+        if not self.collide_point(touch.x, touch.y):
             return False
 
         if not isinstance(self.pile, StockPile):
@@ -62,6 +65,19 @@ class PlayerPileWidget(PileWidget):
         if player != self.pile.player:
             return False
 
+        self._flipping = True
+        return True
+
+    def on_touch_up(self, touch):
+        # Finalize flip on empty stock pile if still inside the pile
+        if not self._flipping:
+            return False
+        self._flipping = False
+
+        if not self.collide_point(touch.x, touch.y):
+            return False
+
+        board_manager = App.get_running_app().board_manager
         board_manager.flip_waste_to_stock()
         return True
 
