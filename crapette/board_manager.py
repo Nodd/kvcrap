@@ -1,4 +1,5 @@
 from .core.board import Board
+from .core.piles import WastePile
 from .widgets import pile_widgets  # Load widgets
 from .widgets.card_widget import CardWidget
 
@@ -16,8 +17,7 @@ class BoardManager:
         self.setup_piles()
         self.fill_piles()
 
-        # TODO : use correct first player
-        self.set_player_turn(0)
+        self.set_player_turn(self.board.compute_first_player())
 
     def setup_piles(self):
         # Setup UI piles with game piles
@@ -73,5 +73,9 @@ class BoardManager:
         pile_widget.add_card(card_widget)
         card_widget.pile_widget = pile_widget
         card_widget.set_center_pos(pile_widget.card_pos())
+
+        # Check end of player turn
+        if isinstance(pile_widget.pile, WastePile) and pile_widget.pile.player == self.active_player:
+            self.set_player_turn(1 - self.active_player)
 
         return True
