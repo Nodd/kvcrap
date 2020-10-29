@@ -1,5 +1,5 @@
 from .core.board import Board
-from .core.piles import WastePile
+from .core.piles import WastePile, FoundationPile
 from .widgets import pile_widgets  # Load widgets
 from .widgets.card_widget import CardWidget
 
@@ -75,6 +75,12 @@ class BoardManager:
         pile_widget.add_card(card_widget)
         card_widget.pile_widget = pile_widget
         card_widget.set_center_pos(pile_widget.card_pos())
+
+        # Flip foundation pile if full
+        if isinstance(pile_widget.pile, FoundationPile) and pile_widget.pile.is_full:
+            for card in pile_widget.pile:
+                card.face_up = False
+                self.card_widgets[card].update_image()
 
         # Check win
         ids = self.app.root.ids
