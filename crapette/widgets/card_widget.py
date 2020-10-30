@@ -19,7 +19,6 @@ class CardWidget(ScatterLayout):
         self.source = card2img(card)
 
         self.pile_widget = None
-        self._last_pos = None
         self._moving = False
         self._flipping = False
         self._rotation_error = 0
@@ -30,17 +29,9 @@ class CardWidget(ScatterLayout):
         y -= self.app.card_height / 2
         if animate:
             animation = Animation(x=x, y=y, duration=0.1, transition="out_quad")
-            animation.on_complete = lambda *args: self.__setattr__("pos", (x, y))
             animation.start(self)
         else:
             self.pos = x, y
-
-    def reset_last_pos(self):
-        assert self._last_pos is not None
-        x, y = self._last_pos
-        animation = Animation(x=x, y=y, duration=0.1, transition="out_quad")
-        animation.on_complete = lambda *args: self.__setattr__("pos", (x, y))
-        animation.start(self)
 
     def update_image(self):
         self.source = card2img(self.card)
@@ -63,7 +54,6 @@ class CardWidget(ScatterLayout):
             return False
 
         if not self.is_top:
-            # print("Card not on top of its pile")
             return False
 
         if touch.is_double_tap:
@@ -84,11 +74,8 @@ class CardWidget(ScatterLayout):
 
         if self.card.face_up:
             self._moving = True
-            self._last_pos = self.pos
-
             return super().on_touch_down(touch)
         else:
-            # TODO: test flippable by player
             self._flipping = True
             return True
 
@@ -113,9 +100,6 @@ class CardWidget(ScatterLayout):
                         Animation(height=height, duration=0.1, transition="in_sine")
                         & self._random_rotation_animation()
                     )
-                    animation.on_complete = lambda *args: self.__setattr__(
-                        "height", height
-                    )
                     animation.start(self)
                 else:
                     print("Cancel flip")
@@ -138,14 +122,13 @@ class CardWidget(ScatterLayout):
 
         if pile_widget is None:
             print(f"{self.card} not dropped on a pile, return it")
-            self.reset_last_pos()
+            self.set_center_pos(self.pile_widget.card_pos())
         elif pile_widget == self.pile_widget:
             print(f"{self.card} dropped on same pile, return it")
-            self.reset_last_pos()
+            self.set_center_pos(self.pile_widget.card_pos())
         else:
             moved = self.app.board_manager.move_card(self, pile_widget)
             if not moved:
-                self.reset_last_pos()
+                self.set_center_pos(self.pile_widget.card_pos())
 
-        self._last_pos = None
         return True
