@@ -39,6 +39,7 @@ class FoundationPileWidget(PileWidget):
     """
 
     background = StringProperty()
+    rotation = NumericProperty()
 
     def card_rot(self):
         """Rotation of the cards in the deck in degrees"""

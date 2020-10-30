@@ -28,10 +28,10 @@ FloatLayout:
             SpacerHalf:
             TableauLeftPileWidget:
                 id: tableau4
-            FoundationPileWidget:
+            FoundationPileWidgetLeft:
                 id: foundation4
                 background: "crapette/images/png/2x/suit-spade.png"
-            FoundationPileWidget:
+            FoundationPileWidgetRight:
                 id: foundation3
                 background: "crapette/images/png/2x/suit-spade.png"
             TableauRightPileWidget:
@@ -41,10 +41,10 @@ FloatLayout:
             SpacerHalf:
             TableauLeftPileWidget:
                 id: tableau5
-            FoundationPileWidget:
+            FoundationPileWidgetLeft:
                 id: foundation5
                 background: "crapette/images/png/2x/suit-heart.png"
-            FoundationPileWidget:
+            FoundationPileWidgetRight:
                 id: foundation2
                 background: "crapette/images/png/2x/suit-heart.png"
             TableauRightPileWidget:
@@ -54,10 +54,10 @@ FloatLayout:
             SpacerHalf:
             TableauLeftPileWidget:
                 id: tableau6
-            FoundationPileWidget:
+            FoundationPileWidgetLeft:
                 id: foundation6
                 background: "crapette/images/png/2x/suit-club.png"
-            FoundationPileWidget:
+            FoundationPileWidgetRight:
                 id: foundation1
                 background: "crapette/images/png/2x/suit-club.png"
             TableauRightPileWidget:
@@ -67,10 +67,10 @@ FloatLayout:
             SpacerHalf:
             TableauLeftPileWidget:
                 id: tableau7
-            FoundationPileWidget:
+            FoundationPileWidgetLeft:
                 id: foundation7
                 background: "crapette/images/png/2x/suit-diamond.png"
-            FoundationPileWidget:
+            FoundationPileWidgetRight:
                 id: foundation0
                 background: "crapette/images/png/2x/suit-diamond.png"
             TableauRightPileWidget:
@@ -147,17 +147,24 @@ FloatLayout:
     size_hint: None, 1
     size: self.height, self.height
 
-    # canvas:
-    #     Color:
-    #         rgb: 0, 0, 1
-    #     Rectangle:
-    #         size: self.size
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.rotation
+            axis: 0, 0, 1
+            origin: self.height / 2, self.height / 2  # Why self.center doesn't work here ?
+    canvas.after:
+        PopMatrix
 
-    FoundationBackground:
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    PileBackground:
     FoundationSuit:
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         source: parent.background
+
+<FoundationPileWidgetLeft@FoundationPileWidget>:
+    rotation: 90
+
+<FoundationPileWidgetRight@FoundationPileWidget>:
+    rotation: -90
 
 <PlayerPileWidget@RelativeLayout>:
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -172,43 +179,23 @@ FloatLayout:
     #         size: self.size
 
     PileBackground:
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
 <CardImage@Image>:
     keep_ratio: True
     allow_stretch: True
     mipmap: True
     size: app.card_width, app.card_height
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
 <PileBackground@CardImage>:
     source: 'crapette/images/png/2x/card-base.png'
     opacity: 0.1
     size_hint: None, None
 
-<FoundationBackground@PileBackground>:
-    canvas.before:
-        PushMatrix
-        Rotate:
-            angle: 90
-            axis: 0, 0, 1
-            origin: self.center
-    canvas.after:
-        PopMatrix
-
 <FoundationSuit@CardImage>:
     id: parent
-    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     size_hint: 1/3, 1/3
     opacity: 0.3
-
-    canvas.before:
-        PushMatrix
-        Rotate:
-            angle: 90 if "center_x" in parent.pos_hint and parent.pos_hint["center_x"] < 0.5 else -90
-            axis: 0, 0, 1
-            origin: root.center
-    canvas.after:
-        PopMatrix
 
 <SpacerHalf@Widget>:
     size_hint: 0.5, 1
