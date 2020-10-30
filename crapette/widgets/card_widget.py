@@ -115,9 +115,11 @@ class CardWidget(ScatterLayout):
 
         # Look for the pile the card was dropped on
         pile_widget = None
+        center_x, center_y = self.pos
+        center_x += self.app.card_width / 2
+        center_y += self.app.card_height / 2
         for pile_widget in self.app.board_manager.pile_widgets:
-            if pile_widget.collide_point(touch.x, touch.y):
-                # print(pile_widget.pile.name)
+            if pile_widget.collide_point(center_x, center_y):
                 break
 
         if pile_widget is None:
