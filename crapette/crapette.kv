@@ -124,6 +124,7 @@ FloatLayout:
 
 
 <TableauPileWidget@RelativeLayout>:
+    size_hint: None, 1
     size: app.card_width * (1 + 12 * app.card_overlap), app.card_height
 
     # canvas:
@@ -133,28 +134,12 @@ FloatLayout:
     #         size: self.size
 
 <TableauRightPileWidget@TableauPileWidget>:
-    #pos_hint: {'x': 0, 'center_y': 0.5}
-
     PileBackground:
         pos_hint: {'x': 0, 'center_y': 0.5}
-        # canvas:
-        #     Color:
-        #         rgb: 0, 0, 1
-        #     Rectangle:
-        #         size: self.size
-        #         pos: self.pos
 
 <TableauLeftPileWidget@TableauPileWidget>:
-    #pos_hint: {'right': 1, 'center_y': 0.5}
-
     PileBackground:
         pos_hint: {'right': 1, 'center_y': 0.5}
-        # canvas:
-        #     Color:
-        #         rgb: 0, 0, 1
-        #     Rectangle:
-        #         size: self.size
-        #         pos: self.pos
 
 <FoundationPileWidget@RelativeLayout>:
     id: parent
@@ -198,6 +183,7 @@ FloatLayout:
 <PileBackground@CardImage>:
     source: 'crapette/images/png/2x/card-base.png'
     opacity: 0.1
+    size_hint: None, None
 
 <FoundationBackground@PileBackground>:
     canvas.before:
