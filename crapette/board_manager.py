@@ -48,7 +48,7 @@ class BoardManager:
                 # print(pile_widget.card_pos(index), card)
                 card_widget = CardWidget(card, self.app)
                 card_widget.pile_widget = pile_widget
-                card_widget.set_center_pos(pile_widget.card_pos(index))
+                card_widget.set_center_pos(pile_widget.card_pos(index), animate=False)
                 self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)
 

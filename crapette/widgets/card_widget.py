@@ -1,7 +1,12 @@
+import random
+
 from kivy.uix.scatterlayout import ScatterLayout
 from kivy.properties import StringProperty
+from kivy.animation import Animation
 
 from ..images.card_deck import card2img
+
+MAX_RANDOM_ANGLE = 5  # °
 
 
 class CardWidget(ScatterLayout):
@@ -17,13 +22,37 @@ class CardWidget(ScatterLayout):
         self._last_pos = None
         self._moving = False
         self._flipping = False
+        self._rotation_error = 0
 
-    def set_center_pos(self, pos):
+    def set_center_pos(self, pos, animate=True):
         x, y = pos
-        self.pos = (x - self.app.card_width / 2, y - self.app.card_height / 2)
+        x -= self.app.card_width / 2
+        y -= self.app.card_height / 2
+        if animate:
+            animation = Animation(x=x, y=y, duration=0.1, transition="out_quad")
+            animation.on_complete = lambda *args: self.__setattr__("pos", (x, y))
+            animation.start(self)
+        else:
+            self.pos = x, y
+
+    def reset_last_pos(self):
+        assert self._last_pos is not None
+        x, y = self._last_pos
+        animation = Animation(x=x, y=y, duration=0.1, transition="out_quad")
+        animation.on_complete = lambda *args: self.__setattr__("pos", (x, y))
+        animation.start(self)
 
     def update_image(self):
         self.source = card2img(self.card)
+
+    def _random_rotation_animation(self):
+        angle = random.triangular(-MAX_RANDOM_ANGLE, MAX_RANDOM_ANGLE)
+        if self.rotation > 180:
+            angle += 360
+        return Animation(rotation=angle, duration=0.1, transition="out_sine")
+
+    def apply_random_rotation(self):
+        self._random_rotation_animation().start(self)
 
     @property
     def is_top(self):
@@ -75,13 +104,27 @@ class CardWidget(ScatterLayout):
                 if self.collide_point(touch.x, touch.y):
                     # Do the flip
                     self.card.face_up = True
-                    self.update_image()
+                    height = self.height
+                    animation = Animation(
+                        height=0, duration=0.25, transition="out_sine"
+                    )
+                    animation.on_complete = lambda *args: self.update_image()
+                    animation += (
+                        Animation(height=height, duration=0.1, transition="in_sine")
+                        & self._random_rotation_animation()
+                    )
+                    animation.on_complete = lambda *args: self.__setattr__(
+                        "height", height
+                    )
+                    animation.start(self)
                 else:
                     print("Cancel flip")
                 self._flipping = False
                 return True
             else:
                 return False
+
+        self.apply_random_rotation()
 
         print("TOUCH UP", self.card)
         self._moving = False
@@ -95,16 +138,14 @@ class CardWidget(ScatterLayout):
 
         if pile_widget is None:
             print(f"{self.card} not dropped on a pile, return it")
-            if self._last_pos:  # Just in case...
-                self.pos = self._last_pos
+            self.reset_last_pos()
         elif pile_widget == self.pile_widget:
             print(f"{self.card} dropped on same pile, return it")
-            if self._last_pos:  # Just in case...
-                self.pos = self._last_pos
+            self.reset_last_pos()
         else:
             moved = self.app.board_manager.move_card(self, pile_widget)
-            if not moved and self._last_pos:  # Just in case...
-                self.pos = self._last_pos
+            if not moved:
+                self.reset_last_pos()
 
         self._last_pos = None
         return True
