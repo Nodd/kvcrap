@@ -56,10 +56,6 @@ class CardWidget(ScatterLayout):
         if not self.is_top:
             return False
 
-        if touch.is_double_tap:
-            print("DOUBLE TOUCH DOWN", self.card)
-            return True
-
         if self.app.board_manager.active_player is None:
             print("End of game")
             return True
