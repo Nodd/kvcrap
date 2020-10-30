@@ -1,0 +1,3 @@
+title=KvCrap
+author=Joseph Martinot-Lagarde
+orientation=portrait
