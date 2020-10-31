@@ -48,7 +48,7 @@ class BoardManager:
                 # print(pile_widget.card_pos(index), card)
                 card_widget = CardWidget(card, self.app)
                 card_widget.pile_widget = pile_widget
-                card_widget.set_center_pos(pile_widget.card_pos(index), animate=False)
+                card_widget.center = pile_widget.card_pos(index)
                 self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)
 
@@ -77,13 +77,17 @@ class BoardManager:
         # Add to new pile
         pile_widget.add_card(card_widget)
         card_widget.pile_widget = pile_widget
-        card_widget.set_center_pos(pile_widget.card_pos())
+        card_widget.set_center_animated(pile_widget.card_pos())
 
-        # Flip foundation pile if full
-        if isinstance(pile_widget.pile, FoundationPile) and pile_widget.pile.is_full:
-            for card in pile_widget.pile:
-                card.face_up = False
-                self.card_widgets[card].update_image()
+        # Special case for foundation
+        if isinstance(pile_widget.pile, FoundationPile):
+            card_widget.main_rotation = pile_widget.rotation
+
+            # Flip foundation pile if full
+            if pile_widget.pile.is_full:
+                for card in pile_widget.pile:
+                    card.face_up = False
+                    self.card_widgets[card].update_image()
 
         # Check win
         ids = self.app.root.ids
@@ -121,7 +125,7 @@ class BoardManager:
             card_widget = self.card_widgets[card]
             card_widget.update_image()
             card_widget.pile_widget = stock_widget
-            card_widget.set_center_pos(stock_widget.card_pos(index))
+            card_widget.set_center_animated(stock_widget.card_pos(index))
 
             # Re-add widget for correct order
             self.app.root.remove_widget(card_widget)
