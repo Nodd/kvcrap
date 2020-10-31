@@ -165,7 +165,7 @@ FloatLayout:
     id: parent
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     size_hint: None, 1
-    size: self.height, self.height
+    size: app.card_height if app.wide else app.card_width, app.card_height
 
     canvas.before:
         PushMatrix
@@ -181,10 +181,10 @@ FloatLayout:
         source: parent.background
 
 <FoundationPileWidgetLeft@FoundationPileWidget>:
-    rotation: 90
+    rotation: 90 if app.wide else 0
 
 <FoundationPileWidgetRight@FoundationPileWidget>:
-    rotation: -90
+    rotation: -90 if app.wide else 0
 
 <PlayerPileWidget@RelativeLayout>:
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}

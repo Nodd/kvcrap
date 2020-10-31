@@ -32,6 +32,7 @@ class CrapetteApp(App):
     card_width = NumericProperty()
     card_height = NumericProperty()
     card_overlap = NumericProperty()
+    wide = BooleanProperty()
 
     def build(self):
         # Just set the property so that it's available in kv
@@ -50,6 +51,14 @@ class CrapetteApp(App):
         self.card_height = height / Board.NB_ROWS
         self.card_width = self.card_height * CARD_IMG.RATIO
 
+        game_width_max = 2 * (
+            self.card_height + self.card_width * (1 + 12 * self.card_overlap)
+        )
+        game_width_min = 2 * (
+            self.card_width + self.card_width * (1 + 12 * self.card_overlap)
+        )
+        game_height = self.card_height * Board.NB_ROWS
+        self.wide = width / height > game_width_max / game_height
 
 if __name__ == "__main__":
     CrapetteApp().run()
