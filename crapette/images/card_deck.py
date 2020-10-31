@@ -22,7 +22,7 @@ CARD_IMG = types.SimpleNamespace(
         "queen",
         "king",
     ],
-    PATH=Path(__file__).parent / "png" / "2x",
+    PATH=Path(__file__).parent / "png" / "1x",
 )
 
 
