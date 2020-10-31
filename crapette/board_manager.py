@@ -15,7 +15,8 @@ class BoardManager:
     def new_game(self):
         self.board = Board()
         self.setup_piles()
-        self.fill_piles()
+        self.add_card_widgets()
+        self.place_cards()
         self.update_counts()
 
         self.set_player_turn(self.board.compute_first_player())
@@ -38,20 +39,25 @@ class BoardManager:
             self.pile_widgets.append(ids[f"foundation{foundation}"])
             ids[f"foundation{foundation}"].set_pile(foundation_pile)
 
-    def fill_piles(self):
+    def add_card_widgets(self):
         if self.card_widgets:
             for card_widget in self.card_widgets.values():
                 self.app.root.remove_widget(card_widget)
         self.card_widgets = {}
         for pile_widget in self.pile_widgets:
-            # print(pile_widget.pile.name)
-            for index, card in enumerate(pile_widget.pile):
-                # print(pile_widget.card_pos(index), card)
+            for card in pile_widget.pile:
                 card_widget = CardWidget(card, self.app)
                 card_widget.pile_widget = pile_widget
-                card_widget.center = pile_widget.card_pos(index)
                 self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)
+
+    def place_cards(self):
+        if not self.pile_widgets:
+            return
+        for pile_widget in self.pile_widgets:
+            for index, card in enumerate(pile_widget.pile):
+                card_widget = self.card_widgets[card]
+                card_widget.center = pile_widget.card_pos(index)
 
     def set_player_turn(self, player):
         self.active_player = player

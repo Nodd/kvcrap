@@ -38,11 +38,11 @@ class CrapetteApp(App):
         # Just set the property so that it's available in kv
         self.card_overlap = CARD_IMG.OFFSET_FACTOR
 
+        self.board_manager = BoardManager(self)
+
         # Resize callback
         self.on_window_resize(Window, *Window.size)
         Window.bind(on_resize=self.on_window_resize)
-
-        self.board_manager = BoardManager(self)
 
     def new_game(self):
         self.board_manager.new_game()
@@ -59,6 +59,9 @@ class CrapetteApp(App):
         )
         game_height = self.card_height * Board.NB_ROWS
         self.wide = width / height > game_width_max / game_height
+
+        self.board_manager.place_cards()
+
 
 if __name__ == "__main__":
     CrapetteApp().run()
