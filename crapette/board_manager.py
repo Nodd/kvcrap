@@ -16,6 +16,7 @@ class BoardManager:
         self.board = Board()
         self.setup_piles()
         self.fill_piles()
+        self.update_counts()
 
         self.set_player_turn(self.board.compute_first_player())
 
@@ -56,6 +57,16 @@ class BoardManager:
         self.active_player = player
         self.app.root.background = f"images/background-player{player}.png"
 
+    def update_counts(self):
+        ids = self.app.root.ids
+        for player in range(self.board.NB_PLAYERS):
+            stock_widget = ids[f"player{player}stock"]
+            crape_widget = ids[f"player{player}crape"]
+            stock_label = ids[f"player{player}stockcount"]
+            crape_label = ids[f"player{player}crapecount"]
+            stock_label.text = str(len(stock_widget.pile))
+            crape_label.text = str(len(crape_widget.pile))
+
     def move_card(self, card_widget, pile_widget):
         """Move a card to another pile.
 
@@ -78,6 +89,7 @@ class BoardManager:
         pile_widget.add_card(card_widget)
         card_widget.pile_widget = pile_widget
         card_widget.set_center_animated(pile_widget.card_pos())
+        self.update_counts()
 
         # Special case for foundation
         if isinstance(pile_widget.pile, FoundationPile):
@@ -130,3 +142,4 @@ class BoardManager:
             # Re-add widget for correct order
             self.app.root.remove_widget(card_widget)
             self.app.root.add_widget(card_widget)
+        self.update_counts()

@@ -17,12 +17,22 @@ FloatLayout:
 
         BoxLayout:
             SpacerHalf:
+            Label:
+                id: player1crapecount
+                text_size: self.size
+                halign: 'right'
+                valign: 'middle'
             PlayerPileWidget:
                 id: player1crape
             PlayerPileWidget:
                 id: player1waste
             PlayerPileWidget:
                 id: player1stock
+            Label:
+                id: player1stockcount
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
             SpacerHalf:
         BoxLayout:
             SpacerHalf:
@@ -78,12 +88,22 @@ FloatLayout:
             SpacerHalf:
         BoxLayout:
             SpacerHalf:
+            Label:
+                id: player0stockcount
+                text_size: self.size
+                halign: 'right'
+                valign: 'middle'
             PlayerPileWidget:
                 id: player0stock
             PlayerPileWidget:
                 id: player0waste
             PlayerPileWidget:
                 id: player0crape
+            Label:
+                id: player0crapecount
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
             SpacerHalf:
     Button:
         text: 'New Game'
