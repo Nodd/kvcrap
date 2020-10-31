@@ -60,12 +60,12 @@ class BoardManager:
     def update_counts(self):
         ids = self.app.root.ids
         for player in range(self.board.NB_PLAYERS):
-            stock_widget = ids[f"player{player}stock"]
-            crape_widget = ids[f"player{player}crape"]
+            stock_pile = ids[f"player{player}stock"].pile
+            crape_pile = ids[f"player{player}crape"].pile
             stock_label = ids[f"player{player}stockcount"]
             crape_label = ids[f"player{player}crapecount"]
-            stock_label.text = str(len(stock_widget.pile))
-            crape_label.text = str(len(crape_widget.pile))
+            stock_label.text = str(len(stock_pile)) if stock_pile else ""
+            crape_label.text = str(len(crape_pile)) if crape_pile else ""
 
     def move_card(self, card_widget, pile_widget):
         """Move a card to another pile.
