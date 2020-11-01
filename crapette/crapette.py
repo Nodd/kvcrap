@@ -5,10 +5,8 @@ import kivy
 kivy.require("1.10.0")
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.scatterlayout import ScatterLayout
 from kivy.uix.image import Image
-from kivy.properties import StringProperty, BooleanProperty, NumericProperty
+from kivy.properties import BooleanProperty, NumericProperty
 from kivy.core.window import Window
 
 import kivy.resources
