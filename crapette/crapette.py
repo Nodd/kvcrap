@@ -11,6 +11,11 @@ from kivy.uix.image import Image
 from kivy.properties import StringProperty, BooleanProperty, NumericProperty
 from kivy.core.window import Window
 
+import kivy.resources
+
+kivy.resources.resource_add_path(str(Path(__file__).parent))
+print(str(Path(__file__).parent / "crapette"))
+
 from .images.card_deck import CARD_IMG
 from .board_manager import BoardManager
 from .core.board import Board
