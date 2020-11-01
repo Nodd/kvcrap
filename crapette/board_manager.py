@@ -1,7 +1,11 @@
+from collections import namedtuple
+
 from .core.board import Board
 from .core.piles import WastePile, FoundationPile
 from .widgets import pile_widgets  # Load widgets
 from .widgets.card_widget import CardWidget
+
+Move = namedtuple("Move", ["card", "origin", "destination"])
 
 
 class BoardManager:
@@ -62,6 +66,7 @@ class BoardManager:
     def set_player_turn(self, player):
         self.active_player = player
         self.app.root.background = f"images/background-player{player}.png"
+        self.moves = []
 
     def update_counts(self):
         ids = self.app.root.ids
@@ -96,6 +101,7 @@ class BoardManager:
         card_widget.pile_widget = pile_widget
         card_widget.set_center_animated(pile_widget.card_pos())
         self.update_counts()
+        self.moves.append(Move(card_widget, old_pile_widget, pile_widget))
 
         # Special case for foundation
         if isinstance(pile_widget.pile, FoundationPile):
