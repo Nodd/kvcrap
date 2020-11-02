@@ -2,6 +2,13 @@ from collections import namedtuple
 
 from .cards import Card
 
+_DEBUG = False
+
+
+def debug(*s):
+    if _DEBUG:
+        print(*s)
+
 
 class _Pile:
     """Defines the Pile interface and some generic methods for all piles"""
@@ -103,18 +110,18 @@ class FoundationPile(_Pile):
 
     def can_add_card(self, card, origin, player):
         if card.suit != self._suit:
-            print(f"Add {self.name}: Impossible, {card} has not suit {self._suit}")
+            debug(f"Add {self.name}: Impossible, {card} has not suit {self._suit}")
             return False
         if card.rank != len(self._cards) + 1:
-            print(
+            debug(
                 f"Add {self.name}: Impossible, {card} has not rank {len(self._cards) + 1}"
             )
             return False
-        print(f"Add {self.name}: Possible, {card} can be added")
+        debug(f"Add {self.name}: Possible, {card} can be added")
         return True
 
     def can_pop_card(self, player):
-        print(f"Pop {self.name}: Impossible, it's never possible to pop card from here")
+        debug(f"Pop {self.name}: Impossible, it's never possible to pop card from here")
         return False
 
     @property
@@ -133,30 +140,30 @@ class TableauPile(_Pile):
     def can_add_card(self, card, origin, player):
         # Empty pile can accept any card
         if not self._cards:
-            print(
+            debug(
                 f"Add {self.name}: Possible, empty pile can accept any card, including {card}"
             )
             return True
 
         # Need alternate colors
         if card.is_same_color(self.top_card):
-            print(
+            debug(
                 f"Add {self.name}: Impossible, {card} has same color as top card {self.top_card}"
             )
             return False
 
         # New card must be 1 rank lower that last card in pile
         if card.rank != self.top_card.rank - 1:
-            print(
+            debug(
                 f"Add {self.name}: Impossible, {card} is not a rank lower than {self.top_card}"
             )
             return False
 
-        print(f"Add {self.name}: Possible, {card} can go over {self.top_card}")
+        debug(f"Add {self.name}: Possible, {card} can go over {self.top_card}")
         return True
 
     def can_pop_card(self, player):
-        print(f"Pop {self.name}: Possible, can always pop card from here")
+        debug(f"Pop {self.name}: Possible, can always pop card from here")
         return True
 
 
@@ -170,11 +177,11 @@ class _PlayerPile(_Pile):
 
     def can_pop_card(self, player):
         if player != self._player:
-            print(
+            debug(
                 f"Pop {self.name}: Impossible, only the player can pop cards from its piles"
             )
             return False
-        print(f"Pop {self.name}: Possible, the player can pop cards from its piles")
+        debug(f"Pop {self.name}: Possible, the player can pop cards from its piles")
         return True
 
     @property
@@ -188,7 +195,7 @@ class StockPile(_PlayerPile):
     _name_tpl = "StockPlayer{player}"
 
     def can_add_card(self, card, origin, player):
-        print(f"Add {self.name}: Impossible, it's never allowed to add cards here")
+        debug(f"Add {self.name}: Impossible, it's never allowed to add cards here")
         return False
 
 
@@ -200,38 +207,38 @@ class WastePile(_PlayerPile):
     def can_add_card(self, card, origin, player):
         if self._player == player:
             if not isinstance(origin, StockPile) and origin.player == player:
-                print(
+                debug(
                     f"Add {self.name}: Impossible, the player can only put cards here from its stock pile ({card})"
                 )
                 return False
-            print(
+            debug(
                 f"Add {self.name}: Possible, the player can put card {card} here from its stock pile"
             )
             return True
         else:
             if not self:
-                print(
+                debug(
                     f"Add {self.name}: Impossible, the other player can not put card {card} on an empty waste pile"
                 )
                 return False
             if card.suit != self.top_card.suit:
-                print(
+                debug(
                     f"Add {self.name}: Impossible, the other player can not put card {card} with a different suit than {self.top_card}"
                 )
                 return False
             rank = self.top_card.rank
             if card.rank not in [rank - 1, rank + 1]:
-                print(
+                debug(
                     f"Add {self.name}: Impossible, the other player can only put card one rank above or below {self.top_card}, not {card}"
                 )
                 return False
-            print(
+            debug(
                 f"Add {self.name}: Possible, the other player can put {card} over {self.top_card}"
             )
             return True
 
     def can_pop_card(self, player):
-        print(f"Pop {self.name}: Impossible, cards can never be taken from here")
+        debug(f"Pop {self.name}: Impossible, cards can never be taken from here")
         return False
 
 
@@ -242,28 +249,28 @@ class CrapePile(_PlayerPile):
 
     def can_add_card(self, card, origin, player):
         if self._player == player:
-            print(
+            debug(
                 "Add {self.name}: Impossible, player can never put cards ({card}) on its own crapette pile"
             )
             return False
         else:
             if not self:
-                print(
+                debug(
                     f"Add {self.name}: Impossible, the other player can not put card {card} on an empty crapette pile"
                 )
                 return False
             if card.suit != self.top_card.suit:
-                print(
+                debug(
                     f"Add {self.name}: Impossible, the other player can not put card {card} with a different suit than {self.top_card}"
                 )
                 return False
             rank = self.top_card.rank
             if card.rank not in [rank - 1, rank + 1]:
-                print(
+                debug(
                     f"Add {self.name}: Impossible, the other player can only put card one rank above or below {self.top_card}, not {card}"
                 )
                 return False
-            print(
+            debug(
                 f"Add {self.name}: Possible, the other player can put {card} over {self.top_card})"
             )
             return True

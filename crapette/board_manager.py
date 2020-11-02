@@ -9,6 +9,13 @@ Move = namedtuple("Move", ["card", "origin", "destination"])
 Flip = namedtuple("Flip", ["card"])
 FlipWaste = namedtuple("FlipWaste", [])
 
+_DEBUG = False
+
+
+def debug(*s):
+    if _DEBUG:
+        print(*s)
+
 
 class BoardManager:
     def __init__(self, app):
@@ -92,7 +99,7 @@ class BoardManager:
         )
         assert can_add in (True, False), can_add
         if not can_add:
-            print("Dropped on an incompatible pile")
+            debug("Dropped on an incompatible pile")
             return False
 
         # Remove from previous pile
