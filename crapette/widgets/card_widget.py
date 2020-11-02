@@ -12,10 +12,10 @@ MAX_RANDOM_ANGLE = 5  # °
 class CardWidget(ScatterLayout):
     source = StringProperty()
 
-    def __init__(self, card, app):
+    def __init__(self, card, board_manager):
         super().__init__()
         self.card = card
-        self.app = app
+        self.board_manager = board_manager
         self.source = card2img(card)
 
         self.pile_widget = None
@@ -65,14 +65,12 @@ class CardWidget(ScatterLayout):
         if not self.is_top:
             return False
 
-        if self.app.board_manager.active_player is None:
+        if self.board_manager.active_player is None:
             print("End of game")
             return True
 
         print("TOUCH DOWN", self.card)
-        can_pop = self.pile_widget.pile.can_pop_card(
-            self.app.board_manager.active_player
-        )
+        can_pop = self.pile_widget.pile.can_pop_card(self.board_manager.active_player)
         assert can_pop in (True, False), can_pop
         if not can_pop:
             return True
@@ -87,7 +85,7 @@ class CardWidget(ScatterLayout):
     def on_touch_up(self, touch):
         super().on_touch_up(touch)
 
-        if self.app.board_manager.active_player is None:
+        if self.board_manager.active_player is None:
             print("End of game")
             return True
 
@@ -107,7 +105,7 @@ class CardWidget(ScatterLayout):
 
         # Look for the pile the card was dropped on
         pile_widget = None
-        for pile_widget in self.app.board_manager.pile_widgets:
+        for pile_widget in self.board_manager.pile_widgets:
             if pile_widget.collide_point(*self.center):
                 break
 
@@ -118,7 +116,7 @@ class CardWidget(ScatterLayout):
             print(f"{self.card} dropped on same pile, return it")
             self.set_center_animated(self.pile_widget.card_pos())
         else:
-            moved = self.app.board_manager.move_card(self, pile_widget)
+            moved = self.board_manager.move_card(self, pile_widget)
             if not moved:
                 self.set_center_animated(self.pile_widget.card_pos())
 

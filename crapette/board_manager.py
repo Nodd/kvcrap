@@ -50,7 +50,7 @@ class BoardManager:
         self.card_widgets = {}
         for pile_widget in self.pile_widgets:
             for card in pile_widget.pile:
-                card_widget = CardWidget(card, self.app)
+                card_widget = CardWidget(card, self)
                 card_widget.pile_widget = pile_widget
                 self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)
