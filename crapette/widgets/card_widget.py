@@ -40,6 +40,10 @@ class CardWidget(ScatterLayout):
     def apply_random_rotation(self):
         self._random_rotation_animation().start(self)
 
+    def set_face_up(self):
+        self.card.face_up = True
+        self.flip_animation()
+
     def flip_animation(self):
         height = self.height
         animation = Animation(height=0, duration=0.25, transition="out_sine")
@@ -90,9 +94,7 @@ class CardWidget(ScatterLayout):
         if not self._moving:
             if self._flipping:
                 if self.collide_point(touch.x, touch.y):
-                    # Do the flip
-                    self.card.face_up = True
-                    self.flip_animation()
+                    self.set_face_up()
                 else:
                     print("Cancel flip")
                 self._flipping = False
