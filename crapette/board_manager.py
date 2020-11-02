@@ -6,6 +6,8 @@ from .widgets import pile_widgets  # Load widgets
 from .widgets.card_widget import CardWidget
 
 Move = namedtuple("Move", ["card", "origin", "destination"])
+Flip = namedtuple("Flip", ["card"])
+FlipWaste = namedtuple("FlipWaste", [])
 
 
 class BoardManager:
@@ -113,7 +115,14 @@ class BoardManager:
                     card.face_up = False
                     self.card_widgets[card].update_image()
 
-        # Check win
+        self.check_win()
+        self.check_end_of_turn(pile_widget)
+
+        # Check end of player turn
+
+        return True
+
+    def check_win(self):
         ids = self.app.root.ids
         stock_widget = ids[f"player{self.active_player}stock"]
         waste_widget = ids[f"player{self.active_player}waste"]
@@ -125,14 +134,16 @@ class BoardManager:
                 card_widget.do_translation = False
             return True
 
-        # Check end of player turn
+    def check_end_of_turn(self, pile_widget):
         if (
             isinstance(pile_widget.pile, WastePile)
             and pile_widget.pile.player == self.active_player
         ):
             self.set_player_turn(1 - self.active_player)
 
-        return True
+    def flip_card_up(self, card_widget):
+        card_widget.set_face_up()
+        self.moves.append(Flip(card_widget))
 
     def flip_waste_to_stock(self):
         ids = self.app.root.ids
@@ -155,3 +166,5 @@ class BoardManager:
             self.app.root.remove_widget(card_widget)
             self.app.root.add_widget(card_widget)
         self.update_counts()
+
+        self.moves.append(FlipWaste())
