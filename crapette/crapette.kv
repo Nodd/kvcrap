@@ -8,50 +8,26 @@ FloatLayout:
             pos: self.pos
             size: self.size
             source: "images/background.png"
-
     Widget:
-        id: background_player0
+        id: background_crapette
         opacity: 0
         canvas:
             Rectangle:
                 pos: self.pos
                 size: self.size
-                source: "images/background-player0.png"
+                source: "images/background-crapette.png"
     Widget:
-        id: background_player1
+        id: background_halo
         opacity: 0
         canvas:
             Rectangle:
                 pos: self.pos
-                size: self.size
-                source: "images/background-player1.png"
-    Widget:
-        id: background_crapette0
-        opacity: 0
-        canvas:
-            Rectangle:
-                pos: self.pos
-                size: self.size
-                source: "images/background-crapette0.png"
-    Widget:
-        id: background_crapette1
-        opacity: 0
-        canvas:
-            Rectangle:
-                pos: self.pos
-                size: self.size
-                source: "images/background-crapette1.png"
-    # canvas:
-    #     Rectangle:
-    #         id: background
-    #         pos: self.pos
-    #         size: self.size
-    #         source: self.background
+                size: self.width, app.card_height * 2
+                source: "images/background-halo.png"
 
     BoxLayout:
         orientation: "vertical"
         size: root.size
-
 
         BoxLayout:
             CrapetteButton:

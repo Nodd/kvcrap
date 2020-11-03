@@ -29,6 +29,9 @@ class BoardManager:
         self.pile_widgets = None
         self.board = None
         self.card_widgets = None
+        ids = self.app.root.ids
+        self.background_halo = ids["background_halo"]
+        self.background_crapette = ids["background_crapette"]
 
     def new_game(self):
         self.board = Board()
@@ -36,6 +39,7 @@ class BoardManager:
         self.add_card_widgets()
         self.place_cards()
         self.update_counts()
+        self.background_halo.opacity = 0.5
 
         self.set_player_turn(self.board.compute_first_player())
 
@@ -78,33 +82,31 @@ class BoardManager:
                 card_widget.center = pile_widget.card_pos(index)
 
     def set_player_turn(self, player):
+        duration = 0.5
         self.active_player = player
         self.crapette_mode = False
         self.moves = []
         ids = self.app.root.ids
         next_player_btn = ids[f"player{player}crapebutton"]
         prev_player_btn = ids[f"player{1 - player}crapebutton"]
-        next_player_background = ids[f"background_player{player}"]
-        prev_player_background = ids[f"background_player{1 - player}"]
         next_player_btn.disabled = False
         prev_player_btn.disabled = True
 
-        self.animate_player_out(prev_player_background)
-        self.animate_player_out(prev_player_btn)
-        self.animate_player_in(next_player_background)
-        self.animate_player_in(next_player_btn)
+        Animation(opacity=0, duration=duration, transition="out_cubic").start(
+            prev_player_btn
+        )
 
-    @staticmethod
-    def animate_player_out(widget):
-        animation_out = Animation(opacity=0, duration=0.2, transition="in_out_cubic")
-        animation_out.start(widget)
+        Animation(opacity=1, duration=duration, transition="out_cubic").start(
+            next_player_btn
+        )
 
-    @staticmethod
-    def animate_player_in(widget):
-        animation_in = Animation(
-            opacity=0, duration=0.2, transition="linear"
-        ) + Animation(opacity=1, duration=0.2, transition="in_out_cubic")
-        animation_in.start(widget)
+        Animation(
+            y=-self.app.card_height
+            if player == 0
+            else self.app.root.height - self.app.card_height,
+            duration=duration,
+            transition="in_out_expo",
+        ).start(self.background_halo)
 
     def update_counts(self):
         ids = self.app.root.ids
@@ -207,14 +209,11 @@ class BoardManager:
 
     def on_crapette(self):
         ids = self.app.root.ids
-        player_background = ids[f"background_player{self.active_player}"]
-        crapette_background = ids[f"background_crapette{self.active_player}"]
         crapette_button = ids[f"player{self.active_player}crapebutton"]
 
         self.crapette_mode = not self.crapette_mode
 
-        player_background.opacity = 0 if self.crapette_mode else 1
-        crapette_background.opacity = 1 if self.crapette_mode else 0
+        self.background_crapette.opacity = 1 if self.crapette_mode else 0
         crapette_button.text = (
             "Cancel ! (Sorry...)" if self.crapette_mode else "Crapette !"
         )
