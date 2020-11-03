@@ -5,7 +5,7 @@ It's mostly used for positionning the cards on the board.
 """
 
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.properties import StringProperty, BooleanProperty, NumericProperty
+from kivy.properties import StringProperty, NumericProperty
 from kivy.app import App
 
 from ..images.card_deck import CARD_IMG
@@ -24,11 +24,7 @@ class PileWidget(RelativeLayout):
         If no index is given, the position for the top card is returned.
         """
         # Default implementation, all cards in the center of the pile
-        return self.pos[0] + self.width / 2, self.pos[1] + self.height / 2
-
-    def card_rot(self):
-        """Rotation of the cards in the deck in degrees"""
-        return 0
+        return self.center
 
     def pop_card(self):
         self.pile.pop_card()
@@ -46,10 +42,6 @@ class FoundationPileWidget(PileWidget):
 
     background = StringProperty()
     rotation = NumericProperty()
-
-    def card_rot(self):
-        """Rotation of the cards in the deck in degrees"""
-        return 90
 
 
 class PlayerPileWidget(PileWidget):
@@ -100,10 +92,15 @@ class TableauPileWidget(PileWidget):
         app = App.get_running_app()
         return app.card_overlap / (1 + 12 * app.card_overlap)
 
+    def position_offset(self, index):
+        if index is None:
+            index = len(self.pile) - 1
+        assert index >= 0
+
+        return App.get_running_app().card_width * (0.5 + CARD_IMG.OFFSET_FACTOR * index)
+
 
 class TableauLeftPileWidget(TableauPileWidget):
-    anchor = "right"
-
     def pos_anchor(self, i_card):
         return 1 - (self.pos_offset_factor * i_card)
 
@@ -112,19 +109,10 @@ class TableauLeftPileWidget(TableauPileWidget):
 
         If no index is given, the position for the top card is returned.
         """
-        if index is None:
-            index = len(self.pile) - 1
-        assert index >= 0
-
-        offset = App.get_running_app().card_width * (
-            0.5 + CARD_IMG.OFFSET_FACTOR * index
-        )
-        return (self.pos[0] + self.width - offset, self.pos[1] + self.height / 2)
+        return self.right - self.position_offset(index), self.center_y
 
 
 class TableauRightPileWidget(TableauPileWidget):
-    anchor = "x"
-
     def pos_anchor(self, i_card):
         return self.pos_offset_factor * i_card
 
@@ -133,11 +121,4 @@ class TableauRightPileWidget(TableauPileWidget):
 
         If no index is given, the position for the top card is returned.
         """
-        if index is None:
-            index = len(self.pile) - 1
-        assert index >= 0
-
-        offset = App.get_running_app().card_width * (
-            0.5 + CARD_IMG.OFFSET_FACTOR * index
-        )
-        return (self.pos[0] + offset, self.pos[1] + self.height / 2)
+        return self.x + self.position_offset(index), self.center_y
