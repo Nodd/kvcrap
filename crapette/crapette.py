@@ -1,3 +1,9 @@
+"""
+Kivy application for the crapette game
+
+Mostly used for initialisation and use of .kv file.
+"""
+
 from pathlib import Path
 
 import kivy

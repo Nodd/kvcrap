@@ -1,3 +1,7 @@
+"""
+Widget representing a card on the board.
+"""
+
 import random
 
 from kivy.uix.scatterlayout import ScatterLayout

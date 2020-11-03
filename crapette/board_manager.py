@@ -1,3 +1,7 @@
+"""
+Manage the widgets interaction on the game board
+"""
+
 from collections import namedtuple
 
 from .core.board import Board

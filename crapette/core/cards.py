@@ -1,3 +1,10 @@
+"""
+Class for card parameters and methods
+"""
+
+import random
+
+
 class Card:
     """Card information"""
 
@@ -92,3 +99,14 @@ class Card:
 
     def __hash__(self):
         return hash((self._rank, self._suit, self._player))
+
+
+def new_deck(player):
+    """Build a new shuffled deck
+
+    A deck is simply a list of cards.
+    """
+    assert player in [0, 1]
+    cards = [Card(r, s, player) for s in Card.SUITS for r in Card.RANKS]
+    random.shuffle(cards)
+    return cards

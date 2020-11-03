@@ -1,3 +1,7 @@
+"""
+Class for pile of cards parameters and methods
+"""
+
 from collections import namedtuple
 
 from .cards import Card
