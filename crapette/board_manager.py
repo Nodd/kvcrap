@@ -79,6 +79,7 @@ class BoardManager:
 
     def set_player_turn(self, player):
         self.active_player = player
+        self.crapette_mode = False
         self.moves = []
         ids = self.app.root.ids
         next_player_btn = ids[f"player{player}crapebutton"]
@@ -208,5 +209,12 @@ class BoardManager:
         ids = self.app.root.ids
         player_background = ids[f"background_player{self.active_player}"]
         crapette_background = ids[f"background_crapette{self.active_player}"]
-        player_background.opacity = 0
-        crapette_background.opacity = 1
+        crapette_button = ids[f"player{self.active_player}crapebutton"]
+
+        self.crapette_mode = not self.crapette_mode
+
+        player_background.opacity = 0 if self.crapette_mode else 1
+        crapette_background.opacity = 1 if self.crapette_mode else 0
+        crapette_button.text = (
+            "Cancel ! (Sorry...)" if self.crapette_mode else "Crapette !"
+        )
