@@ -19,10 +19,13 @@ FloatLayout:
     Widget:
         id: background_halo
         opacity: 0
+        pos: 0, 0
+        size_hint: None, None
+        size: root.width, app.card_height * 2
         canvas:
             Rectangle:
-                pos: self.pos
-                size: self.width, app.card_height * 2
+                pos: self.x, self.y - app.card_height
+                size: self.size
                 source: "images/background-halo.png"
 
     BoxLayout:

@@ -29,6 +29,7 @@ class BoardManager:
         self.pile_widgets = None
         self.board = None
         self.card_widgets = None
+        self.active_player = None
         ids = self.app.root.ids
         self.background_halo = ids["background_halo"]
         self.background_crapette = ids["background_crapette"]
@@ -80,6 +81,7 @@ class BoardManager:
             for index, card in enumerate(pile_widget.pile):
                 card_widget = self.card_widgets[card]
                 card_widget.center = pile_widget.card_pos(index)
+        self.background_halo.y = 0 if self.active_player == 0 else self.app.root.height
 
     def set_player_turn(self, player):
         duration = 0.5
@@ -101,9 +103,7 @@ class BoardManager:
         )
 
         Animation(
-            y=-self.app.card_height
-            if player == 0
-            else self.app.root.height - self.app.card_height,
+            y=0 if player == 0 else self.app.root.height,
             duration=duration,
             transition="in_out_expo",
         ).start(self.background_halo)
@@ -155,8 +155,6 @@ class BoardManager:
 
         self.check_win()
         self.check_end_of_turn(pile_widget)
-
-        # Check end of player turn
 
         return True
 
