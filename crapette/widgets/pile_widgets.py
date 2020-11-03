@@ -57,6 +57,9 @@ class PlayerPileWidget(PileWidget):
         if not self.collide_point(touch.x, touch.y):
             return False
 
+        if not hasattr(self, "pile"):  # No game has started yet
+            return False
+
         if not isinstance(self.pile, StockPile):
             return False
 
@@ -110,10 +113,7 @@ class TableauLeftPileWidget(TableauPileWidget):
         offset = App.get_running_app().card_width * (
             0.5 + CARD_IMG.OFFSET_FACTOR * index
         )
-        return (
-            self.pos[0] + self.width - offset,
-            self.pos[1] + self.height / 2,
-        )
+        return (self.pos[0] + self.width - offset, self.pos[1] + self.height / 2)
 
 
 class TableauRightPileWidget(TableauPileWidget):
@@ -134,7 +134,4 @@ class TableauRightPileWidget(TableauPileWidget):
         offset = App.get_running_app().card_width * (
             0.5 + CARD_IMG.OFFSET_FACTOR * index
         )
-        return (
-            self.pos[0] + offset,
-            self.pos[1] + self.height / 2,
-        )
+        return (self.pos[0] + offset, self.pos[1] + self.height / 2)

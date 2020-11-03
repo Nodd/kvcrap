@@ -4,9 +4,10 @@ from .core.board import Board
 from .core.piles import WastePile, FoundationPile
 from .widgets import pile_widgets  # Load widgets
 from .widgets.card_widget import CardWidget
+from kivy.animation import Animation
 
 Move = namedtuple("Move", ["card", "origin", "destination"])
-Flip = namedtuple("Flip", ["card"])
+Flip = namedtuple("Flip", ["card", "pile"])
 FlipWaste = namedtuple("FlipWaste", [])
 
 _DEBUG = False
@@ -74,8 +75,31 @@ class BoardManager:
 
     def set_player_turn(self, player):
         self.active_player = player
-        self.app.root.background = f"images/background-player{player}.png"
         self.moves = []
+        ids = self.app.root.ids
+        next_player_btn = ids[f"player{player}crapebutton"]
+        prev_player_btn = ids[f"player{1 - player}crapebutton"]
+        next_player_background = ids[f"background_player{player}"]
+        prev_player_background = ids[f"background_player{1 - player}"]
+        next_player_btn.disabled = False
+        prev_player_btn.disabled = True
+
+        self.animate_player_out(prev_player_background)
+        self.animate_player_out(prev_player_btn)
+        self.animate_player_in(next_player_background)
+        self.animate_player_in(next_player_btn)
+
+    @staticmethod
+    def animate_player_out(widget):
+        animation_out = Animation(opacity=0, duration=0.2, transition="in_out_cubic")
+        animation_out.start(widget)
+
+    @staticmethod
+    def animate_player_in(widget):
+        animation_in = Animation(
+            opacity=0, duration=0.2, transition="linear"
+        ) + Animation(opacity=1, duration=0.2, transition="in_out_cubic")
+        animation_in.start(widget)
 
     def update_counts(self):
         ids = self.app.root.ids
@@ -150,7 +174,7 @@ class BoardManager:
 
     def flip_card_up(self, card_widget):
         card_widget.set_face_up()
-        self.moves.append(Flip(card_widget))
+        self.moves.append(Flip(card_widget, card_widget.pile_widget))
 
     def flip_waste_to_stock(self):
         ids = self.app.root.ids
@@ -175,3 +199,10 @@ class BoardManager:
         self.update_counts()
 
         self.moves.append(FlipWaste())
+
+    def on_crapette(self):
+        ids = self.app.root.ids
+        player_background = ids[f"background_player{self.active_player}"]
+        crapette_background = ids[f"background_crapette{self.active_player}"]
+        player_background.opacity = 0
+        crapette_background.opacity = 1

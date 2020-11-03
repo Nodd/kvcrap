@@ -5,10 +5,48 @@ FloatLayout:
 
     canvas.before:
         Rectangle:
-            id: background
             pos: self.pos
             size: self.size
-            source: self.background
+            source: "images/background.png"
+
+    Widget:
+        id: background_player0
+        opacity: 0
+        canvas:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "images/background-player0.png"
+    Widget:
+        id: background_player1
+        opacity: 0
+        canvas:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "images/background-player1.png"
+    Widget:
+        id: background_crapette0
+        opacity: 0
+        canvas:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "images/background-crapette0.png"
+    Widget:
+        id: background_crapette1
+        opacity: 0
+        canvas:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "images/background-crapette1.png"
+    # canvas:
+    #     Rectangle:
+    #         id: background
+    #         pos: self.pos
+    #         size: self.size
+    #         source: self.background
 
     BoxLayout:
         orientation: "vertical"
@@ -16,23 +54,20 @@ FloatLayout:
 
 
         BoxLayout:
-            SpacerHalf:
-            Label:
+            CrapetteButton:
+                id: player0crapebutton
+            CardCount:
                 id: player1crapecount
-                text_size: self.size
                 halign: 'right'
-                valign: 'middle'
             PlayerPileWidget:
                 id: player1crape
             PlayerPileWidget:
                 id: player1waste
             PlayerPileWidget:
                 id: player1stock
-            Label:
+            CardCount:
                 id: player1stockcount
-                text_size: self.size
                 halign: 'left'
-                valign: 'middle'
             SpacerHalf:
         BoxLayout:
             SpacerHalf:
@@ -88,23 +123,21 @@ FloatLayout:
             SpacerHalf:
         BoxLayout:
             SpacerHalf:
-            Label:
+            CardCount:
                 id: player0stockcount
-                text_size: self.size
                 halign: 'right'
-                valign: 'middle'
             PlayerPileWidget:
                 id: player0stock
             PlayerPileWidget:
                 id: player0waste
             PlayerPileWidget:
                 id: player0crape
-            Label:
+            CardCount:
                 id: player0crapecount
-                text_size: self.size
                 halign: 'left'
-                valign: 'middle'
-            SpacerHalf:
+            CrapetteButton:
+                id: player1crapebutton
+
     Button:
         text: 'New Game'
         on_press: app.new_game()
@@ -234,9 +267,15 @@ FloatLayout:
         source: parent.source
         keep_ratio: False
 
-<NbCards@Label>:
+<CardCount@Label>:
     size_hint: None, None
-    size: 50, 20
-    halign: "center"
-    valign: "top"
-    text: "99"
+    size: app.card_width / 2, app.card_height
+    text_size: app.card_width / 2, app.card_height
+    valign: 'middle'
+
+<CrapetteButton@Button>:
+    text: 'Crapette !'
+    on_press: app.board_manager.on_crapette()
+    size_hint: 0.5, 1
+    opacity: 0
+    disabled: True
