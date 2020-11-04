@@ -48,6 +48,12 @@ class _Pile:
     def __len__(self):
         return len(self._cards)
 
+    def __str__(self):
+        return f"{self.name}[{' '.join(str(c) for c in self)}]"
+
+    def __repr__(self):
+        return self.__str__()
+
     @property
     def name(self):
         """Name of the pile"""

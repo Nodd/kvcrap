@@ -11,6 +11,8 @@ from .widgets import pile_widgets  # Load widgets
 from .widgets.card_widget import CardWidget
 from kivy.animation import Animation
 
+from .core.brain import Brain
+
 Move = namedtuple("Move", ["card", "origin", "destination"])
 Flip = namedtuple("Flip", ["card", "pile"])
 FlipWaste = namedtuple("FlipWaste", [])
@@ -109,6 +111,8 @@ class BoardManager:
             transition="in_out_expo",
         ).start(self.background_halo)
 
+        Brain(self.board, self.active_player).checks()
+
     def update_counts(self):
         ids = self.app.root.ids
         for player in range(self.board.NB_PLAYERS):
@@ -157,6 +161,8 @@ class BoardManager:
         self.check_win()
         self.check_end_of_turn(pile_widget)
 
+        Brain(self.board, self.active_player).checks()
+
         return True
 
     def store_player_move(self, move):
@@ -201,6 +207,8 @@ class BoardManager:
     def flip_card_up(self, card_widget):
         card_widget.set_face_up()
         self.store_player_move(Flip(card_widget, card_widget.pile_widget))
+
+        Brain(self.board, self.active_player).checks()
 
     def flip_waste_to_stock(self):
         ids = self.app.root.ids
