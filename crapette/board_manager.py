@@ -3,6 +3,7 @@ Manage the widgets interaction on the game board
 """
 
 from collections import namedtuple
+from crapette.widgets.pile_widgets import PlayerPileWidget
 
 from .core.board import Board
 from .core.piles import WastePile, FoundationPile
@@ -141,7 +142,7 @@ class BoardManager:
         card_widget.pile_widget = pile_widget
         card_widget.set_center_animated(pile_widget.card_pos())
         self.update_counts()
-        self.moves.append(Move(card_widget, old_pile_widget, pile_widget))
+        self.store_player_move(Move(card_widget, old_pile_widget, pile_widget))
 
         # Special case for foundation
         if isinstance(pile_widget.pile, FoundationPile):
@@ -157,6 +158,26 @@ class BoardManager:
         self.check_end_of_turn(pile_widget)
 
         return True
+
+    def store_player_move(self, move):
+        # UNFINISHED
+
+        if isinstance(move, Flip):
+            # Too late for preceeding crapettes, reset history
+            self.moves = [move]
+        elif isinstance(move, Move):
+            if (
+                isinstance(move.destination, PlayerPileWidget)
+                and move.destination.pile.player != self.active_player
+            ):
+                # Too late for preceeding crapettes, reset history
+                self.moves = [move]
+            elif self.moves:
+                self.moves.append(move)
+            else:
+                pass
+        elif isinstance(move, FlipWaste):
+            self.moves.append(move)
 
     def check_win(self):
         ids = self.app.root.ids
@@ -179,7 +200,7 @@ class BoardManager:
 
     def flip_card_up(self, card_widget):
         card_widget.set_face_up()
-        self.moves.append(Flip(card_widget, card_widget.pile_widget))
+        self.store_player_move(Flip(card_widget, card_widget.pile_widget))
 
     def flip_waste_to_stock(self):
         ids = self.app.root.ids
@@ -203,7 +224,7 @@ class BoardManager:
             self.app.root.add_widget(card_widget)
         self.update_counts()
 
-        self.moves.append(FlipWaste())
+        self.store_player_move(FlipWaste())
 
     def on_crapette(self):
         ids = self.app.root.ids
