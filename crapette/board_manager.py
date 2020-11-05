@@ -2,20 +2,15 @@
 Manage the widgets interaction on the game board
 """
 
-from collections import namedtuple
-from crapette.widgets.pile_widgets import PlayerPileWidget
-
-from .core.board import Board
-from .core.piles import WastePile, FoundationPile
-from .widgets import pile_widgets  # Load widgets
-from .widgets.card_widget import CardWidget
 from kivy.animation import Animation
+
+from .core.board import Board, Move, Flip, FlipWaste
+from .core.piles import WastePile, FoundationPile
+from .widgets.pile_widgets import PlayerPileWidget
+from .widgets.card_widget import CardWidget
 
 from .core.brain import Brain
 
-Move = namedtuple("Move", ["card", "origin", "destination"])
-Flip = namedtuple("Flip", ["card", "pile"])
-FlipWaste = namedtuple("FlipWaste", [])
 
 _DEBUG = False
 

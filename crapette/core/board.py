@@ -3,9 +3,14 @@ Initialisation and data for a crapette game board backend.
 """
 
 import random
+from collections import namedtuple
 
 from .cards import new_deck
 from .piles import FoundationPile, TableauPile, player_piles
+
+Move = namedtuple("Move", ["card", "origin", "destination"])
+Flip = namedtuple("Flip", ["card", "pile"])
+FlipWaste = namedtuple("FlipWaste", [])
 
 
 class Board:

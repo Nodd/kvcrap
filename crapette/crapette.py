@@ -7,8 +7,6 @@ Mostly used for initialisation and use of .kv file.
 from pathlib import Path
 
 import kivy
-
-kivy.require("1.10.0")
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
@@ -17,12 +15,14 @@ from kivy.core.window import Window
 
 import kivy.resources
 
+kivy.require("1.10.0")
 kivy.resources.resource_add_path(str(Path(__file__).parent))
 print(str(Path(__file__).parent / "crapette"))
 
 from .images.card_deck import CARD_IMG
 from .board_manager import BoardManager
 from .core.board import Board
+from .widgets import pile_widgets  # Load widgets
 
 
 class BackGround(FloatLayout):
