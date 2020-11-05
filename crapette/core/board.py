@@ -20,15 +20,8 @@ class Board:
     FOUNDATION_SUITES = "dchsshcd"
     assert len(FOUNDATION_SUITES) == NB_PILES
 
-    def __init__(self):
-        self._setup_piles()
-        self._setup_decks()
-
-    def _setup_piles(self):
-        """Setup the piles on the board.
-
-        Should be called only once.
-        """
+    def __init__(self, new_game=True):
+        # Setup the piles on the board
         self.players_piles = [player_piles(p) for p in range(self.NB_PLAYERS)]
         self.foundation_piles = [
             # Diamonds, Clubs, Hearts, Spades and reverse
@@ -37,7 +30,28 @@ class Board:
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
 
-    def _setup_decks(self):
+        print(self.piles)
+        self._pile_by_names = {p.name: p for p in self.piles}
+
+        if new_game:
+            self.new_game()
+
+    @property
+    def piles(self):
+        return (
+            list(self.players_piles[0])
+            + list(self.players_piles[1])
+            + self.foundation_piles
+            + self.tableau_piles
+        )
+
+    def __getitem__(self, name):
+        """Can take a pile name or a pile obkect (not necesserally from this board)"""
+        if hasattr(name, "name"):
+            name = name.name
+        return self._pile_by_names[name]
+
+    def new_game(self):
         """Reset the board and distribute the cards for a new game"""
         for player, player_piles in enumerate(self.players_piles):
             # Create deck
@@ -74,6 +88,21 @@ class Board:
         for foundation_pile in self.foundation_piles:
             foundation_pile.clear()
             assert len(foundation_pile) == 0
+
+    def copy(self):
+        """Create a copy of the board
+
+        The piles will be new objects, but will contain the same card objects
+        as the current board, don't modify their state.
+        """
+        board = Board(new_game=False)
+        for pile, pile_copy in zip(self.players_piles, board.players_piles):
+            pile_copy.set_cards(pile.cards[:])
+        for pile, pile_copy in zip(self.foundation_piles, board.foundation_piles):
+            pile_copy.set_cards(pile.cards[:])
+        for pile, pile_copy in zip(self.tableau_piles, board.tableau_piles):
+            pile_copy.set_cards(pile.cards[:])
+        return board
 
     def compute_first_player(self):
         """Compute the starting player.
