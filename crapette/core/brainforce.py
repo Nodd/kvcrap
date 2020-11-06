@@ -130,7 +130,7 @@ class BrainForce:
                     next_board[pile_dest].add_card(card)
 
                     # Record the move
-                    move = Move(card, pile_orig.name, pile_dest.name)
+                    move = Move(card, pile_orig, pile_dest)
                     next_moves = moves + [move]
 
                     # Recurse the hell out of it
