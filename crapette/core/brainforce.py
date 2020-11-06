@@ -1,5 +1,11 @@
 # importing the sys module
-from crapette.core.piles import TableauPile, _PlayerPile
+from crapette.core.piles import (
+    CrapePile,
+    FoundationPile,
+    TableauPile,
+    WastePile,
+    _PlayerPile,
+)
 import sys
 
 # the setrecursionlimit function is
@@ -54,27 +60,45 @@ class BrainForce:
         pprint(max_moves)
         nb_min_moves = min(len(m) for m in max_moves)
         print("max moves")
-        pprint([m for m in max_moves if len(m) == nb_min_moves])
+        bests_moves = [m for m in max_moves if len(m) == nb_min_moves]
+        pprint(bests_moves)
+
+        # Move with max score
+        moves_score = MovesScore(bests_moves[0]).score
+        best_moves = bests_moves[0]
+        for moves in bests_moves[1:]:
+            if MovesScore(moves).score > moves_score:
+                best_moves = moves
+        print("best moves")
+        pprint(best_moves)
+        print(flush=True)
 
     def _recurse_states(self, states: dict, board: Board, moves: list, alinea):
-        debug(f"{alinea}recurse_states: {len(states)} states, {len(moves)} moves")
+        debug(f"{alinea} recurse_states: {len(states)} states, {len(moves)} moves")
         # Check if this board was already taken into account
         if board in states:
-            # Keep shortest path
-            # TODO : add another metric for same length paths ?
-            if len(states[board]) > len(moves):
-                debug(f"{alinea}  board known but path shorter")
-                states[board] = moves
+            # Keep shortest path and best score
+            prev_moves = states[board]
+            if len(moves) < len(prev_moves):
+                debug(f"{alinea} board known but new path is shorter, rediscover paths")
+            elif (
+                len(moves) == len(prev_moves)
+                and MovesScore(moves).score > MovesScore(prev_moves).score
+            ):
+                debug(
+                    f"{alinea} board known but new path has better score, rediscover paths"
+                )
             else:
-                debug(f"{alinea}  board already known")
-            return
+                debug(f"{alinea} board already known with better move")
+                return
 
         # Register this new board
-        debug(f"{alinea}  register board")
+        debug(f"{alinea} register board")
         states[board] = moves
 
         # Player move stops the recursion
         if moves and isinstance(moves[-1].origin, _PlayerPile):
+            debug(f"{alinea} Player move, stop regression")
             return
 
         # Try possible moves fom this board
@@ -82,7 +106,7 @@ class BrainForce:
         piles_dest = (
             board.foundation_piles
             + board.tableau_piles
-            + list(board.players_piles[1 - self.player])  # Or in 2nd ?
+            + list(board.players_piles[1 - self.player])
         )
         for pile_orig in piles_orig:
             if pile_orig.is_empty:
@@ -96,11 +120,7 @@ class BrainForce:
 
             to_empty_tableau_before = False
             for pile_dest in piles_dest:
-                if (
-                    pile_dest == pile_orig
-                    or pile_dest.name
-                    == f"WastePlayer{self.player}"  # Could be useless depending on the rest of the algorithm
-                ):
+                if pile_dest == pile_orig:
                     continue
                 if pile_dest.can_add_card(card, pile_orig, self.player):
                     if pile_dest.is_empty:
@@ -109,23 +129,23 @@ class BrainForce:
                         ):
                             # Avoid trying each empty slot, it's useless
                             if to_empty_tableau_before:
-                                print(
-                                    f"{alinea}    skip move {card} from {pile_orig.name} to empty {pile_dest.name}: move to empty already done"
+                                debug(
+                                    f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: move to empty already done"
                                 )
                                 continue
                             elif len(pile_orig) == 1:
-                                print(
-                                    f"{alinea}    skip move {card} from {pile_orig.name} to empty {pile_dest.name}: would just swap empty slots"
+                                debug(
+                                    f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: would just swap empty slots"
                                 )
                                 continue
                             else:
                                 to_empty_tableau_before = True
-                        print(
-                            f"{alinea}    move {card} from {pile_orig.name} to empty {pile_dest.name} and recurse"
+                        debug(
+                            f"{alinea} move {card} from {pile_orig.name} to empty {pile_dest.name} and recurse"
                         )
                     else:
-                        print(
-                            f"{alinea}    move {card} from {pile_orig.name} to {pile_dest.name} over {pile_dest.top_card} and recurse"
+                        debug(
+                            f"{alinea} move {card} from {pile_orig.name} to {pile_dest.name} over {pile_dest.top_card} and recurse"
                         )
 
                     # Board copy
@@ -177,3 +197,23 @@ class BoardScore:
     @property
     def clean_tableau_score(self):
         return sorted((len(pile) for pile in self.board.tableau_piles), reverse=True)
+
+
+class MovesScore:
+    def __init__(self, moves: list):
+        self.moves = moves
+
+    @property
+    def score(self):
+        return tuple(self.move_score(m) for m in self.moves)
+
+    @staticmethod
+    def move_score(move: Move):
+        if isinstance(move.destination, FoundationPile):
+            return move.destination._foundation_id + 8
+        elif isinstance(move.destination, TableauPile):
+            return move.destination._id
+        elif isinstance(move.destination, WastePile):
+            return -1
+        elif isinstance(move.destination, CrapePile):
+            return -2
