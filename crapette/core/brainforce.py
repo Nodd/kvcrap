@@ -78,7 +78,13 @@ class BrainForce:
             return
 
         # Try possible moves fom this board
-        for pile_orig in board.tableau_piles + list(board.players_piles[self.player]):
+        piles_orig = board.tableau_piles + list(board.players_piles[self.player])
+        piles_dest = (
+            board.foundation_piles
+            + board.tableau_piles
+            + list(board.players_piles[1 - self.player])  # Or in 2nd ?
+        )
+        for pile_orig in piles_orig:
             if pile_orig.is_empty:
                 continue
             if not pile_orig.can_pop_card(self.player):
@@ -89,7 +95,7 @@ class BrainForce:
             card = pile_orig.top_card
 
             to_empty_tableau_before = False
-            for pile_dest in board.piles:
+            for pile_dest in piles_dest:
                 if (
                     pile_dest == pile_orig
                     or pile_dest.name
