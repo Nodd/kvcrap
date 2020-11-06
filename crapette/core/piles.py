@@ -226,7 +226,7 @@ class WastePile(_PlayerPile):
             )
             return True
         else:
-            if not self:
+            if self.is_empty:
                 debug(
                     f"Add {self.name}: Impossible, the other player can not put card {card} on an empty waste pile"
                 )
