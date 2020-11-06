@@ -83,7 +83,9 @@ class Card:
         return txt
 
     def __repr__(self):
-        return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
+        # return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
+        txt = f"{self.rank_symbol}{self.suit_symbol}{self.player}{'^' if self._face_up else 'v'}"
+        return txt
 
     def __eq__(self, other):
         if not isinstance(other, Card):
