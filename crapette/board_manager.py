@@ -10,6 +10,7 @@ from .widgets.pile_widgets import PlayerPileWidget
 from .widgets.card_widget import CardWidget
 
 from .core.brain import Brain
+from .core.brainforce import BrainForce
 
 
 _DEBUG = False
@@ -106,7 +107,8 @@ class BoardManager:
             transition="in_out_expo",
         ).start(self.background_halo)
 
-        Brain(self.board, self.active_player).checks()
+        # Brain(self.board, self.active_player).checks()
+        BrainForce(self.board, self.active_player).compute_states()
 
     def update_counts(self):
         ids = self.app.root.ids
@@ -156,7 +158,8 @@ class BoardManager:
         self.check_win()
         self.check_end_of_turn(pile_widget)
 
-        Brain(self.board, self.active_player).checks()
+        #  Brain(self.board, self.active_player).checks()
+        BrainForce(self.board, self.active_player).compute_states()
 
         return True
 
@@ -203,7 +206,8 @@ class BoardManager:
         card_widget.set_face_up()
         self.store_player_move(Flip(card_widget, card_widget.pile_widget))
 
-        Brain(self.board, self.active_player).checks()
+        #  Brain(self.board, self.active_player).checks()
+        BrainForce(self.board, self.active_player).compute_states()
 
     def flip_waste_to_stock(self):
         ids = self.app.root.ids
