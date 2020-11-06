@@ -54,6 +54,15 @@ class _Pile:
     def __repr__(self):
         return self.__str__()
 
+    def __eq__(self, other):
+        """Doesn't check if cards face up or down"""
+        if not isinstance(other, _Pile):
+            raise ValueError("Not a Pile")
+        return self._name == other._name and self._cards == other._cards
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     @property
     def name(self):
         """Name of the pile"""

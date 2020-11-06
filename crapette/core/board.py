@@ -133,3 +133,24 @@ class Board:
         else:
             # Extreme measures
             return random.randint(0, 1)
+
+    def __eq__(self, other):
+        """Doesn't check if cards face up or down"""
+        if not isinstance(other, Board):
+            raise ValueError("Not a Board")
+        for pile, pile_other in zip(self.piles, other.piles):
+            if pile != pile_other:
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        """
+        Warning, boards are mutable in general !
+        This is only used in AI computations where boards are frozen.
+
+        Doesn't differ if cards face up or down
+        """
+        return hash(tuple(tuple(p) for p in self.piles))
