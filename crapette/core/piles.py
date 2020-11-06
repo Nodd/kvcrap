@@ -260,7 +260,7 @@ class CrapePile(_PlayerPile):
     def can_add_card(self, card, origin, player):
         if self._player == player:
             debug(
-                "Add {self.name}: Impossible, player can never put cards ({card}) on its own crapette pile"
+                f"Add {self.name}: Impossible, player can never put cards ({card}) on its own crapette pile"
             )
             return False
         else:
