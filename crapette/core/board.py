@@ -32,6 +32,8 @@ class Board:
 
         self._pile_by_names = {p.name: p for p in self.piles}
 
+        self._hash_cache = None
+
         if new_game:
             self.new_game()
 
@@ -101,15 +103,9 @@ class Board:
         as the current board, don't modify their state.
         """
         board = Board(new_game=False)
-        for player in range(Board.NB_PLAYERS):
-            for pile, pile_copy in zip(
-                self.players_piles[player], board.players_piles[player]
-            ):
-                pile_copy.set_cards(pile[:])
-        for pile, pile_copy in zip(self.foundation_piles, board.foundation_piles):
-            pile_copy.set_cards(pile[:])
-        for pile, pile_copy in zip(self.tableau_piles, board.tableau_piles):
-            pile_copy.set_cards(pile[:])
+        for pile, pile_copy in zip(self.piles, board.piles):
+            pile_copy._cards = pile._cards.copy()
+
         return board
 
     def compute_first_player(self):
@@ -142,8 +138,6 @@ class Board:
 
     def __eq__(self, other):
         """Doesn't check if cards face up or down"""
-        if not isinstance(other, Board):
-            raise ValueError("Not a Board")
         for pile, pile_other in zip(self.piles, other.piles):
             if pile != pile_other:
                 return False
@@ -159,4 +153,6 @@ class Board:
 
         Doesn't differ if cards face up or down
         """
-        return hash(tuple(tuple(p) for p in self.piles))
+        if self._hash_cache is None:
+            self._hash_cache = hash(tuple(tuple(p) for p in self.piles))
+        return self._hash_cache

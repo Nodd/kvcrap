@@ -8,24 +8,13 @@ from crapette.core.piles import (
 )
 import sys
 
-# the setrecursionlimit function is
-# used to modify the default recursion
-# limit set by python. Using this,
-# we can increase the recursion limit
-# to satisfy our needs
-
 sys.setrecursionlimit(10 ** 5)
 
 from pprint import pprint
 
 from .board import Board, Move
 
-_DEBUG = True
-
-
-def debug(*s):
-    if _DEBUG:
-        print(*s)
+_DEBUG = False
 
 
 class BrainForce:
@@ -34,34 +23,35 @@ class BrainForce:
         self.player = player
 
     def compute_states(self):
-        debug("*" * 50)
-        debug(f"compute_states for player {self.player}")
+        if _DEBUG:
+            print("*" * 50)
+            print(f"compute_states for player {self.player}")
         # Recursive state modifications
         states = {}
         self._recurse_states(states, self.board, [], "")
-        print("states")
-        pprint(states)
+        # print("states")
+        # pprint(states)
 
         # Score for each state
         scores = {b: BoardScore(b, self.player).score for b in states}
-        print("scores")
-        pprint(scores)
+        # print("scores")
+        # pprint(scores)
         max_score = max(scores.values())
-        print("max score", max_score)
+        # print("max score", max_score)
 
         # Boards with max score
         max_boards = [b for b, s in scores.items() if s == max_score]
-        print("max boards")
-        pprint(max_boards)
+        # print("max boards")
+        # pprint(max_boards)
 
         # Boards with max score and less moves
         max_moves = [states[b] for b in max_boards]
-        print("max moves")
-        pprint(max_moves)
+        # print("max moves")
+        # pprint(max_moves)
         nb_min_moves = min(len(m) for m in max_moves)
-        print("max moves")
+        # print("max moves")
         bests_moves = [m for m in max_moves if len(m) == nb_min_moves]
-        pprint(bests_moves)
+        # pprint(bests_moves)
 
         # Move with max score
         moves_score = MovesScore(bests_moves[0]).score
@@ -74,7 +64,8 @@ class BrainForce:
         print(flush=True)
 
     def _recurse_states(self, states: dict, board: Board, moves: list, alinea):
-        debug(f"{alinea} recurse_states: {len(states)} states, {len(moves)} moves")
+        if _DEBUG:
+            print(f"{alinea} recurse_states: {len(states)} states, {len(moves)} moves")
         # Check if this board was already taken into account
         try:
             # Keep shortest path and best score
@@ -83,25 +74,32 @@ class BrainForce:
             pass
         else:
             if len(moves) < len(prev_moves):
-                debug(f"{alinea} board known but new path is shorter, rediscover paths")
+                if _DEBUG:
+                    print(
+                        f"{alinea} board known but new path is shorter, rediscover paths"
+                    )
             elif (
                 len(moves) == len(prev_moves)
                 and MovesScore(moves).score > MovesScore(prev_moves).score
             ):
-                debug(
-                    f"{alinea} board known but new path has better score, rediscover paths"
-                )
+                if _DEBUG:
+                    print(
+                        f"{alinea} board known but new path has better score, rediscover paths"
+                    )
             else:
-                debug(f"{alinea} board already known with better move")
+                if _DEBUG:
+                    print(f"{alinea} board already known with better move")
                 return
 
         # Register this new board
-        debug(f"{alinea} register board")
+        if _DEBUG:
+            print(f"{alinea} register board")
         states[board] = moves
 
         # Player move stops the recursion
         if moves and isinstance(moves[-1].origin, _PlayerPile):
-            debug(f"{alinea} Player move, stop regression")
+            if _DEBUG:
+                print(f"{alinea} Player move, stop regression")
             return
 
         # Try possible moves fom this board
@@ -132,24 +130,28 @@ class BrainForce:
                         ):
                             # Avoid trying each empty slot, it's useless
                             if to_empty_tableau_before:
-                                debug(
-                                    f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: move to empty already done"
-                                )
+                                if _DEBUG:
+                                    print(
+                                        f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: move to empty already done"
+                                    )
                                 continue
                             elif len(pile_orig) == 1:
-                                debug(
-                                    f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: would just swap empty slots"
-                                )
+                                if _DEBUG:
+                                    print(
+                                        f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: would just swap empty slots"
+                                    )
                                 continue
                             else:
                                 to_empty_tableau_before = True
-                        debug(
-                            f"{alinea} move {card} from {pile_orig.name} to empty {pile_dest.name} and recurse"
-                        )
+                        if _DEBUG:
+                            print(
+                                f"{alinea} move {card} from {pile_orig.name} to empty {pile_dest.name} and recurse"
+                            )
                     else:
-                        debug(
-                            f"{alinea} move {card} from {pile_orig.name} to {pile_dest.name} over {pile_dest.top_card} and recurse"
-                        )
+                        if _DEBUG:
+                            print(
+                                f"{alinea} move {card} from {pile_orig.name} to {pile_dest.name} over {pile_dest.top_card} and recurse"
+                            )
 
                     # Board copy
                     next_board = board.copy()

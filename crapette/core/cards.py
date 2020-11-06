@@ -28,6 +28,8 @@ class Card:
         self._face_up = bool(face_up)
         self._is_red = suit in self.RED
 
+        self._hash_cache = None
+
     @property
     def rank(self):
         """Rank of the card, between MIN_RANK (1) and MAX_RANK (13)"""
@@ -88,8 +90,6 @@ class Card:
         return txt
 
     def __eq__(self, other):
-        if not isinstance(other, Card):
-            raise ValueError("Not a Card")
         return (
             self._rank == other._rank
             and self._suit == other._suit
@@ -100,7 +100,9 @@ class Card:
         return not self.__eq__(other)
 
     def __hash__(self):
-        return hash((self._rank, self._suit, self._player))
+        if self._hash_cache is None:
+            self._hash_cache = hash((self._rank, self._suit, self._player))
+        return self._hash_cache
 
 
 def new_deck(player):

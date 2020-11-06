@@ -51,8 +51,6 @@ class _Pile:
 
     def __eq__(self, other):
         """Doesn't check if cards face up or down"""
-        if not isinstance(other, _Pile):
-            raise ValueError("Not a Pile")
         return self._name == other._name and self._cards == other._cards
 
     def __ne__(self, other):
