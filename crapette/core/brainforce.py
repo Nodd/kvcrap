@@ -76,9 +76,12 @@ class BrainForce:
     def _recurse_states(self, states: dict, board: Board, moves: list, alinea):
         debug(f"{alinea} recurse_states: {len(states)} states, {len(moves)} moves")
         # Check if this board was already taken into account
-        if board in states:
+        try:
             # Keep shortest path and best score
             prev_moves = states[board]
+        except KeyError:
+            pass
+        else:
             if len(moves) < len(prev_moves):
                 debug(f"{alinea} board known but new path is shorter, rediscover paths")
             elif (
