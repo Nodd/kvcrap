@@ -90,8 +90,8 @@ class Card:
             raise ValueError("Not a Card")
         return (
             self._rank == other._rank
-            and self._suit == self._suit
-            and self._player == self._player
+            and self._suit == other._suit
+            and self._player == other._player
         )
 
     def __ne__(self, other):
