@@ -50,6 +50,12 @@ class Board:
             name = name.name
         return self._pile_by_names[name]
 
+    def __repr__(self):
+        return f"Board:{id(self)}"
+
+    def __str__(self):
+        return self.__repr__()
+
     def new_game(self):
         """Reset the board and distribute the cards for a new game"""
         for player, player_piles in enumerate(self.players_piles):
