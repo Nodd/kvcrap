@@ -30,7 +30,6 @@ class Board:
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
 
-        print(self.piles)
         self._pile_by_names = {p.name: p for p in self.piles}
 
         if new_game:
@@ -96,12 +95,15 @@ class Board:
         as the current board, don't modify their state.
         """
         board = Board(new_game=False)
-        for pile, pile_copy in zip(self.players_piles, board.players_piles):
-            pile_copy.set_cards(pile.cards[:])
+        for player in range(Board.NB_PLAYERS):
+            for pile, pile_copy in zip(
+                self.players_piles[player], board.players_piles[player]
+            ):
+                pile_copy.set_cards(pile[:])
         for pile, pile_copy in zip(self.foundation_piles, board.foundation_piles):
-            pile_copy.set_cards(pile.cards[:])
+            pile_copy.set_cards(pile[:])
         for pile, pile_copy in zip(self.tableau_piles, board.tableau_piles):
-            pile_copy.set_cards(pile.cards[:])
+            pile_copy.set_cards(pile[:])
         return board
 
     def compute_first_player(self):
