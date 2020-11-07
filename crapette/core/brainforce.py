@@ -25,138 +25,11 @@ class BrainForce:
         if _DEBUG:
             print("*" * 50)
             print(f"compute_states for player {self.player}")
-        # Recursive state modifications
-        states = {}
-        self._recurse_states(states, self.board, [], "")
-        # print("states")
-        # pprint(states)
 
-        # Score for each state
-        scores = {b: BoardScore(b, self.player).score for b in states}
-        # print("scores")
-        # pprint(scores)
-        max_score = max(scores.values())
-        # print("max score", max_score)
-
-        # Boards with max score
-        max_boards = [b for b, s in scores.items() if s == max_score]
-        # print("max boards")
-        # pprint(max_boards)
-
-        # Boards with max score and less moves
-        max_moves = [states[b] for b in max_boards]
-        # print("max moves")
-        # pprint(max_moves)
-        nb_min_moves = min(len(m) for m in max_moves)
-        # print("max moves")
-        bests_moves = [m for m in max_moves if len(m) == nb_min_moves]
-        # pprint(bests_moves)
-
-        # Move with max score
-        moves_cost = compute_moves_cost(bests_moves[0])
-        best_moves = bests_moves[0]
-        for moves in bests_moves[1:]:
-            if compute_moves_cost(moves) < moves_cost:
-                best_moves = moves
-        print("best moves")
-        pprint(best_moves)
-        print(flush=True)
-
-    def _recurse_states(self, states: dict, board: Board, moves: list, alinea):
-        if _DEBUG:
-            print(f"{alinea} recurse_states: {len(states)} states, {len(moves)} moves")
-        # Check if this board was already taken into account
-        try:
-            # Keep shortest path and best score
-            prev_moves = states[board]
-        except KeyError:
-            pass
-        else:
-            if compute_moves_cost(moves) < compute_moves_cost(prev_moves):
-                if _DEBUG:
-                    print(
-                        f"{alinea} board known but new path has lower cost, rediscover paths"
-                    )
-            else:
-                if _DEBUG:
-                    print(f"{alinea} board already known with better move")
-                return
-
-        # Register this new board
-        if _DEBUG:
-            print(f"{alinea} register board")
-        states[board] = moves
-
-        # Player move stops the recursion
-        if moves and isinstance(moves[-1].origin, _PlayerPile):
-            if _DEBUG:
-                print(f"{alinea} Player move, stop regression")
-            return
-
-        # Try possible moves fom this board
-        piles_orig = board.tableau_piles + list(board.players_piles[self.player])
-        piles_dest = (
-            board.foundation_piles
-            + board.tableau_piles
-            + list(board.players_piles[1 - self.player])
-        )
-        for pile_orig in piles_orig:
-            if pile_orig.is_empty:
-                continue
-            if not pile_orig.can_pop_card(self.player):
-                continue
-            if not pile_orig.face_up:
-                continue
-
-            card = pile_orig.top_card
-
-            to_empty_tableau_before = False
-            for pile_dest in piles_dest:
-                if pile_dest == pile_orig:
-                    continue
-                if pile_dest.can_add_card(card, pile_orig, self.player):
-                    if pile_dest.is_empty:
-                        if isinstance(pile_orig, TableauPile) and isinstance(
-                            pile_dest, TableauPile
-                        ):
-                            # Avoid trying each empty slot, it's useless
-                            if to_empty_tableau_before:
-                                if _DEBUG:
-                                    print(
-                                        f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: move to empty already done"
-                                    )
-                                continue
-                            elif len(pile_orig) == 1:
-                                if _DEBUG:
-                                    print(
-                                        f"{alinea} skip move {card} from {pile_orig.name} to empty {pile_dest.name}: would just swap empty slots"
-                                    )
-                                continue
-                            else:
-                                to_empty_tableau_before = True
-                        if _DEBUG:
-                            print(
-                                f"{alinea} move {card} from {pile_orig.name} to empty {pile_dest.name} and recurse"
-                            )
-                    else:
-                        if _DEBUG:
-                            print(
-                                f"{alinea} move {card} from {pile_orig.name} to {pile_dest.name} over {pile_dest.top_card} and recurse"
-                            )
-
-                    # Board copy
-                    next_board = board.copy()
-
-                    # Get and move the card
-                    next_board[pile_orig].pop_card()
-                    next_board[pile_dest].add_card(card)
-
-                    # Record the move
-                    move = Move(card, pile_orig, pile_dest)
-                    next_moves = moves + [move]
-
-                    # Recurse the hell out of it
-                    self._recurse_states(states, next_board, next_moves, "_" + alinea)
+        best_node = BrainDjikstra(self.board, self.player).compute_search()
+        print("Conclusion :")
+        pprint(best_node.moves)
+        return
 
 
 class BoardNode:
@@ -165,13 +38,14 @@ class BoardNode:
         self.player = player
 
         self.cost = MAX_COST
+        self.score = BoardScore(self.board, self.player).score
         self.visited = False
-        self.prev = None
+        self.moves = None
 
-    def __hash__(self) -> int:
-        return hash(self.borad)
+    def search_neighbors(self, known_nodes: dict):
+        # This one was searched
+        self.visited = True
 
-    def search_neighbor(self, neighbors):
         # Piles to take from
         player_piles = self.board.players_piles[self.player]
         piles_orig = self.board.tableau_piles + [player_piles.crape, player_piles.stock]
@@ -211,25 +85,66 @@ class BoardNode:
                     # Compute the cost
                     move = Move(card, pile_orig, pile_dest)
                     cost = self.cost + (compute_move_cost(move),)
-                    if next_board in neighbors:
+                    if next_board in known_nodes:
                         # Get existing next_board which already has a cost
-                        next_board_node = neighbors[next_board]
+                        next_board_node = known_nodes[next_board]
                         if cost < next_board_node.cost:
                             next_board_node.cost = cost
+                            next_board_node.moves = self.moves + [move]
                     else:
                         # Add this unknown new board
                         next_board_node = BoardNode(next_board, self.player)
                         next_board_node.cost = cost
-                        neighbors[next_board] = next_board_node
+                        next_board_node.moves = self.moves + [move]
+                        print("unknown:")
+                        pprint(next_board_node.moves)
+                        known_nodes[next_board] = next_board_node
 
 
-class Graph:
-    def __init__(self) -> None:
-        self.nodes = {}
+class BrainDjikstra:
+    def __init__(self, board: Board, player: int) -> None:
+        self.board = board
+        self.player = player
+
+        # Initialize
+        first_node = BoardNode(self.board, self.player)
+        first_node.cost = ()
+        first_node.moves = []
+        self.known_nodes = {self.board: first_node}
+
+    def _select_next_node(self) -> BoardNode:
+        min_cost = MAX_COST
+        next_node = None
+        for node in self.known_nodes.values():
+            if node.visited:
+                continue
+            if node.cost < min_cost:
+                min_cost = node.cost
+                next_node = node
+        return next_node
+
+    def compute_search(self):
+        max_score = BoardScore.WORSE
+        best_node = None
+
+        next_node = self._select_next_node()
+        while next_node is not None:
+            next_node.search_neighbors(self.known_nodes)
+            pprint(next_node.moves)
+            print(next_node.score, max_score, next_node.score > max_score)
+            print(flush=True)
+            if next_node.score > max_score:
+                max_score = next_node.score
+                best_node = next_node
+                pprint("BEST")
+                print(flush=True)
+
+            next_node = self._select_next_node()
+        return best_node
 
 
 class BoardScore:
-    WORSE = (float("inf"),) * 11
+    WORSE = (-float("inf"),) * 11
 
     def __init__(self, board: Board, player: int):
         self.board = board
