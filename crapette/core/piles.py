@@ -49,12 +49,12 @@ class _Pile:
     def __repr__(self):
         return self.__str__()
 
-    def __eq__(self, other):
-        """Doesn't check if cards face up or down"""
-        return self._name == other._name and self._cards == other._cards
-
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __lt__(self, other):
+        assert type(self) == type(other)
+        return self._cards < other._cards
 
     @property
     def name(self):
@@ -147,6 +147,14 @@ class FoundationPile(_Pile):
         """If the pile is full from Ace to King"""
         return len(self._cards) == Card.MAX_RANK
 
+    def __eq__(self, other):
+        """Doesn't check if cards face up or down"""
+        return (
+            isinstance(other, FoundationPile)
+            and self._suit == other._suit
+            and self._cards == other._cards
+        )
+
 
 class TableauPile(_Pile):
     """Side piles where cards go from King to Ace with alternate colors"""
@@ -189,6 +197,9 @@ class TableauPile(_Pile):
             print(f"Pop {self.name}: Possible, can always pop card from here")
         return True
 
+    def __eq__(self, other):
+        return isinstance(other, TableauPile) and self._cards == other._cards
+
 
 class _PlayerPile(_Pile):
     """Piles specific to the player"""
@@ -212,6 +223,10 @@ class _PlayerPile(_Pile):
     @property
     def player(self):
         return self._player
+
+    def __eq__(self, other):
+        """Doesn't check if cards face up or down"""
+        return self._name == other._name and self._cards == other._cards
 
 
 class StockPile(_PlayerPile):
