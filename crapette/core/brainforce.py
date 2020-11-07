@@ -159,6 +159,73 @@ class BrainForce:
                     self._recurse_states(states, next_board, next_moves, "_" + alinea)
 
 
+class BoardNode:
+    def __init__(self, board: Board, player: int) -> None:
+        self.board = board
+        self.player = player
+
+        self.cost = MAX_COST
+        self.visited = False
+        self.prev = None
+
+    def __hash__(self) -> int:
+        return hash(self.borad)
+
+    def search_neighbor(self, neighbors):
+        # Piles to take from
+        player_piles = self.board.players_piles[self.player]
+        piles_orig = self.board.tableau_piles + [player_piles.crape, player_piles.stock]
+
+        # Piles to push to
+        enemy_piles = self.board.players_piles[1 - self.player]
+        piles_dest = (
+            self.board.foundation_piles
+            + self.board.tableau_piles
+            + [enemy_piles.crape, enemy_piles.waste]
+        )
+
+        # Check all orgin piles
+        for pile_orig in piles_orig:
+            # Consider top card if available
+            if pile_orig.is_empty:
+                continue
+            if not pile_orig.face_up:
+                continue
+            card = pile_orig.top_card
+
+            # Check all destination piles for each origin pile
+            for pile_dest in piles_dest:
+                # Skip "no move" move
+                if pile_dest == pile_orig:
+                    continue
+
+                # Check if the move is possible
+                if pile_dest.can_add_card(card, pile_orig, self.player):
+                    # TODO: manage equivalent boards (in board comparison/hash ?)
+
+                    # Instanciate neighbor
+                    next_board = self.board.copy()
+                    next_board[pile_orig].pop_card()
+                    next_board[pile_dest].add_card(card)
+
+                    # Compute the cost
+                    move = Move(card, pile_orig, pile_dest)
+                    cost = self.cost + (compute_move_cost(move),)
+                    if next_board in neighbors:
+                        # Get existing next_board which already has a cost
+                        next_board = neighbors[next_board]  # TODO: Wrong !!!
+                        if cost < next_board.cost:
+                            next_board.cost = cost
+                    else:
+                        next_board.cost = cost
+                        neighbors[next_board] = next_board  # TODO: Wrong !!!
+
+
+class Graph:
+    def __init__(self) -> None:
+        self.nodes = {}
+
+
 class BoardScore:
     WORSE = (float("inf"),) * 11
 
@@ -193,6 +260,9 @@ class BoardScore:
     @property
     def clean_tableau_score(self):
         return sorted((len(pile) for pile in self.board.tableau_piles), reverse=True)
+
+
+MAX_COST = (float("inf"),)
 
 
 def compute_move_cost(move: Move):
