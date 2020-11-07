@@ -14,6 +14,7 @@ class Card:
     RED = "dh"  # Diamonds, Hearts
     BLACK = "cs"  # Clubs, Spades
     SUITS = RED + BLACK
+    NB_SUITS = len(SUITS)
     PLAYERS = [0, 1]
     SUIT_SYMBOL = {"c": "\u2663", "d": "\u2666", "h": "\u2665", "s": "\u2660"}
     RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
@@ -98,6 +99,18 @@ class Card:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if self._rank < other._rank:
+            return True
+        elif self._rank > other._rank:
+            return False
+        elif self._suit < other._suit:
+            return True
+        elif self._suit > other._suit:
+            return False
+        else:
+            return self._player < other._player
 
     def __hash__(self):
         if self._hash_cache is None:
