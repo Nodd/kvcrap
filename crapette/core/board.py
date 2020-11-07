@@ -5,7 +5,7 @@ Initialisation and data for a crapette game board backend.
 import random
 from collections import namedtuple
 
-from .cards import new_deck
+from .cards import new_deck, Card
 from .piles import FoundationPile, TableauPile, player_piles
 
 Move = namedtuple("Move", ["card", "origin", "destination"])
@@ -138,7 +138,34 @@ class Board:
 
     def __eq__(self, other):
         """Doesn't check if cards face up or down"""
-        for pile, pile_other in zip(self.piles, other.piles):
+        # Check player piles for both players
+        for player in range(Board.NB_PLAYERS):
+            for pile, pile_other in zip(self.players_piles[0], other.players_piles[0]):
+                if pile != pile_other:
+                    return False
+
+        # Check foundation, inversion between same suit piles doesn't matter
+        for i in range(Card.NB_SUITS):
+            self_foundation_pile_right = self.foundation_piles[i]
+            other_foundation_pile_right = other.foundation_piles[i]
+            self_foundation_pile_left = self.foundation_piles[Card.NB_SUITS - i - 1]
+            other_foundation_pile_left = other.foundation_piles[Card.NB_SUITS - i - 1]
+            if not (
+                (
+                    self_foundation_pile_right == other_foundation_pile_right
+                    and self_foundation_pile_left == other_foundation_pile_left
+                )
+                or (
+                    self_foundation_pile_right == other_foundation_pile_left
+                    and self_foundation_pile_left == other_foundation_pile_right
+                )
+            ):
+                return False
+
+        # Check tableau piles, order doesn't matter
+        self_tableau = sorted(self.tableau_piles, reverse=True)
+        other_tableau = sorted(other.tableau_piles, reverse=True)
+        for pile, pile_other in zip(self_tableau, other_tableau):
             if pile != pile_other:
                 return False
         return True
@@ -154,5 +181,17 @@ class Board:
         Doesn't differ if cards face up or down
         """
         if self._hash_cache is None:
-            self._hash_cache = hash(tuple(tuple(p) for p in self.piles))
+            # Player piles
+            piles = [tuple(p) for p in self.players_piles[0] + self.players_piles[1]]
+
+            # Foundation, inversion between same suit piles doesn't matter
+            for i in range(Card.NB_SUITS):
+                piles += sorted(
+                    [
+                        self.foundation_piles[i],
+                        self.foundation_piles[Card.NB_SUITS - i - 1],
+                    ]
+                )
+            piles += sorted(self.tableau_piles, reverse=True)
+            self._hash_cache = hash(tuple(tuple(p) for p in piles))
         return self._hash_cache
