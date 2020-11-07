@@ -32,6 +32,7 @@ def test_hash_equal():
     board = Board(new_game=False)
     assert hash(board) == hash(Board(new_game=False))
 
+    board = Board(new_game=False)  # Reinitialize to avoid caching
     board2 = Board(new_game=False)
     card = Card(1, "s", 0)
     board.tableau_piles[0].add_card(card)
