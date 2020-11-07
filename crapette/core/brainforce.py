@@ -54,10 +54,10 @@ class BrainForce:
         # pprint(bests_moves)
 
         # Move with max score
-        moves_score = MovesScore(bests_moves[0]).score
+        moves_score = compute_moves_score(bests_moves[0])
         best_moves = bests_moves[0]
         for moves in bests_moves[1:]:
-            if MovesScore(moves).score > moves_score:
+            if compute_moves_score(moves) > moves_score:
                 best_moves = moves
         print("best moves")
         pprint(best_moves)
@@ -78,10 +78,9 @@ class BrainForce:
                     print(
                         f"{alinea} board known but new path is shorter, rediscover paths"
                     )
-            elif (
-                len(moves) == len(prev_moves)
-                and MovesScore(moves).score > MovesScore(prev_moves).score
-            ):
+            elif len(moves) == len(prev_moves) and compute_moves_score(
+                moves
+            ) > compute_moves_score(prev_moves):
                 if _DEBUG:
                     print(
                         f"{alinea} board known but new path has better score, rediscover paths"
@@ -204,21 +203,16 @@ class BoardScore:
         return sorted((len(pile) for pile in self.board.tableau_piles), reverse=True)
 
 
-class MovesScore:
-    def __init__(self, moves: list):
-        self.moves = moves
+def compute_move_score(move: Move):
+    if isinstance(move.destination, FoundationPile):
+        return move.destination._foundation_id + 8
+    elif isinstance(move.destination, TableauPile):
+        return move.destination._id
+    elif isinstance(move.destination, WastePile):
+        return -1
+    elif isinstance(move.destination, CrapePile):
+        return -2
 
-    @property
-    def score(self):
-        return tuple(self.move_score(m) for m in self.moves)
 
-    @staticmethod
-    def move_score(move: Move):
-        if isinstance(move.destination, FoundationPile):
-            return move.destination._foundation_id + 8
-        elif isinstance(move.destination, TableauPile):
-            return move.destination._id
-        elif isinstance(move.destination, WastePile):
-            return -1
-        elif isinstance(move.destination, CrapePile):
-            return -2
+def compute_moves_score(moves):
+    return tuple(compute_move_score(m) for m in moves)
