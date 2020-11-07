@@ -213,12 +213,14 @@ class BoardNode:
                     cost = self.cost + (compute_move_cost(move),)
                     if next_board in neighbors:
                         # Get existing next_board which already has a cost
-                        next_board = neighbors[next_board]  # TODO: Wrong !!!
-                        if cost < next_board.cost:
-                            next_board.cost = cost
+                        next_board_node = neighbors[next_board]
+                        if cost < next_board_node.cost:
+                            next_board_node.cost = cost
                     else:
-                        next_board.cost = cost
-                        neighbors[next_board] = next_board  # TODO: Wrong !!!
+                        # Add this unknown new board
+                        next_board_node = BoardNode(next_board, self.player)
+                        next_board_node.cost = cost
+                        neighbors[next_board] = next_board_node
 
 
 class Graph:
