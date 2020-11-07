@@ -54,10 +54,10 @@ class BrainForce:
         # pprint(bests_moves)
 
         # Move with max score
-        moves_score = compute_moves_score(bests_moves[0])
+        moves_cost = compute_moves_cost(bests_moves[0])
         best_moves = bests_moves[0]
         for moves in bests_moves[1:]:
-            if compute_moves_score(moves) > moves_score:
+            if compute_moves_cost(moves) < moves_cost:
                 best_moves = moves
         print("best moves")
         pprint(best_moves)
@@ -73,17 +73,10 @@ class BrainForce:
         except KeyError:
             pass
         else:
-            if len(moves) < len(prev_moves):
+            if compute_moves_cost(moves) < compute_moves_cost(prev_moves):
                 if _DEBUG:
                     print(
-                        f"{alinea} board known but new path is shorter, rediscover paths"
-                    )
-            elif len(moves) == len(prev_moves) and compute_moves_score(
-                moves
-            ) > compute_moves_score(prev_moves):
-                if _DEBUG:
-                    print(
-                        f"{alinea} board known but new path has better score, rediscover paths"
+                        f"{alinea} board known but new path has lower cost, rediscover paths"
                     )
             else:
                 if _DEBUG:
@@ -203,16 +196,16 @@ class BoardScore:
         return sorted((len(pile) for pile in self.board.tableau_piles), reverse=True)
 
 
-def compute_move_score(move: Move):
+def compute_move_cost(move: Move):
     if isinstance(move.destination, FoundationPile):
-        return move.destination._foundation_id + 8
+        return -move.destination._foundation_id - 8
     elif isinstance(move.destination, TableauPile):
-        return move.destination._id
+        return -move.destination._id
     elif isinstance(move.destination, WastePile):
-        return -1
+        return 1
     elif isinstance(move.destination, CrapePile):
-        return -2
+        return 2
 
 
-def compute_moves_score(moves):
-    return tuple(compute_move_score(m) for m in moves)
+def compute_moves_cost(moves):
+    return tuple(compute_move_cost(m) for m in moves)
