@@ -70,7 +70,7 @@ class BoardNode:
             # Check all destination piles for each origin pile
             for pile_dest in piles_dest:
                 # Skip "no move" move
-                if pile_dest == pile_orig:
+                if pile_dest is pile_orig:
                     continue
 
                 # Check if the move is possible
