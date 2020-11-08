@@ -105,12 +105,8 @@ class Card:
             return True
         elif self._rank > other._rank:
             return False
-        elif self._suit < other._suit:
-            return True
-        elif self._suit > other._suit:
-            return False
         else:
-            return False
+            return self._suit < other._suit
 
     def __hash__(self):
         if self._hash_cache is None:
