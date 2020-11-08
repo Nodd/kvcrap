@@ -188,13 +188,10 @@ MAX_COST = (float("inf"),)
 
 def compute_move_cost(move: Move):
     if isinstance(move.destination, FoundationPile):
-        return -move.destination._foundation_id - 8
-    elif isinstance(move.destination, TableauPile):
-        return -move.destination._id
-    elif isinstance(move.destination, WastePile):
-        return 1
-    elif isinstance(move.destination, CrapePile):
-        return 2
+        cost = 0
+    else:
+        cost = 1
+    return cost
 
 
 def compute_moves_cost(moves):
