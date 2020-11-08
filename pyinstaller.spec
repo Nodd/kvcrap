@@ -34,7 +34,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
+    console=False,
     # icon="crapette/images/png/2x/suit-spade.png",  # Needs .ico
 )
 coll = COLLECT(
