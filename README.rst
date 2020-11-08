@@ -27,9 +27,7 @@ for more informations.
 Code
 ++++
 
-Clone (a fork of) this repository:
-
-.. code-block:: bash
+Clone (a fork of) this repository::
 
     git clone git@github.com:Nodd/kvcrap.git
 
