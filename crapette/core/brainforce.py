@@ -46,6 +46,10 @@ class BoardNode:
         # This one was searched
         self.visited = True
 
+        # If last move was from a player pile, stop here
+        if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
+            return
+
         # Piles to take from
         player_piles = self.board.players_piles[self.player]
         piles_orig = self.board.tableau_piles + [player_piles.crape, player_piles.stock]
