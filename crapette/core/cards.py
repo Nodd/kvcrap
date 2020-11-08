@@ -110,12 +110,15 @@ class Card:
         elif self._suit > other._suit:
             return False
         else:
-            return self._player < other._player
+            return False
 
     def __hash__(self):
         if self._hash_cache is None:
             self._hash_cache = hash((self._rank, self._suit, self._player))
         return self._hash_cache
+
+    def id(self):
+        return ord(self._suit) * 100 + self._rank
 
 
 def new_deck(player):
