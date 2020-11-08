@@ -2,8 +2,11 @@
 
 from kivy_deps import sdl2, glew
 
-block_cipher = None
+one_file = True
+name = "Crapette"
+debug = "all"
 
+block_cipher = None
 a = Analysis(
     ["main.py"],
     pathex=["./"],
@@ -24,27 +27,47 @@ a = Analysis(
     noarchive=False,
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-exe = EXE(
-    pyz,
-    a.scripts,
-    [],
-    exclude_binaries=True,
-    name="Crapette",
-    debug="all",
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=False,
-    # icon="crapette/images/png/2x/suit-spade.png",  # Needs .ico
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name="Crapette",
-)
+if one_file:
+    exe = EXE(
+        pyz,
+        a.scripts,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
+        *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
+        [],
+        name=name,
+        debug=debug,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        upx_exclude=[],
+        runtime_tmpdir=None,
+        console=False,
+        # icon="crapette/images/png/2x/suit-spade.png",  # Needs .ico
+    )
+else:
+    exe = EXE(
+        pyz,
+        a.scripts,
+        [],
+        exclude_binaries=True,
+        name=name,
+        debug=debug,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        console=False,
+        # icon="crapette/images/png/2x/suit-spade.png",  # Needs .ico
+    )
+    coll = COLLECT(
+        exe,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
+        *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
+        strip=False,
+        upx=True,
+        upx_exclude=[],
+        name=name,
+    )
