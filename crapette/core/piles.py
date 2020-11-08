@@ -110,6 +110,9 @@ class _Pile:
         """Empty the pile"""
         self._cards = []
 
+    def cards_ids(self):
+        return tuple(c.id() for c in self._cards)
+
 
 class FoundationPile(_Pile):
     """Pile in the center where the suites are build from Ace to King."""
