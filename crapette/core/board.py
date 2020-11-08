@@ -193,5 +193,7 @@ class Board:
                     ]
                 )
             piles += sorted(self.tableau_piles, reverse=True)
-            self._hash_cache = hash(tuple(p.cards_ids() for p in piles))
+            # It's a bit faster to create an intermediate list comprehension than a generator
+            tup = tuple([p.cards_ids() for p in piles])
+            self._hash_cache = hash(tup)
         return self._hash_cache
