@@ -13,7 +13,7 @@ from .piles import (
 )
 
 sys.setrecursionlimit(10 ** 5)
-_DEBUG = False
+_DEBUG = True
 
 
 class BrainForce:
@@ -29,6 +29,7 @@ class BrainForce:
         best_node = BrainDjikstra(self.board, self.player).compute_search()
         print("Conclusion :")
         pprint(best_node.moves)
+        print(flush=True)
         return
 
 
@@ -87,20 +88,33 @@ class BoardNode:
                     next_board[pile_dest].add_card(card)
 
                     # Compute the cost
-                    move = Move(card, pile_orig, pile_dest)
-                    cost = self.cost + (compute_move_cost(move),)
                     if next_board in known_nodes:
                         # Get existing next_board which already has a cost
                         next_board_node = known_nodes[next_board]
+                        if next_board_node.visited:
+                            continue
+                        move = Move(card, pile_orig, pile_dest)
+                        cost = self.cost + (compute_move_cost(move),)
                         if cost < next_board_node.cost:
+                            if _DEBUG:
+                                print("moves (new better, old worse)")
+                                pprint(self.moves + [move])
+                                pprint(next_board_node.moves)
+                                print(
+                                    "costs", cost, next_board_node.cost,
+                                )
                             next_board_node.cost = cost
                             next_board_node.moves = self.moves + [move]
+
                     else:
                         # Add this unknown new board
+                        move = Move(card, pile_orig, pile_dest)
+                        cost = self.cost + (compute_move_cost(move),)
                         next_board_node = BoardNode(next_board, self.player)
                         next_board_node.cost = cost
                         next_board_node.moves = self.moves + [move]
-                        print("unknown:")
+                        if _DEBUG:
+                            print("unknown:")
                         pprint(next_board_node.moves)
                         known_nodes[next_board] = next_board_node
 
@@ -134,14 +148,9 @@ class BrainDjikstra:
         next_node = self._select_next_node()
         while next_node is not None:
             next_node.search_neighbors(self.known_nodes)
-            pprint(next_node.moves)
-            print(next_node.score, max_score, next_node.score > max_score)
-            print(flush=True)
             if next_node.score > max_score:
                 max_score = next_node.score
                 best_node = next_node
-                pprint("BEST")
-                print(flush=True)
 
             next_node = self._select_next_node()
         return best_node
