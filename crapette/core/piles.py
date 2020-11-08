@@ -49,9 +49,6 @@ class _Pile:
     def __repr__(self):
         return self.__str__()
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __lt__(self, other):
         assert type(self) == type(other)
         return self._cards < other._cards
@@ -158,6 +155,14 @@ class FoundationPile(_Pile):
             and self._cards == other._cards
         )
 
+    def __ne__(self, other):
+        """Doesn't check if cards face up or down"""
+        return (
+            not isinstance(other, FoundationPile)
+            or self._suit != other._suit
+            or self._cards != other._cards
+        )
+
 
 class TableauPile(_Pile):
     """Side piles where cards go from King to Ace with alternate colors"""
@@ -203,6 +208,9 @@ class TableauPile(_Pile):
     def __eq__(self, other):
         return isinstance(other, TableauPile) and self._cards == other._cards
 
+    def __ne__(self, other):
+        return not isinstance(other, TableauPile) or self._cards != other._cards
+
 
 class _PlayerPile(_Pile):
     """Piles specific to the player"""
@@ -230,6 +238,10 @@ class _PlayerPile(_Pile):
     def __eq__(self, other):
         """Doesn't check if cards face up or down"""
         return self._name == other._name and self._cards == other._cards
+
+    def __ne__(self, other):
+        """Doesn't check if cards face up or down"""
+        return self._name != other._name or self._cards != other._cards
 
 
 class StockPile(_PlayerPile):
