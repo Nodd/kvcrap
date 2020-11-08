@@ -1,2 +1,2 @@
-kivy
-pyinstaller
+kivy>=1.10
+pyinstaller>=4.0
