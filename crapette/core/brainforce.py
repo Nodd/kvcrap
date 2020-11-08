@@ -4,16 +4,10 @@ import sys
 from pprint import pprint
 
 from .board import Board, Move
-from .piles import (
-    CrapePile,
-    FoundationPile,
-    TableauPile,
-    WastePile,
-    _PlayerPile,
-)
+from .piles import CrapePile, FoundationPile, TableauPile, WastePile, _PlayerPile
 
 sys.setrecursionlimit(10 ** 5)
-_DEBUG = True
+_DEBUG = False
 
 
 class BrainForce:
