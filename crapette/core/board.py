@@ -182,7 +182,7 @@ class Board:
         """
         if self._hash_cache is None:
             # Player piles
-            piles = [tuple(p) for p in self.players_piles[0] + self.players_piles[1]]
+            piles = [p for p in self.players_piles[0] + self.players_piles[1]]
 
             # Foundation, inversion between same suit piles doesn't matter
             for i in range(Card.NB_SUITS):
@@ -193,5 +193,5 @@ class Board:
                     ]
                 )
             piles += sorted(self.tableau_piles, reverse=True)
-            self._hash_cache = hash(tuple(tuple(p) for p in piles))
+            self._hash_cache = hash(tuple(p.cards_ids() for p in piles))
         return self._hash_cache
