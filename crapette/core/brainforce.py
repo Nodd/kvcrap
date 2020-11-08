@@ -66,6 +66,7 @@ class BoardNode:
                 continue
             card = pile_orig.top_card
 
+            to_empty_tableau_before = False
             # Check all destination piles for each origin pile
             for pile_dest in piles_dest:
                 # Skip "no move" move
@@ -74,7 +75,20 @@ class BoardNode:
 
                 # Check if the move is possible
                 if pile_dest.can_add_card(card, pile_orig, self.player):
-                    # TODO: manage equivalent boards (in board comparison/hash ?)
+                    # Avoid equivalent moves with empty piles on the tableau
+                    if (
+                        pile_dest.is_empty
+                        and isinstance(pile_orig, TableauPile)
+                        and isinstance(pile_dest, TableauPile)
+                    ):
+                        if to_empty_tableau_before:
+                            # Avoid trying each empty slot, it's useless
+                            continue
+                        elif len(pile_orig) == 1:
+                            # Woud just swap empty slots
+                            continue
+                        else:
+                            to_empty_tableau_before = True
 
                     # Instanciate neighbor
                     next_board = self.board.copy()
