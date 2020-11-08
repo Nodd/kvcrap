@@ -4,7 +4,7 @@ Crapette
 This is a card game of `Crapette <https://fr.wikipedia.org/wiki/Crapette>`_,
 also known as `Russian Bank, Double Solitaire <https://en.wikipedia.org/wiki/Russian_Bank>`_,
 `Crapô, Carapô, Crapot <https://pt.wikipedia.org/wiki/Crapô>`_,
-`Zank-Patience, Die Zänkische <https://de.wikipedia.org/wiki/Zank-Patience>`_
+`Zank-Patience, Die Zänkische <https://de.wikipedia.org/wiki/Zank-Patience>`_,
 `Garibaldka <https://pl.wikipedia.org/wiki/Garibaldka>`_,
 `Rysk bank <https://sv.wikipedia.org/wiki/Rysk_bank>`_
 or `طنج (tunj, tonj, tonge, tunje) <https://ar.wikipedia.org/wiki/%D8%B7%D9%86%D8%AC>`_.
