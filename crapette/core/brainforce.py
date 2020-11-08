@@ -161,6 +161,7 @@ class BoardScore:
         return (
             self.foundation_score,
             self.crapette_score,
+            self.stock_score,
             self.empty_tableau_score,
         ) + tuple(self.clean_tableau_score)
 
@@ -171,6 +172,10 @@ class BoardScore:
     @property
     def crapette_score(self):
         return -len(self.board.players_piles[self.player].crape)
+
+    @property
+    def stock_score(self):
+        return -len(self.board.players_piles[self.player].stock)
 
     @property
     def empty_tableau_score(self):
