@@ -88,35 +88,20 @@ class BoardNode:
                     next_board[pile_dest].add_card(card)
 
                     # Compute the cost
-                    if next_board in known_nodes:
-                        # Get existing next_board which already has a cost
+                    move = Move(card, pile_orig, pile_dest)
+                    cost = self.cost + (compute_move_cost(move),)
+                    try:
                         next_board_node = known_nodes[next_board]
-                        if next_board_node.visited:
-                            continue
-                        move = Move(card, pile_orig, pile_dest)
-                        cost = self.cost + (compute_move_cost(move),)
-                        if cost < next_board_node.cost:
-                            if _DEBUG:
-                                print("moves (new better, old worse)")
-                                pprint(self.moves + [move])
-                                pprint(next_board_node.moves)
-                                print(
-                                    "costs", cost, next_board_node.cost,
-                                )
-                            next_board_node.cost = cost
-                            next_board_node.moves = self.moves + [move]
-
-                    else:
+                    except KeyError:
                         # Add this unknown new board
-                        move = Move(card, pile_orig, pile_dest)
-                        cost = self.cost + (compute_move_cost(move),)
                         next_board_node = BoardNode(next_board, self.player)
-                        next_board_node.cost = cost
-                        next_board_node.moves = self.moves + [move]
-                        if _DEBUG:
-                            print("unknown:")
-                        pprint(next_board_node.moves)
                         known_nodes[next_board] = next_board_node
+                    else:
+                        # Skip if cost is higher
+                        if next_board_node.visited or cost > next_board_node.cost:
+                            continue
+                    next_board_node.cost = cost
+                    next_board_node.moves = self.moves + [move]
 
 
 class BrainDjikstra:
