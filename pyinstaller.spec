@@ -21,9 +21,9 @@ config = get_deps_minimal(
     video=None,
     window=["window_sdl2"],
 )
-hiddenimports = config["hiddenimports"]
-excludes = config["excludes"]
-binaries = config["binaries"]
+hiddenimports = []  # config["hiddenimports"] + ["kivy.weakmethod"]
+excludes = []  # config["excludes"]
+binaries = []  # config["binaries"]
 block_cipher = None
 
 a = Analysis(
@@ -35,8 +35,8 @@ a = Analysis(
         ("crapette/images/png/1x/*.png", "crapette/images/png/1x/"),
         ("crapette/images/png/2x/*.png", "crapette/images/png/2x/"),
     ],
-    hookspath=hookspath(),
-    runtime_hooks=runtime_hooks(),
+    hookspath=[],  # hookspath(),
+    runtime_hooks=[],  # runtime_hooks(),
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
