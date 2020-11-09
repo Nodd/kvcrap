@@ -2,6 +2,9 @@
 __pycache__/
 *.pyc
 
+# Setuptools
+crapette.egg-info/
+
 # Pyinstaller
 dist/
 build/
