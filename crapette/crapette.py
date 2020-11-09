@@ -72,5 +72,5 @@ class CrapetteApp(App):
         self.board_manager.place_cards()
 
 
-if __name__ == "__main__":
+def main():
     CrapetteApp().run()
