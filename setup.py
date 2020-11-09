@@ -24,4 +24,5 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     install_requires=["kivy"],
+    entry_points={"gui_scripts": ["crapette=crapette.crapette:main"]},
 )
