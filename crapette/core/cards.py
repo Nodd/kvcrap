@@ -18,6 +18,7 @@ class Card:
     PLAYERS = [0, 1]
     SUIT_SYMBOL = {"c": "\u2663", "d": "\u2666", "h": "\u2665", "s": "\u2660"}
     RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
+    RANK_NAME = {1: "Ace", 11: "Jack", 12: "Queen", 13: "King"}
 
     def __init__(self, rank, suit, player, face_up=False):
         assert rank in self.RANKS
@@ -55,6 +56,13 @@ class Card:
     def rank_symbol(self):
         try:
             return self.RANK_SYMBOL[self._rank]
+        except KeyError:
+            return str(self._rank)
+
+    @property
+    def rank_name(self):
+        try:
+            return self.RANK_NAME[self._rank]
         except KeyError:
             return str(self._rank)
 
