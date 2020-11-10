@@ -169,37 +169,6 @@ FloatLayout:
             value: 13
             orientation: 'horizontal'
 
-        # BoxLayout:
-        #     orientation: 'horizontal'
-        #     size_hint: 1, None
-        #     # height: app.menu_height
-        #     # spacing: 0.01*win.Window.width
-        #     # padding: app.pad_by, app.pad_by, app.pad_by, app.pad_by
-
-        #     canvas.before:
-        #         Color:
-        #             rgba: 0.1, 0.4, 0.1, 1
-        #         Rectangle:
-        #             pos: self.pos
-        #             size: self.size
-
-        #     Spinner:
-        #         id: menu
-        #         text: "Menu"
-        #         size_hint: None, None
-        #         # size: 0.18*win.Window.width, app.menu_height-2*app.pad_by
-
-        #     Button:
-        #         text: 'CRAPETTE'
-        #         on_press: app.crapette()
-
-        #     Spinner:
-        #         id: menu_smileys
-        #         text: "Smileys :o)"
-        #         size_hint: None, None
-        #         # size: 0.18*win.Window.width, app.menu_height-2*app.pad_by
-
-
 <TableauPileWidget@RelativeLayout>:
     size_hint: None, 1
     size: app.card_width * (1 + 12 * app.card_overlap), app.card_height
