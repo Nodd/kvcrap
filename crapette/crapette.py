@@ -68,16 +68,25 @@ class CrapetteApp(App):
 
         self.board_manager.place_cards()
 
-    def set_menu_visible(self, visible):
+    def set_menu_visible(self, menu_visible):
         ids = self.root.ids
 
         menu = ids["menu"]
-        menu.opacity = 1 if visible else 0
-        menu.disabled = False if visible else True
+        menu.opacity = float(menu_visible)
+        menu.disabled = not menu_visible
+        menu.size_hint = (None, None) if menu_visible else (0, 0)
+        if menu_visible:
+            # Menu on top
+            self.root.remove_widget(menu)
+            self.root.add_widget(menu)
+        menu.size = self.root.size
 
         menu_button = ids["menu_button"]
-        menu_button.opacity = 0 if visible else 1
-        menu_button.disabled = True if visible else False
+        menu_button.opacity = float(not menu_visible)
+        menu_button.disabled = menu_visible
+
+        game_board = ids["game_board"]
+        game_board.disabled = menu_visible
 
     def new_game(self):
         self.set_menu_visible(False)
