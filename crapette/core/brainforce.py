@@ -1,5 +1,6 @@
 """IA for playing the crapette"""
 
+import os
 import sys
 from pprint import pprint
 
@@ -8,6 +9,9 @@ from .piles import CrapePile, FoundationPile, TableauPile, WastePile, _PlayerPil
 
 sys.setrecursionlimit(10 ** 5)
 _DEBUG = False
+if os.name == "nt":
+    # Fix utf8 output in console
+    sys.stdout = open(1, "w", encoding="utf-8", closefd=False)  # fd 1 is stdout
 
 
 class BrainForce:
