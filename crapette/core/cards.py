@@ -15,7 +15,7 @@ class Card:
     BLACK = "cs"  # Clubs, Spades
     SUITS = RED + BLACK
     NB_SUITS = len(SUITS)
-    PLAYERS = [0, 1]
+    PLAYERS = (0, 1)
     SUIT_SYMBOL = {"c": "\u2663", "d": "\u2666", "h": "\u2665", "s": "\u2660"}
     RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
     RANK_NAME = {1: "Ace", 11: "Jack", 12: "Queen", 13: "King"}
@@ -28,9 +28,10 @@ class Card:
         self._suit = suit
         self._player = player
         self._face_up = bool(face_up)
-        self._is_red = suit in self.RED
-
-        self._hash_cache = None
+        self._color = "red" if suit in self.RED else "black"
+        self._hash = hash((self._rank, self._suit, self._player))
+        # Like a hash, but uses only suit and rank
+        self._id = ord(self._suit) * 100 + self._rank
 
     @property
     def rank(self):
@@ -86,7 +87,7 @@ class Card:
 
     def is_same_color(self, other):
         """Check if this card has the same color (red or black) as another card"""
-        return self._is_red == other._is_red
+        return self._color == other._color
 
     def __str__(self):
         """Sting representation of the card"""
@@ -117,12 +118,12 @@ class Card:
             return self._suit < other._suit
 
     def __hash__(self):
-        if self._hash_cache is None:
-            self._hash_cache = hash((self._rank, self._suit, self._player))
-        return self._hash_cache
+        return self._hash
 
+    @property
     def id(self):
-        return ord(self._suit) * 100 + self._rank
+        """Like a hash, but uses only suit and rank"""
+        return self._id
 
 
 def new_deck(player):
@@ -130,7 +131,7 @@ def new_deck(player):
 
     A deck is simply a list of cards.
     """
-    assert player in [0, 1]
+    assert player in (0, 1)
     cards = [Card(r, s, player) for s in Card.SUITS for r in Card.RANKS]
     random.shuffle(cards)
     return cards
