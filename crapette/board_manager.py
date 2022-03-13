@@ -15,6 +15,8 @@ from .brain.brainforce import BrainForce
 
 _DEBUG = False
 
+TRANSITION_DURATION = 0.5
+
 
 def debug(*s):
     if _DEBUG:
@@ -82,27 +84,26 @@ class BoardManager:
         self.background_halo.y = 0 if self.active_player == 0 else self.app.root.height
 
     def set_player_turn(self, player):
-        duration = 0.5
         self.active_player = player
         self.crapette_mode = False
         self.moves = []
         ids = self.app.root.ids
+
         next_player_btn = ids[f"player{player}crapebutton"]
-        prev_player_btn = ids[f"player{1 - player}crapebutton"]
         next_player_btn.disabled = False
+        Animation(
+            opacity=1, duration=TRANSITION_DURATION, transition="out_cubic"
+        ).start(next_player_btn)
+
+        prev_player_btn = ids[f"player{1 - player}crapebutton"]
         prev_player_btn.disabled = True
-
-        Animation(opacity=0, duration=duration, transition="out_cubic").start(
-            prev_player_btn
-        )
-
-        Animation(opacity=1, duration=duration, transition="out_cubic").start(
-            next_player_btn
-        )
+        Animation(
+            opacity=0, duration=TRANSITION_DURATION, transition="out_cubic"
+        ).start(prev_player_btn)
 
         Animation(
             y=0 if player == 0 else self.app.root.height,
-            duration=duration,
+            duration=TRANSITION_DURATION,
             transition="in_out_expo",
         ).start(self.background_halo)
 
@@ -232,8 +233,9 @@ class BoardManager:
         self.store_player_move(FlipWaste())
 
     def on_crapette(self):
+        player = self.active_player
         ids = self.app.root.ids
-        crapette_button = ids[f"player{self.active_player}crapebutton"]
+        crapette_button = ids[f"player{player}crapebutton"]
 
         self.crapette_mode = not self.crapette_mode
 
@@ -241,3 +243,16 @@ class BoardManager:
         crapette_button.text = (
             "Cancel ! (Sorry...)" if self.crapette_mode else "Crapette !"
         )
+
+        prev_next_buttons = [
+            ids[f"player{player}nextbutton"],
+            ids[f"player{player}prevbutton"],
+        ]
+
+        for btn in prev_next_buttons:
+            btn.disabled = not self.crapette_mode
+            Animation(
+                opacity=1 if self.crapette_mode else 0,
+                duration=TRANSITION_DURATION,
+                transition="out_cubic",
+            ).start(btn)
