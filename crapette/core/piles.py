@@ -21,16 +21,19 @@ class _Pile:
         self._cards.append(card)
 
     def pop_card(self):
-        """Take the top card from the pile"""
+        """Take the top card from the pile.
+
+        No check is done here, see `can_pop_card`.
+        """
         assert self._cards, f"No card to pop in {self._name}"
         return self._cards.pop()
 
     def can_add_card(self, card, origin, player):
-        """Ckeck if the card can be added to the pile"""
+        """Check if the card can be added to the pile"""
         raise NotImplementedError
 
     def can_pop_card(self, player):
-        """Ckeck if the top card can be taken from the pile"""
+        """Check if the top card can be taken from the pile"""
         raise NotImplementedError
 
     def __iter__(self):
@@ -53,6 +56,12 @@ class _Pile:
         assert type(self) == type(other)
         return self._cards < other._cards
 
+    def __eq__(self, other):
+        raise NotImplementedError
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     @property
     def name(self):
         """Name of the pile"""
@@ -64,7 +73,7 @@ class _Pile:
 
     @property
     def top_card(self):
-        """topmost card of the pile"""
+        """topmost card of the pile, or None if pile is empty"""
         try:
             return self._cards[-1]
         except IndexError:
@@ -122,6 +131,9 @@ class FoundationPile(_Pile):
         self._suit = suit
 
     def can_add_card(self, card, origin, player):
+        """Card can be added if it has the same suit as the pile, and a rank
+        just above the last card
+        """
         if card.suit != self._suit:
             if _DEBUG:
                 print(f"Add {self.name}: Impossible, {card} has not suit {self._suit}")
@@ -137,6 +149,10 @@ class FoundationPile(_Pile):
         return True
 
     def can_pop_card(self, player):
+        """Cards can never be removed from here
+
+        Note: except when rolling back in crapette mode, but that's not maanged here
+        """
         if _DEBUG:
             print(
                 f"Pop {self.name}: Impossible, it's never possible to pop card from here"
@@ -156,14 +172,6 @@ class FoundationPile(_Pile):
             and self._cards == other._cards
         )
 
-    def __ne__(self, other):
-        """Doesn't check if cards face up or down"""
-        return (
-            not isinstance(other, FoundationPile)
-            or self._suit != other._suit
-            or self._cards != other._cards
-        )
-
 
 class TableauPile(_Pile):
     """Side piles where cards go from King to Ace with alternate colors"""
@@ -173,6 +181,9 @@ class TableauPile(_Pile):
         self._id = tableau_id
 
     def can_add_card(self, card, origin, player):
+        """True if either the pile is empty or the color from the top card is
+        different from the card color and the rank is just below.
+        """
         # Empty pile can accept any card
         if not self._cards:
             if _DEBUG:
@@ -209,9 +220,6 @@ class TableauPile(_Pile):
     def __eq__(self, other):
         return isinstance(other, TableauPile) and self._cards == other._cards
 
-    def __ne__(self, other):
-        return not isinstance(other, TableauPile) or self._cards != other._cards
-
 
 class _PlayerPile(_Pile):
     """Piles specific to the player"""
@@ -238,11 +246,11 @@ class _PlayerPile(_Pile):
 
     def __eq__(self, other):
         """Doesn't check if cards face up or down"""
-        return self._name == other._name and self._cards == other._cards
-
-    def __ne__(self, other):
-        """Doesn't check if cards face up or down"""
-        return self._name != other._name or self._cards != other._cards
+        return (
+            isinstance(other, self.__class__)
+            and self._name == other._name
+            and self._cards == other._cards
+        )
 
 
 class StockPile(_PlayerPile):
