@@ -183,16 +183,15 @@ class BoardManager:
             self.moves.append(move)
 
     def check_win(self):
-        ids = self.app.root.ids
-        stock_widget = ids[f"player{self.active_player}stock"]
-        waste_widget = ids[f"player{self.active_player}waste"]
-        crape_widget = ids[f"player{self.active_player}crape"]
-        if not stock_widget.pile and not waste_widget.pile and not crape_widget.pile:
+        if self.board.check_win(self.active_player):
             print(f"Player {self.active_player} wins !!!")
+
+            # Freeze board
             self.active_player = None
             for card_widget in self.card_widgets.values():
                 card_widget.do_translation = False
             return True
+        return False
 
     def check_end_of_turn(self, pile_widget):
         if (

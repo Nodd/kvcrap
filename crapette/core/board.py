@@ -209,3 +209,11 @@ class Board:
             tup = tuple([p.cards_ids() for p in piles])
             self._hash_cache = hash(tup)
         return self._hash_cache
+
+    def check_win(self, player):
+        players_piles = self.players_piles[player]
+        return (
+            not players_piles.stock
+            and not players_piles.waste
+            and not players_piles.crape
+        )
