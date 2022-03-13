@@ -39,7 +39,6 @@ class BoardManager:
         self.add_card_widgets()
         self.place_cards()
         self.update_counts()
-        self.background_halo.opacity = 0.5
 
         self.set_player_turn(self.board.compute_first_player())
 
