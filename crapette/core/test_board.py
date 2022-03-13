@@ -25,7 +25,6 @@ def test_equal_different_order():
 def test_not_equal():
     board = Board(new_game=False)
     board2 = Board(new_game=False)
-    board3 = Board(new_game=False)
     card1 = Card(1, "s", 0)
     card2 = Card(2, "s", 0)
 
@@ -59,7 +58,6 @@ def test_hash_equal_different_order():
 def test_hash_not_equal():
     board = Board(new_game=False)
     board2 = Board(new_game=False)
-    board3 = Board(new_game=False)
     card1 = Card(1, "s", 0)
     card2 = Card(2, "s", 0)
 
