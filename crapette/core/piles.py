@@ -59,9 +59,6 @@ class _Pile:
     def __eq__(self, other):
         raise NotImplementedError
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     @property
     def name(self):
         """Name of the pile"""
@@ -318,6 +315,7 @@ class CrapePile(_PlayerPile):
     """Smallest and high-priorty pile the player has to empty"""
 
     _name_tpl = "CrapePlayer{player}"
+    NB_CARDS_START = 13
 
     def can_add_card(self, card, origin, player):
         if self._player == player:

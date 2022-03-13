@@ -106,9 +106,6 @@ class Card:
             and self._player == other._player
         )
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __lt__(self, other):
         if self._rank < other._rank:
             return True

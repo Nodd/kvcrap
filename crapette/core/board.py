@@ -16,13 +16,14 @@ FlipWaste = namedtuple("FlipWaste", [])
 class Board:
     NB_PILES = 8
     NB_ROWS = 6  # 4 foundations + 2 players
-    NB_PLAYERS = 2
+    PLAYERS = (0, 1)
+    NB_PLAYERS = len(PLAYERS)
     FOUNDATION_SUITES = "dchsshcd"
     assert len(FOUNDATION_SUITES) == NB_PILES
 
     def __init__(self, new_game=True):
         # Setup the piles on the board
-        self.players_piles = [player_piles(p) for p in range(self.NB_PLAYERS)]
+        self.players_piles = [player_piles(p) for p in self.PLAYERS]
         self.foundation_piles = [
             # Diamonds, Clubs, Hearts, Spades and reverse
             FoundationPile(s, i)
@@ -47,7 +48,7 @@ class Board:
         )
 
     def __getitem__(self, name):
-        """Can take a pile name or a pile obkect (not necesserally from this board)"""
+        """Can take a pile name or a pile object (not necesserally from this board)"""
         if hasattr(name, "name"):
             name = name.name
         return self._pile_by_names[name]
@@ -60,22 +61,30 @@ class Board:
 
     def new_game(self):
         """Reset the board and distribute the cards for a new game"""
+        FOUNDATIONS_PER_PLAYER = 4
         for player, player_piles in enumerate(self.players_piles):
             # Create deck
             deck = new_deck(player)
 
             # Fill crape
-            player_piles.crape.set_cards(deck[0:13])
-            player_piles.crape[-1].face_up = True
+            player_piles.crape.set_cards(deck[: player_piles.crape.NB_CARDS_START])
+            deck = deck[player_piles.crape.NB_CARDS_START :]
+            player_piles.crape.face_up = True
 
             # Fill tableau
-            for index, tableau_index in enumerate(range(player * 4, player * 4 + 4)):
-                card = deck[13 + index]
+            for index, tableau_index in enumerate(
+                range(
+                    player * FOUNDATIONS_PER_PLAYER,
+                    player * FOUNDATIONS_PER_PLAYER + FOUNDATIONS_PER_PLAYER,
+                )
+            ):
+                card = deck[index]
                 card.face_up = True
                 self.tableau_piles[tableau_index].set_cards([card])
+            deck = deck[FOUNDATIONS_PER_PLAYER:]
 
             # Fill stock
-            player_piles.stock.set_cards(deck[17:])
+            player_piles.stock.set_cards(deck)
 
             # Empty waste
             player_piles.waste.clear()
@@ -89,7 +98,7 @@ class Board:
         for tableau_pile in self.tableau_piles:
             assert (
                 len(tableau_pile) == 1
-            ), f"{tableau_pile.name} should have exactly 1 card"
+            ), f"{tableau_pile.name} should have exactly 1 card, not {len(tableau_pile)}"
 
         # Empty foundation
         for foundation_pile in self.foundation_piles:
@@ -140,16 +149,22 @@ class Board:
         """Doesn't check if cards face up or down"""
         # Check player piles for both players
         for player in range(Board.NB_PLAYERS):
-            for pile, pile_other in zip(self.players_piles[0], other.players_piles[0]):
+            for pile, pile_other in zip(
+                self.players_piles[player], other.players_piles[player]
+            ):
                 if pile != pile_other:
                     return False
 
         # Check foundation, inversion between same suit piles doesn't matter
-        for i in range(Card.NB_SUITS):
-            self_foundation_pile_right = self.foundation_piles[i]
-            other_foundation_pile_right = other.foundation_piles[i]
-            self_foundation_pile_left = self.foundation_piles[Card.NB_SUITS - i - 1]
-            other_foundation_pile_left = other.foundation_piles[Card.NB_SUITS - i - 1]
+        for i_suit in range(Card.NB_SUITS):
+            self_foundation_pile_right = self.foundation_piles[i_suit]
+            other_foundation_pile_right = other.foundation_piles[i_suit]
+            self_foundation_pile_left = self.foundation_piles[
+                Card.NB_SUITS - i_suit - 1
+            ]
+            other_foundation_pile_left = other.foundation_piles[
+                Card.NB_SUITS - i_suit - 1
+            ]
             if not (
                 (
                     self_foundation_pile_right == other_foundation_pile_right
@@ -170,9 +185,6 @@ class Board:
                 return False
         return True
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __hash__(self):
         """
         Warning, boards are mutable in general !
@@ -182,7 +194,7 @@ class Board:
         """
         if self._hash_cache is None:
             # Player piles
-            piles = [p for p in self.players_piles[0] + self.players_piles[1]]
+            piles = list(self.players_piles[0]) + list(self.players_piles[1])
 
             # Foundation, inversion between same suit piles doesn't matter
             for i in range(Card.NB_SUITS):
