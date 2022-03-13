@@ -1,5 +1,5 @@
-Crapette
-========
+Crapette Card Game
+==================
 
 This is a card game of `Crapette <https://fr.wikipedia.org/wiki/Crapette>`_,
 also known as `Russian Bank, Double Solitaire <https://en.wikipedia.org/wiki/Russian_Bank>`_,
