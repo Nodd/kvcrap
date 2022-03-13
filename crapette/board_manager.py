@@ -9,8 +9,8 @@ from .core.piles import WastePile, FoundationPile
 from .widgets.pile_widgets import PlayerPileWidget
 from .widgets.card_widget import CardWidget
 
-from .core.brain import Brain
-from .core.brainforce import BrainForce
+from .brain.brain import Brain
+from .brain.brainforce import BrainForce
 
 
 _DEBUG = False

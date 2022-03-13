@@ -4,8 +4,8 @@ import os
 import sys
 from pprint import pprint
 
-from .board import Board, Move
-from .piles import CrapePile, FoundationPile, TableauPile, WastePile, _PlayerPile
+from ..core.board import Board, Move
+from ..core.piles import CrapePile, FoundationPile, TableauPile, WastePile, _PlayerPile
 
 sys.setrecursionlimit(10 ** 5)
 _DEBUG = False

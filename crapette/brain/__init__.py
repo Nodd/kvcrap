@@ -1,0 +1,3 @@
+"""
+Crapette card game intelligence.
+"""
