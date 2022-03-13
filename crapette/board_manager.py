@@ -27,8 +27,8 @@ class BoardManager:
     def __init__(self, app):
         self.app = app
 
-        self.pile_widgets = None
         self.board = None
+        self.pile_widgets = None
         self.card_widgets = None
         self.active_player = None
         ids = self.app.root.ids
@@ -36,6 +36,7 @@ class BoardManager:
         self.background_crapette = ids["background_crapette"]
 
     def new_game(self):
+        """Prepare and initialize the board for a new game"""
         self.board = Board()
         self.setup_piles()
         self.add_card_widgets()
@@ -45,7 +46,10 @@ class BoardManager:
         self.set_player_turn(self.board.compute_first_player())
 
     def setup_piles(self):
-        # Setup UI piles with game piles
+        """Configures the piles.
+
+        Configures the relation between the pile widgets and the backend piles, and
+        updates the `pile_widgets` list."""
         ids = self.app.root.ids
         self.pile_widgets = []
         for player, player_piles in enumerate(self.board.players_piles):
@@ -63,9 +67,18 @@ class BoardManager:
             ids[f"foundation{foundation}"].set_pile(foundation_pile)
 
     def add_card_widgets(self):
+        """Creates and add a widget for every card.
+
+        Updates the `card_widgets` list.
+
+        The cards are not placed on the board, see `place_cards`.
+        """
+        # Remove previous card widgets
         if self.card_widgets:
             for card_widget in self.card_widgets.values():
                 self.app.root.remove_widget(card_widget)
+
+        # Add all card widgets
         self.card_widgets = {}
         for pile_widget in self.pile_widgets:
             for card in pile_widget.pile:
@@ -75,6 +88,7 @@ class BoardManager:
                 self.app.root.add_widget(card_widget)
 
     def place_cards(self):
+        """Resets the card widget positions in the piles and the halo position."""
         if not self.pile_widgets:
             return
         for pile_widget in self.pile_widgets:
@@ -84,6 +98,7 @@ class BoardManager:
         self.background_halo.y = 0 if self.active_player == 0 else self.app.root.height
 
     def set_player_turn(self, player):
+        """Changes the active player and updates the GUI accordingly"""
         self.active_player = player
         self.crapette_mode = False
         self.moves = []
@@ -111,6 +126,7 @@ class BoardManager:
         BrainForce(self.board, self.active_player).compute_states()
 
     def update_counts(self):
+        """Update displayed card counts"""
         ids = self.app.root.ids
         for player in range(self.board.NB_PLAYERS):
             stock_pile = ids[f"player{player}stock"].pile
@@ -121,9 +137,10 @@ class BoardManager:
             crape_label.text = str(len(crape_pile)) if crape_pile else ""
 
     def move_card(self, card_widget, pile_widget):
-        """Move a card to another pile.
+        """Move a card to another pile and register the move.
 
-        Return True if the card was moved, or False if the move is not possible.
+        Returns True if the card was moved, or False if the move is not possible.
+        It only checks the destination, not if the card was movable by the player.
         """
         old_pile_widget = card_widget.pile_widget
 
@@ -164,17 +181,21 @@ class BoardManager:
         return True
 
     def store_player_move(self, move):
+        """Stores all moves from the player.
+
+        It enables to roll back in crapette mode.
+        """
         # UNFINISHED
 
         if isinstance(move, Flip):
-            # Too late for preceeding crapettes, reset history
+            # Too late for preceding crapettes, reset history
             self.moves = [move]
         elif isinstance(move, Move):
             if (
                 isinstance(move.destination, PlayerPileWidget)
                 and move.destination.pile.player != self.active_player
             ):
-                # Too late for preceeding crapettes, reset history
+                # Too late for preceding crapettes, reset history
                 self.moves = [move]
             elif self.moves:
                 self.moves.append(move)
@@ -184,6 +205,7 @@ class BoardManager:
             self.moves.append(move)
 
     def check_win(self):
+        """End the game if the player has won"""
         if self.board.check_win(self.active_player):
             print(f"Player {self.active_player} wins !!!")
 
@@ -195,6 +217,7 @@ class BoardManager:
         return False
 
     def check_end_of_turn(self, pile_widget):
+        """End the player turn if conditions are met."""
         if (
             isinstance(pile_widget.pile, WastePile)
             and pile_widget.pile.player == self.active_player
@@ -202,6 +225,7 @@ class BoardManager:
             self.set_player_turn(1 - self.active_player)
 
     def flip_card_up(self, card_widget):
+        """Flips up the card and register the flip as a move"""
         card_widget.set_face_up()
         self.store_player_move(Flip(card_widget, card_widget.pile_widget))
 
@@ -209,6 +233,7 @@ class BoardManager:
         BrainForce(self.board, self.active_player).compute_states()
 
     def flip_waste_to_stock(self):
+        """When the stock is empty, flip the waste back to the stock"""
         ids = self.app.root.ids
         stock_widget = ids[f"player{self.active_player}stock"]
         waste_widget = ids[f"player{self.active_player}waste"]
@@ -232,7 +257,8 @@ class BoardManager:
 
         self.store_player_move(FlipWaste())
 
-    def on_crapette(self):
+    def toggle_crapette_mode(self):
+        """Toggles the crapette mode."""
         player = self.active_player
         ids = self.app.root.ids
         crapette_button = ids[f"player{player}crapebutton"]

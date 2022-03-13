@@ -305,21 +305,21 @@ FloatLayout:
 
 <CrapetteButton@Button>:
     text: 'Crapette !'
-    on_press: app.board_manager.on_crapette()
+    on_press: app.board_manager.toggle_crapette_mode()
     size_hint: 1, 1
     opacity: 0
     disabled: True
 
 <NextButton@Button>:
     text: 'Next ->'
-    on_press: app.board_manager.on_crapette()
+    on_press: app.board_manager.toggle_crapette_mode()
     size_hint: 1, 1
     opacity: 0
     disabled: True
 
 <PreviousButton@Button>:
     text: '<- Previous'
-    on_press: app.board_manager.on_crapette()
+    on_press: app.board_manager.toggle_crapette_mode()
     size_hint: 1, 1
     opacity: 0
     disabled: True
