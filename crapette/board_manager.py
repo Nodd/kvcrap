@@ -127,6 +127,26 @@ class BoardManager:
         # Brain(self.board, self.active_player).checks()
         BrainForce(self.board, self.active_player).compute_states()
 
+    def check_end_of_turn(self, pile_widget):
+        """End the player turn if conditions are met."""
+        if (
+            isinstance(pile_widget.pile, WastePile)
+            and pile_widget.pile.player == self.active_player
+        ):
+            self.set_player_turn(1 - self.active_player)
+
+    def check_win(self):
+        """End the game if the player has won"""
+        if self.board.check_win(self.active_player):
+            print(f"Player {self.active_player} wins !!!")
+
+            # Freeze board
+            self.active_player = None
+            for card_widget in self.card_widgets.values():
+                card_widget.do_translation = False
+            return True
+        return False
+
     def update_counts(self):
         """Update displayed card counts"""
         ids = self.app.root.ids
@@ -177,26 +197,6 @@ class BoardManager:
         BrainForce(self.board, self.active_player).compute_states()
 
         return True
-
-    def check_win(self):
-        """End the game if the player has won"""
-        if self.board.check_win(self.active_player):
-            print(f"Player {self.active_player} wins !!!")
-
-            # Freeze board
-            self.active_player = None
-            for card_widget in self.card_widgets.values():
-                card_widget.do_translation = False
-            return True
-        return False
-
-    def check_end_of_turn(self, pile_widget):
-        """End the player turn if conditions are met."""
-        if (
-            isinstance(pile_widget.pile, WastePile)
-            and pile_widget.pile.player == self.active_player
-        ):
-            self.set_player_turn(1 - self.active_player)
 
     def flip_card_up(self, card_widget):
         """Flips up the card and register the flip as a move"""
