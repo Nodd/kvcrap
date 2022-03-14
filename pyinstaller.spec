@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+# On conda, it needs : pip install kivy-deps.sdl2 kivy-deps.glew
 from kivy_deps import sdl2, glew
 from kivy.tools.packaging.pyinstaller_hooks import (
     get_deps_minimal,
