@@ -259,6 +259,7 @@ class BoardManager:
             ).start(btn)
 
     def _move_card(self, card_widget, pile_widget):
+        """Low level card move"""
         # Remove from previous pile
         card_widget.pile_widget.pop_card()
 
@@ -270,6 +271,7 @@ class BoardManager:
         card_widget.main_rotation = pile_widget.rotation
 
     def update_prev_next_enabled(self):
+        """Update enabled state of history buttons"""
         player = self.active_player
         ids = self.app.root.ids
 
@@ -292,7 +294,7 @@ class BoardManager:
             print("FlipWaste")
 
     def crapette_mode_next(self):
-        """Rollback one step in crapette mode"""
+        """'Rollforward' one step in crapette mode"""
         move = self.moves.next()
         self.update_prev_next_enabled()
 
