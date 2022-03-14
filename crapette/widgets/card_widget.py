@@ -61,6 +61,10 @@ class CardWidget(ScatterLayout):
         self.card.face_up = True
         self.flip_animation()
 
+    def set_face_down(self):
+        self.card.face_up = False
+        self.flip_animation()
+
     def flip_animation(self):
         height = self.height
         animation = Animation(height=0, duration=0.25, transition="out_sine")

@@ -15,6 +15,8 @@ from ..core.piles import StockPile
 class PileWidget(RelativeLayout):
     """Parent widget for all pile types"""
 
+    rotation = NumericProperty()
+
     def __repr__(self):
         try:
             return f"PileWidget({self.pile!r})"
@@ -47,7 +49,6 @@ class FoundationPileWidget(PileWidget):
     """
 
     background = StringProperty()
-    rotation = NumericProperty()
 
 
 class PlayerPileWidget(PileWidget):

@@ -224,14 +224,15 @@ class BoardManager:
             card_widget.update_image()
             card_widget.pile_widget = stock_widget
             card_widget.set_center_animated(stock_widget.card_pos(index))
-
-            # Re-add widget for correct order
-            self.app.root.remove_widget(card_widget)
-            self.app.root.add_widget(card_widget)
+            self.put_on_top(card_widget)
         self.update_counts()
 
         self.moves.record_waste_flip()
         self.update_prev_next_enabled()
+
+    def put_on_top(self, card_widget):
+        self.app.root.remove_widget(card_widget)
+        self.app.root.add_widget(card_widget)
 
     def toggle_crapette_mode(self):
         """Toggles the crapette mode."""
@@ -258,6 +259,11 @@ class BoardManager:
                 transition="out_cubic",
             ).start(btn)
 
+        # If crapette mode cancelled, reset
+        if not self.crapette_mode:
+            while self.moves.has_next:
+                self.crapette_mode_next()
+
     def _move_card(self, card_widget, pile_widget):
         """Low level card move"""
         # Remove from previous pile
@@ -269,6 +275,7 @@ class BoardManager:
         card_widget.set_center_animated(pile_widget.card_pos())
         card_widget.apply_random_rotation()
         card_widget.main_rotation = pile_widget.rotation
+        self.put_on_top(card_widget)
 
     def update_prev_next_enabled(self):
         """Update enabled state of history buttons"""
@@ -287,9 +294,9 @@ class BoardManager:
         self.update_prev_next_enabled()
 
         if isinstance(move, Move):
-            self.do_move(move.card, move.origin)
+            self._move_card(move.card, move.origin)
         elif isinstance(move, Flip):
-            print("Flip")
+            move.card.set_face_down()
         elif isinstance(move, FlipWaste):
             print("FlipWaste")
 
@@ -299,8 +306,8 @@ class BoardManager:
         self.update_prev_next_enabled()
 
         if isinstance(move, Move):
-            self.do_move(move.card, move.destination)
+            self._move_card(move.card, move.destination)
         elif isinstance(move, Flip):
-            print("Flip")
+            move.card.set_face_up()
         elif isinstance(move, FlipWaste):
             print("FlipWaste")
