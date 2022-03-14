@@ -62,7 +62,7 @@ class BoardNode:
             + [enemy_piles.crape, enemy_piles.waste]
         )
 
-        # Check all orgin piles
+        # Check all origin piles
         for pile_orig in piles_orig:
             # Consider top card if available
             if pile_orig.is_empty:
