@@ -4,7 +4,8 @@ import os
 import sys
 from pprint import pprint
 
-from ..core.board import Board, Move
+from ..core.board import Board
+from ..core.moves import Move
 from ..core.piles import CrapePile, FoundationPile, TableauPile, WastePile, _PlayerPile
 
 sys.setrecursionlimit(10 ** 5)
@@ -24,7 +25,7 @@ class BrainForce:
             print("*" * 50)
             print(f"compute_states for player {self.player}")
 
-        best_node = BrainDjikstra(self.board, self.player).compute_search()
+        best_node = BrainDijkstra(self.board, self.player).compute_search()
         print("Conclusion :")
         pprint(best_node.moves)
         print(flush=True)
@@ -89,12 +90,12 @@ class BoardNode:
                             # Avoid trying each empty slot, it's useless
                             continue
                         elif len(pile_orig) == 1:
-                            # Woud just swap empty slots
+                            # Would just swap empty slots
                             continue
                         else:
                             to_empty_tableau_before = True
 
-                    # Instanciate neighbor
+                    # Instantiate neighbor
                     next_board = self.board.copy()
                     next_board[pile_orig].pop_card()
                     next_board[pile_dest].add_card(card)
@@ -116,7 +117,7 @@ class BoardNode:
                     next_board_node.moves = self.moves + [move]
 
 
-class BrainDjikstra:
+class BrainDijkstra:
     def __init__(self, board: Board, player: int) -> None:
         self.board = board
         self.player = player

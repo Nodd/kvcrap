@@ -1,16 +1,11 @@
 """
-Initialisation and data for a crapette game board backend.
+Initialization and data for a crapette game board backend.
 """
 
 import random
-from collections import namedtuple
 
 from .cards import new_deck, Card
 from .piles import FoundationPile, TableauPile, player_piles
-
-Move = namedtuple("Move", ["card", "origin", "destination"])
-Flip = namedtuple("Flip", ["card", "pile"])
-FlipWaste = namedtuple("FlipWaste", [])
 
 
 class Board:
@@ -30,7 +25,6 @@ class Board:
             for i, s in enumerate(self.FOUNDATION_SUITES)
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
-
         self._pile_by_names = {p.name: p for p in self.piles}
 
         self._hash_cache = None
@@ -48,7 +42,7 @@ class Board:
         )
 
     def __getitem__(self, name):
-        """Can take a pile name or a pile object (not necesserally from this board)"""
+        """Can take a pile name or a pile object (not necessarily from this board)"""
         if hasattr(name, "name"):
             name = name.name
         return self._pile_by_names[name]

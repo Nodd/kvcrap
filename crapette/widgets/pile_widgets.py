@@ -15,6 +15,12 @@ from ..core.piles import StockPile
 class PileWidget(RelativeLayout):
     """Parent widget for all pile types"""
 
+    def __repr__(self):
+        try:
+            return f"PileWidget({self.pile!r})"
+        except AttributeError:
+            return "PileWidget()"
+
     def set_pile(self, pile):
         self.pile = pile
 
@@ -34,9 +40,9 @@ class PileWidget(RelativeLayout):
 
 
 class FoundationPileWidget(PileWidget):
-    """Piles for fondations
+    """Piles for foundations
 
-    Left and right foundations sould be different, because the rotation is not
+    Left and right foundations should be different, because the rotation is not
     the same.
     """
 

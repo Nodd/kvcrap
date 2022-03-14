@@ -34,6 +34,12 @@ class CardWidget(ScatterLayout):
         self._flipping = False
         self.main_rotation = 0
 
+    def __repr__(self):
+        try:
+            return f"CardWidget({self.card!r})"
+        except AttributeError:
+            return "CardWidget()"
+
     def set_center_animated(self, pos):
         animation = Animation(center=pos, duration=0.1, transition="out_quad")
         animation.start(self)

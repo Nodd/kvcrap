@@ -1,11 +1,13 @@
 """
 Manage the widgets interaction on the game board
 """
+from pprint import pprint
 
 from kivy.animation import Animation
 
-from .core.board import Board, Move, Flip, FlipWaste
+from .core.board import Board
 from .core.piles import WastePile, FoundationPile
+from .core.moves import Moves, Move, Flip, FlipWaste
 from .widgets.pile_widgets import PlayerPileWidget
 from .widgets.card_widget import CardWidget
 
@@ -101,7 +103,7 @@ class BoardManager:
         """Changes the active player and updates the GUI accordingly"""
         self.active_player = player
         self.crapette_mode = False
-        self.moves = []
+        self.moves = Moves()
         ids = self.app.root.ids
 
         next_player_btn = ids[f"player{player}crapebutton"]
@@ -152,15 +154,11 @@ class BoardManager:
             debug("Dropped on an incompatible pile")
             return False
 
-        # Remove from previous pile
-        old_pile_widget.pop_card()
+        self._move_card(card_widget, pile_widget)
 
-        # Add to new pile
-        pile_widget.add_card(card_widget)
-        card_widget.pile_widget = pile_widget
-        card_widget.set_center_animated(pile_widget.card_pos())
         self.update_counts()
-        self.store_player_move(Move(card_widget, old_pile_widget, pile_widget))
+        self.moves.record_move(card_widget, old_pile_widget, pile_widget)
+        self.update_prev_next_enabled()
 
         # Special case for foundation
         if isinstance(pile_widget.pile, FoundationPile):
@@ -179,30 +177,6 @@ class BoardManager:
         BrainForce(self.board, self.active_player).compute_states()
 
         return True
-
-    def store_player_move(self, move):
-        """Stores all moves from the player.
-
-        It enables to roll back in crapette mode.
-        """
-        # UNFINISHED
-
-        if isinstance(move, Flip):
-            # Too late for preceding crapettes, reset history
-            self.moves = [move]
-        elif isinstance(move, Move):
-            if (
-                isinstance(move.destination, PlayerPileWidget)
-                and move.destination.pile.player != self.active_player
-            ):
-                # Too late for preceding crapettes, reset history
-                self.moves = [move]
-            elif self.moves:
-                self.moves.append(move)
-            else:
-                pass
-        elif isinstance(move, FlipWaste):
-            self.moves.append(move)
 
     def check_win(self):
         """End the game if the player has won"""
@@ -227,7 +201,8 @@ class BoardManager:
     def flip_card_up(self, card_widget):
         """Flips up the card and register the flip as a move"""
         card_widget.set_face_up()
-        self.store_player_move(Flip(card_widget, card_widget.pile_widget))
+        self.moves.record_flip(card_widget, card_widget.pile_widget)
+        self.update_prev_next_enabled()
 
         #  Brain(self.board, self.active_player).checks()
         BrainForce(self.board, self.active_player).compute_states()
@@ -255,7 +230,8 @@ class BoardManager:
             self.app.root.add_widget(card_widget)
         self.update_counts()
 
-        self.store_player_move(FlipWaste())
+        self.moves.record_waste_flip()
+        self.update_prev_next_enabled()
 
     def toggle_crapette_mode(self):
         """Toggles the crapette mode."""
@@ -274,11 +250,55 @@ class BoardManager:
             ids[f"player{player}nextbutton"],
             ids[f"player{player}prevbutton"],
         ]
-
+        self.update_prev_next_enabled()
         for btn in prev_next_buttons:
-            btn.disabled = not self.crapette_mode
             Animation(
                 opacity=1 if self.crapette_mode else 0,
                 duration=TRANSITION_DURATION,
                 transition="out_cubic",
             ).start(btn)
+
+    def _move_card(self, card_widget, pile_widget):
+        # Remove from previous pile
+        card_widget.pile_widget.pop_card()
+
+        # Add to new pile
+        pile_widget.add_card(card_widget)
+        card_widget.pile_widget = pile_widget
+        card_widget.set_center_animated(pile_widget.card_pos())
+        card_widget.apply_random_rotation()
+        card_widget.main_rotation = pile_widget.rotation
+
+    def update_prev_next_enabled(self):
+        player = self.active_player
+        ids = self.app.root.ids
+
+        next_button = ids[f"player{player}nextbutton"]
+        next_button.disabled = not self.crapette_mode or not self.moves.has_next
+
+        prev_button = ids[f"player{player}prevbutton"]
+        prev_button.disabled = not self.crapette_mode or not self.moves.has_prev
+
+    def crapette_mode_prev(self):
+        """Rollback one step in crapette mode"""
+        move = self.moves.prev()
+        self.update_prev_next_enabled()
+
+        if isinstance(move, Move):
+            self.do_move(move.card, move.origin)
+        elif isinstance(move, Flip):
+            print("Flip")
+        elif isinstance(move, FlipWaste):
+            print("FlipWaste")
+
+    def crapette_mode_next(self):
+        """Rollback one step in crapette mode"""
+        move = self.moves.next()
+        self.update_prev_next_enabled()
+
+        if isinstance(move, Move):
+            self.do_move(move.card, move.destination)
+        elif isinstance(move, Flip):
+            print("Flip")
+        elif isinstance(move, FlipWaste):
+            print("FlipWaste")
