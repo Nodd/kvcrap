@@ -20,9 +20,9 @@ kivy.resources.resource_add_path(str(Path(__file__).parent))
 kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
 from .images.card_deck import CARD_IMG
-from .board_manager import BoardManager
+from .game_manager import GameManager
 from .core.board import Board
-from .widgets import pile_widgets  # Load widgets
+from . import widgets  # Load all widgets
 
 
 class BackGround(FloatLayout):
@@ -47,7 +47,7 @@ class CrapetteApp(App):
         # Just set the property so that it's available in kv
         self.card_overlap = CARD_IMG.OFFSET_FACTOR
 
-        self.board_manager = BoardManager(self)
+        self.board_manager = GameManager(self)
 
         # Resize callback
         self.on_window_resize(Window, *Window.size)
@@ -66,7 +66,7 @@ class CrapetteApp(App):
         game_height = self.card_height * Board.NB_ROWS
         self.wide = width / height > game_width_max / game_height
 
-        self.board_manager.place_cards()
+        self.board_manager.board_widget.place_cards()
 
     def set_menu_visible(self, menu_visible):
         ids = self.root.ids
@@ -90,7 +90,7 @@ class CrapetteApp(App):
 
     def new_game(self):
         self.set_menu_visible(False)
-        self.board_manager.new_game()
+        self.board_manager.setup()
 
 
 def main():

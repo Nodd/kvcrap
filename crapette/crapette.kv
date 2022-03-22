@@ -29,10 +29,8 @@ FloatLayout:
                 size: self.size
                 source: "images/background-halo.png"
 
-    BoxLayout:
+    BoardWidget:
         id: game_board
-        orientation: "vertical"
-        size: root.size
 
         BoxLayout:
             BoxLayout:
@@ -205,6 +203,10 @@ FloatLayout:
                         orientation: 'horizontal'
                 Spacer:
             Spacer:
+
+<BoardWidget@BoxLayout>:
+    orientation: "vertical"
+    size: root.size
 
 <TableauPileWidget@RelativeLayout>:
     size_hint: None, 1

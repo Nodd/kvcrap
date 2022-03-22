@@ -126,7 +126,7 @@ class CardWidget(ScatterLayout):
 
         # Look for the pile the card was dropped on
         pile_widget = None
-        for pile_widget in self.board_manager.pile_widgets:
+        for pile_widget in self.board_manager.board_widget.pile_widgets:
             if pile_widget.collide_point(*self.center):
                 break
 

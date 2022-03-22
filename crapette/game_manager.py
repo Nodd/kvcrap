@@ -1,0 +1,159 @@
+"""
+Manage the widgets interaction on the game board
+"""
+from pprint import pprint
+
+from .widgets.board_widget import BoardWidget
+from .core.piles import WastePile
+from .core.moves import Moves, Move, Flip, FlipWaste
+from .core.board import Board
+
+from .brain.brain import Brain
+from .brain.brainforce import BrainForce
+
+
+_DEBUG = False
+
+
+def debug(*s):
+    if _DEBUG:
+        print(*s)
+
+
+class GameManager:
+    def __init__(self, app):
+        self.app = app
+        self.ids = self.app.root.ids
+
+        self.active_player = None
+        self.board_widget = self.ids["game_board"]
+
+    def setup(self):
+        self.board = Board()
+        self.board_widget.setup(self)
+
+        self.set_active_player(self.board_widget.board.compute_first_player())
+
+    def set_active_player(self, player):
+        """Changes the active player and updates the GUI accordingly"""
+        self.moves = Moves()
+        self.active_player = player
+
+        self.board_widget.set_active_player(player)
+
+        # Brain(self.board, self.active_player).checks()
+        BrainForce(self.board, self.active_player).compute_states()
+
+    def check_end_of_turn(self, pile_widget):
+        """End the player turn if conditions are met."""
+        if (
+            isinstance(pile_widget.pile, WastePile)
+            and pile_widget.pile.player == self.active_player
+        ):
+            self.set_active_player(1 - self.active_player)
+
+    def check_win(self):
+        """End the game if the player has won"""
+        if self.board.check_win(self.active_player):
+            print(f"Player {self.active_player} wins !!!")
+
+            # Freeze board
+            self.active_player = None
+            for card_widget in self.card_widgets.values():
+                card_widget.do_translation = False
+            return True
+        return False
+
+    def move_card(self, card_widget, pile_widget):
+        """Move a card to another pile and register the move.
+
+        Returns True if the card was moved, or False if the move is not possible.
+        It only checks the destination, not if the card was movable by the player.
+        """
+        old_pile_widget = card_widget.pile_widget
+
+        can_add = pile_widget.pile.can_add_card(
+            card_widget.card, old_pile_widget.pile, self.active_player
+        )
+        assert can_add in (True, False), can_add
+        if not can_add:
+            debug("Dropped on an incompatible pile")
+            return False
+
+        self.board_widget.move_card(card_widget, pile_widget)
+
+        self.moves.record_move(card_widget, old_pile_widget, pile_widget)
+        self.update_prev_next_enabled()
+
+        self.check_win()
+        self.check_end_of_turn(pile_widget)
+
+        #  Brain(self.board, self.active_player).checks()
+        BrainForce(self.board, self.active_player).compute_states()
+
+        return True
+
+    def flip_card_up(self, card_widget):
+        """Flips up the card and register the flip as a move"""
+        self.board_widget.flip_card_up(card_widget)
+
+        self.moves.record_flip(card_widget, card_widget.pile_widget)
+        self.update_prev_next_enabled()
+
+        #  Brain(self.board, self.active_player).checks()
+        BrainForce(self.board, self.active_player).compute_states()
+
+    def flip_waste_to_stock(self):
+        """When the stock is empty, flip the waste back to the stock"""
+        self.board_widget.flip_waste_to_stock(self.active_player)
+
+        self.moves.record_waste_flip()
+        self.update_prev_next_enabled()
+
+    def toggle_crapette_mode(self):
+        self.board_widget.toggle_crapette_mode(self.active_player)
+        self.update_prev_next_enabled()
+
+        # If crapette mode cancelled, reset
+        if not self.board_widget.crapette_mode:
+            while self.moves.has_next:
+                self.crapette_mode_next()
+
+    def update_prev_next_enabled(self):
+        """Update enabled state of history buttons"""
+        player = self.active_player
+        ids = self.app.root.ids
+
+        next_button = ids[f"player{player}nextbutton"]
+        next_button.disabled = (
+            not self.board_widget.crapette_mode or not self.moves.has_next
+        )
+
+        prev_button = ids[f"player{player}prevbutton"]
+        prev_button.disabled = (
+            not self.board_widget.crapette_mode or not self.moves.has_prev
+        )
+
+    def crapette_mode_prev(self):
+        """Rollback one step in crapette mode"""
+        move = self.moves.prev()
+        self.update_prev_next_enabled()
+
+        if isinstance(move, Move):
+            self.board_widget.move_card(move.card, move.origin)
+        elif isinstance(move, Flip):
+            move.card.set_face_down()
+        elif isinstance(move, FlipWaste):
+            print("FlipWaste")
+
+    def crapette_mode_next(self):
+        """'Rollforward' one step in crapette mode"""
+        move = self.moves.next()
+        self.update_prev_next_enabled()
+
+        if isinstance(move, Move):
+            self.board_widget.move_card(move.card, move.destination)
+        elif isinstance(move, Flip):
+            move.card.set_face_up()
+        elif isinstance(move, FlipWaste):
+            self.board_widget.flip_waste_to_stock(self.active_player)
