@@ -17,13 +17,13 @@ class BoardWidget(BoxLayout):
         self.pile_widgets = None
         self.card_widgets = None
 
-    def setup(self, board_manager):
+    def setup(self, game_manager):
         """Prepare and initialize the board for a new game"""
         self.app = App.get_running_app()
         self.ids = self.app.root.ids
-        self.board_manager = board_manager
+        self.game_manager = game_manager
 
-        self.board = self.board_manager.board
+        self.board = self.game_manager.board
         self.setup_piles()
         self.setup_card_widgets()
         self.place_cards()
@@ -65,7 +65,7 @@ class BoardWidget(BoxLayout):
         self.card_widgets = {}
         for pile_widget in self.pile_widgets:
             for card in pile_widget.pile:
-                card_widget = CardWidget(card, self.board_manager)
+                card_widget = CardWidget(card, self.game_manager)
                 card_widget.pile_widget = pile_widget
                 self.card_widgets[card] = card_widget
                 self.app.root.add_widget(card_widget)

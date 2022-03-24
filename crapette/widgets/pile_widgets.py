@@ -71,8 +71,8 @@ class PlayerPileWidget(PileWidget):
         if not self.pile.is_empty:
             return False
 
-        board_manager = App.get_running_app().board_manager
-        player = board_manager.active_player
+        game_manager = App.get_running_app().game_manager
+        player = game_manager.active_player
         if player != self.pile.player:
             return False
 
@@ -88,8 +88,8 @@ class PlayerPileWidget(PileWidget):
         if not self.collide_point(touch.x, touch.y):
             return False
 
-        board_manager = App.get_running_app().board_manager
-        board_manager.flip_waste_to_stock()
+        game_manager = App.get_running_app().game_manager
+        game_manager.flip_waste_to_stock()
         return True
 
 
