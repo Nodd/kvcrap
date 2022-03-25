@@ -9,7 +9,7 @@ from kivy.properties import StringProperty, NumericProperty
 from kivy.app import App
 from kivy.input.motionevent import MotionEvent
 
-from ..crapette import CrapetteApp
+from .. import crapette
 from ..images.card_deck import CARD_IMG
 from ..core.piles import StockPile, _Pile, FoundationPile
 from .card_widget import CardWidget
@@ -110,7 +110,7 @@ class PlayerPileWidget(PileWidget):
 class TableauPileWidget(PileWidget):
     @property
     def pos_offset_factor(self) -> float:
-        app: CrapetteApp = App.get_running_app()
+        app: crapette.CrapetteApp = App.get_running_app()
         return app.card_overlap / (1 + 12 * app.card_overlap)
 
     def position_offset(self, index: int | None) -> float:
@@ -118,7 +118,7 @@ class TableauPileWidget(PileWidget):
             index = len(self.pile) - 1
         assert index >= 0
 
-        app: CrapetteApp = App.get_running_app()
+        app: crapette.CrapetteApp = App.get_running_app()
         OFFSET_FACTOR: float = CARD_IMG.OFFSET_FACTOR
         return app.card_width * (0.5 + OFFSET_FACTOR * index)
 

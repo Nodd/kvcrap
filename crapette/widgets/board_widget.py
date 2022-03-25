@@ -2,7 +2,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
 from kivy.app import App
 
-from ..game_manager import GameManager
+from .. import game_manager
 
 from .pile_widgets import PileWidget
 from .card_widget import CardWidget
@@ -18,7 +18,7 @@ class BoardWidget(BoxLayout):
         self.pile_widgets: PileWidget = None
         self.card_widgets: CardWidget = None
 
-    def setup(self, game_manager: GameManager):
+    def setup(self, game_manager: "game_manager.GameManager"):
         """Prepare and initialize the board for a new game"""
         self.app = App.get_running_app()
         self.ids = self.app.root.ids
