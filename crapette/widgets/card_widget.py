@@ -8,7 +8,7 @@ from kivy.uix.scatterlayout import ScatterLayout
 from kivy.properties import StringProperty
 from kivy.animation import Animation
 
-from ..images.card_deck import card2img
+from ..images.card_data import card2img
 
 MAX_RANDOM_ANGLE = 5  # °
 

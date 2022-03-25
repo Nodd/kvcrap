@@ -19,7 +19,7 @@ kivy.require("1.10.0")
 kivy.resources.resource_add_path(str(Path(__file__).parent))
 kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
-from .images.card_deck import CARD_IMG
+from .images.card_data import CARD_IMG
 from .game_manager import GameManager
 from .core.board import Board
 from . import widgets  # Load all widgets

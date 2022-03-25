@@ -10,7 +10,7 @@ from kivy.app import App
 from kivy.input.motionevent import MotionEvent
 
 from .. import crapette
-from ..images.card_deck import CARD_IMG
+from ..images.card_data import CARD_IMG
 from ..core.piles import StockPile, _Pile, FoundationPile
 from .card_widget import CardWidget
 
