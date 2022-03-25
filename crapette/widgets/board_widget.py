@@ -109,8 +109,6 @@ class BoardWidget(BoxLayout):
 
     def set_active_player(self, player: int):
         """Changes the active player and updates the GUI accordingly"""
-        self.crapette_mode = False
-
         next_player_btn = self.ids[f"player{player}crapebutton"]
         next_player_btn.disabled = False
         Animation(
@@ -157,18 +155,14 @@ class BoardWidget(BoxLayout):
         self.app.root.remove_widget(card_widget)
         self.app.root.add_widget(card_widget)
 
-    def toggle_crapette_mode(self, player: int):
+    def set_crapette_mode(self, crapette_mode, player: int):
         """Toggles the crapette mode."""
         ids = self.app.root.ids
         crapette_button = ids[f"player{player}crapebutton"]
 
-        self.crapette_mode = not self.crapette_mode
-
         background_crapette = self.ids["background_crapette"]
-        background_crapette.opacity = 1 if self.crapette_mode else 0
-        crapette_button.text = (
-            "Cancel ! (Sorry...)" if self.crapette_mode else "Crapette !"
-        )
+        background_crapette.opacity = 1 if crapette_mode else 0
+        crapette_button.text = "Cancel ! (Sorry...)" if crapette_mode else "Crapette !"
 
         prev_next_buttons = [
             ids[f"player{player}nextbutton"],
@@ -176,7 +170,7 @@ class BoardWidget(BoxLayout):
         ]
         for btn in prev_next_buttons:
             Animation(
-                opacity=1 if self.crapette_mode else 0,
+                opacity=1 if crapette_mode else 0,
                 duration=TRANSITION_DURATION,
                 transition="out_cubic",
             ).start(btn)

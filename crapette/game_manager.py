@@ -29,6 +29,7 @@ class GameManager:
         self.ids = self.app.root.ids
 
         self.active_player: int = None
+        self.crapette_mode: bool = False
         self.board_widget: BoardWidget = self.ids["game_board"]
 
     def setup(self):
@@ -39,6 +40,8 @@ class GameManager:
 
     def set_active_player(self, player: int):
         """Changes the active player and updates the GUI accordingly"""
+        assert not self.crapette_mode
+
         self.moves = Moves()
         self.active_player = player
 
@@ -49,6 +52,8 @@ class GameManager:
 
     def check_end_of_turn(self, pile_widget):
         """End the player turn if conditions are met."""
+        assert not self.crapette_mode
+
         if (
             isinstance(pile_widget.pile, WastePile)
             and pile_widget.pile.player == self.active_player
@@ -114,28 +119,23 @@ class GameManager:
         self.update_prev_next_enabled()
 
     def toggle_crapette_mode(self):
-        self.board_widget.toggle_crapette_mode(self.active_player)
+        self.crapette_mode = not self.crapette_mode
+
+        self.board_widget.set_crapette_mode(self.crapette_mode, self.active_player)
         self.update_prev_next_enabled()
 
         # If crapette mode cancelled, reset
-        if not self.board_widget.crapette_mode:
+        if not self.crapette_mode:
             while self.moves.has_next:
                 self.crapette_mode_next()
 
     def update_prev_next_enabled(self):
         """Update enabled state of history buttons"""
-        player = self.active_player
-        ids = self.app.root.ids
+        next_button = self.ids[f"player{self.active_player}nextbutton"]
+        next_button.disabled = not self.crapette_mode or not self.moves.has_next
 
-        next_button = ids[f"player{player}nextbutton"]
-        next_button.disabled = (
-            not self.board_widget.crapette_mode or not self.moves.has_next
-        )
-
-        prev_button = ids[f"player{player}prevbutton"]
-        prev_button.disabled = (
-            not self.board_widget.crapette_mode or not self.moves.has_prev
-        )
+        prev_button = self.ids[f"player{self.active_player}prevbutton"]
+        prev_button.disabled = not self.crapette_mode or not self.moves.has_prev
 
     def crapette_mode_prev(self):
         """Rollback one step in crapette mode"""
