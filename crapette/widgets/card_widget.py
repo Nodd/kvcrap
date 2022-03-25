@@ -54,7 +54,9 @@ class CardWidget(ScatterLayout):
             angle += 360
         return Animation(rotation=angle, duration=0.1, transition="out_sine")
 
-    def apply_random_rotation(self):
+    def apply_random_rotation(self, main_rotation: float = None):
+        if main_rotation is not None:
+            self.main_rotation = main_rotation
         self._random_rotation_animation().start(self)
 
     def set_face_up(self):

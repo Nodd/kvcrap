@@ -11,7 +11,7 @@ from kivy.input.motionevent import MotionEvent
 
 from ..crapette import CrapetteApp
 from ..images.card_deck import CARD_IMG
-from ..core.piles import StockPile, _Pile
+from ..core.piles import StockPile, _Pile, FoundationPile
 from .card_widget import CardWidget
 
 
@@ -43,6 +43,7 @@ class PileWidget(RelativeLayout):
 
     def add_card(self, card_widget: CardWidget):
         self.pile.add_card(card_widget.card)
+        card_widget.pile_widget = self
 
 
 class FoundationPileWidget(PileWidget):
@@ -53,6 +54,15 @@ class FoundationPileWidget(PileWidget):
     """
 
     background = StringProperty()
+
+    def add_card(self, card_widget: CardWidget):
+        super().add_card(card_widget)
+
+        # Flip foundation pile if full
+        pile: FoundationPile = self.pile  # type: ignore
+        if pile.is_full:
+            for card in pile:
+                self.card_widgets[card].set_face_up()
 
 
 class PlayerPileWidget(PileWidget):

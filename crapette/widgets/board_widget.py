@@ -4,8 +4,7 @@ from kivy.app import App
 
 from ..game_manager import GameManager
 
-from ..core.piles import WastePile, FoundationPile
-from .pile_widgets import PileWidget, PlayerPileWidget
+from .pile_widgets import PileWidget
 from .card_widget import CardWidget
 
 
@@ -93,25 +92,17 @@ class BoardWidget(BoxLayout):
 
     def move_card(self, card_widget: CardWidget, pile_widget: PileWidget):
         """Low level card move"""
+        self.put_on_top(card_widget)
+
         # Remove from previous pile
         card_widget.pile_widget.pop_card()
 
         # Add to new pile
         pile_widget.add_card(card_widget)
-        card_widget.pile_widget = pile_widget
         card_widget.set_center_animated(pile_widget.card_pos())
-        card_widget.apply_random_rotation()
-        card_widget.main_rotation = pile_widget.rotation
-        self.put_on_top(card_widget)
+        card_widget.apply_random_rotation(pile_widget.rotation)
 
         self.update_counts()
-
-        # Special case for foundation
-        if isinstance(pile_widget.pile, FoundationPile):
-            # Flip foundation pile if full
-            if pile_widget.pile.is_full:
-                for card in pile_widget.pile:
-                    self.card_widgets[card].set_face_up()
 
     def set_active_player(self, player: int):
         """Changes the active player and updates the GUI accordingly"""
