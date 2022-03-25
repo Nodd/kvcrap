@@ -2,11 +2,14 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
 from kivy.app import App
 
-from .. import game_manager
 
 from .pile_widgets import PileWidget
 from .card_widget import CardWidget
 
+import typing
+
+if typing.TYPE_CHECKING:
+    from .. import game_manager
 
 TRANSITION_DURATION = 0.5
 

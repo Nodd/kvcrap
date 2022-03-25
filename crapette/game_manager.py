@@ -3,7 +3,6 @@ Manage the widgets interaction on the game board
 """
 from pprint import pprint
 
-from .widgets.board_widget import BoardWidget
 from .core.piles import WastePile
 from .core.moves import Moves, Move, Flip, FlipWaste
 from .core.board import Board
@@ -11,6 +10,10 @@ from .core.board import Board
 from .brain.brain import Brain
 from .brain.brainforce import BrainForce
 
+import typing
+
+if typing.TYPE_CHECKING:
+    from .widgets.board_widget import BoardWidget
 
 _DEBUG = False
 
