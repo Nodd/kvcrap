@@ -15,7 +15,7 @@ from .brain.brainforce import BrainForce
 _DEBUG = False
 
 
-def debug(*s):
+def debug(*s: str):
     if _DEBUG:
         print(*s)
 
@@ -25,8 +25,8 @@ class GameManager:
         self.app = app
         self.ids = self.app.root.ids
 
-        self.active_player = None
-        self.board_widget = self.ids["game_board"]
+        self.active_player: int = None
+        self.board_widget: BoardWidget = self.ids["game_board"]
 
     def setup(self):
         self.board = Board()
@@ -34,7 +34,7 @@ class GameManager:
 
         self.set_active_player(self.board_widget.board.compute_first_player())
 
-    def set_active_player(self, player):
+    def set_active_player(self, player: int):
         """Changes the active player and updates the GUI accordingly"""
         self.moves = Moves()
         self.active_player = player

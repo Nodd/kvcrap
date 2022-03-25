@@ -10,9 +10,9 @@ from ..core.piles import CrapePile, FoundationPile, TableauPile, WastePile, _Pla
 
 sys.setrecursionlimit(10 ** 5)
 _DEBUG = False
-if os.name == "nt":
-    # Fix utf8 output in console
-    sys.stdout = open(1, "w", encoding="utf-8", closefd=False)  # fd 1 is stdout
+# if os.name == "nt":
+#     # Fix utf8 output in console
+#     sys.stdout = open(1, "w", encoding="utf-8", closefd=False)  # fd 1 is stdout
 
 
 class BrainForce:
@@ -37,10 +37,10 @@ class BoardNode:
         self.board = board
         self.player = player
 
-        self.cost = MAX_COST
+        self.cost: tuple = MAX_COST
         self.score = BoardScore(self.board, self.player).score
-        self.visited = False
-        self.moves = None
+        self.visited: bool = False
+        self.moves: list = []
 
     def search_neighbors(self, known_nodes: dict):
         # This one was searched
@@ -128,8 +128,8 @@ class BrainDijkstra:
         first_node.moves = []
         self.known_nodes = {self.board: first_node}
 
-    def _select_next_node(self) -> BoardNode:
-        min_cost = MAX_COST
+    def _select_next_node(self) -> BoardNode | None:
+        min_cost: tuple = MAX_COST
         next_node = None
         for node in self.known_nodes.values():
             if node.visited:

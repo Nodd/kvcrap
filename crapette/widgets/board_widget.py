@@ -2,8 +2,10 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.animation import Animation
 from kivy.app import App
 
+from ..game_manager import GameManager
+
 from ..core.piles import WastePile, FoundationPile
-from .pile_widgets import PlayerPileWidget
+from .pile_widgets import PileWidget, PlayerPileWidget
 from .card_widget import CardWidget
 
 
@@ -14,10 +16,10 @@ class BoardWidget(BoxLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.pile_widgets = None
-        self.card_widgets = None
+        self.pile_widgets: PileWidget = None
+        self.card_widgets: CardWidget = None
 
-    def setup(self, game_manager):
+    def setup(self, game_manager: GameManager):
         """Prepare and initialize the board for a new game"""
         self.app = App.get_running_app()
         self.ids = self.app.root.ids
@@ -89,7 +91,7 @@ class BoardWidget(BoxLayout):
             stock_label.text = str(len(stock_pile)) if stock_pile else ""
             crape_label.text = str(len(crape_pile)) if crape_pile else ""
 
-    def move_card(self, card_widget, pile_widget):
+    def move_card(self, card_widget: CardWidget, pile_widget: PileWidget):
         """Low level card move"""
         # Remove from previous pile
         card_widget.pile_widget.pop_card()
@@ -113,7 +115,7 @@ class BoardWidget(BoxLayout):
                 for card in pile_widget.pile:
                     self.card_widgets[card].set_face_up()
 
-    def set_active_player(self, player):
+    def set_active_player(self, player: int):
         """Changes the active player and updates the GUI accordingly"""
         self.crapette_mode = False
 
@@ -136,11 +138,11 @@ class BoardWidget(BoxLayout):
             transition="in_out_expo",
         ).start(background_halo)
 
-    def flip_card_up(self, card_widget):
+    def flip_card_up(self, card_widget: CardWidget):
         """Flips up the card and register the flip as a move"""
         card_widget.set_face_up()
 
-    def flip_waste_to_stock(self, player):
+    def flip_waste_to_stock(self, player: int):
         """When the stock is empty, flip the waste back to the stock"""
         stock_widget = self.ids[f"player{player}stock"]
         waste_widget = self.ids[f"player{player}waste"]
@@ -159,11 +161,11 @@ class BoardWidget(BoxLayout):
             self.put_on_top(card_widget)
         self.update_counts()
 
-    def put_on_top(self, card_widget):
+    def put_on_top(self, card_widget: CardWidget):
         self.app.root.remove_widget(card_widget)
         self.app.root.add_widget(card_widget)
 
-    def toggle_crapette_mode(self, player):
+    def toggle_crapette_mode(self, player: int):
         """Toggles the crapette mode."""
         ids = self.app.root.ids
         crapette_button = ids[f"player{player}crapebutton"]

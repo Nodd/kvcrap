@@ -38,14 +38,14 @@ class CrapetteApp(App):
     title = "Crapette in Kivy"
     icon = str(Path(__file__).parent / "images/png/2x/suit-spade.png")
 
-    card_width = NumericProperty()
-    card_height = NumericProperty()
-    card_overlap = NumericProperty()
-    wide = BooleanProperty()
+    card_width: int = NumericProperty()
+    card_height: int = NumericProperty()
+    card_overlap: int = NumericProperty()
+    wide: bool = BooleanProperty()
 
     def build(self):
         # Just set the property so that it's available in kv
-        self.card_overlap = CARD_IMG.OFFSET_FACTOR
+        self.card_overlap: float = CARD_IMG.OFFSET_FACTOR
 
         self.game_manager = GameManager(self)
 
