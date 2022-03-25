@@ -108,8 +108,6 @@ class BoardWidget(BoxLayout):
 
         # Special case for foundation
         if isinstance(pile_widget.pile, FoundationPile):
-            card_widget.main_rotation = pile_widget.rotation
-
             # Flip foundation pile if full
             if pile_widget.pile.is_full:
                 for card in pile_widget.pile:
