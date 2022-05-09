@@ -115,7 +115,7 @@ class _Pile:
 
     def cards_ids(self):
         # It's a bit faster to create an intermediate list comprehension than a generator
-        return tuple([c.id for c in self._cards])
+        return tuple(c.id for c in self._cards)
 
 
 class FoundationPile(_Pile):
