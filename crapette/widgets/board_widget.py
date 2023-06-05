@@ -1,12 +1,11 @@
-from kivy.uix.boxlayout import BoxLayout
+import typing
+
 from kivy.animation import Animation
 from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
 
-
-from .pile_widgets import PileWidget
 from .card_widget import CardWidget
-
-import typing
+from .pile_widgets import PileWidget
 
 if typing.TYPE_CHECKING:
     from .. import game_manager

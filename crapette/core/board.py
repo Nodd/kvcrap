@@ -4,7 +4,7 @@ Initialization and data for a crapette game board backend.
 
 import random
 
-from .cards import new_deck, Card
+from .cards import Card, new_deck
 from .piles import FoundationPile, TableauPile, player_piles
 
 

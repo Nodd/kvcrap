@@ -4,9 +4,9 @@ Widget representing a card on the board.
 
 import random
 
-from kivy.uix.scatterlayout import ScatterLayout
-from kivy.properties import StringProperty
 from kivy.animation import Animation
+from kivy.properties import StringProperty
+from kivy.uix.scatterlayout import ScatterLayout
 
 from ..images.card_data import card2img
 

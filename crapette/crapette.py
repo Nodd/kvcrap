@@ -7,20 +7,19 @@ Mostly used for initialisation and use of .kv file.
 from pathlib import Path
 
 import kivy
-from kivy.app import App
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.image import Image
-from kivy.properties import BooleanProperty, NumericProperty
-from kivy.core.window import Window
 import kivy.config
 import kivy.resources
-
-from .images.card_data import CARD_IMG
-from .game_manager import GameManager
-from .core.board import Board
+from kivy.app import App
+from kivy.core.window import Window
+from kivy.properties import BooleanProperty, NumericProperty
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.image import Image
 
 # Load all widgets
 from . import widgets  # ruff: noqa: F401
+from .core.board import Board
+from .game_manager import GameManager
+from .images.card_data import CARD_IMG
 
 kivy.require("1.10.0")
 kivy.resources.resource_add_path(str(Path(__file__).parent))

@@ -68,7 +68,13 @@ addopts = "--cov crapette"
 testpaths = ["crapette"]
 
 [tool.ruff]
-select = ["E", "F"]
+select = [
+    "F",
+    "E",
+    "W",
+    # "C90",
+    "I",
+    ]
 ignore = [
     "E501", # Line too long
     ]

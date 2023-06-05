@@ -5,11 +5,10 @@ This version uses cars provided for free (LGPL-2.1) on
 https://github.com/htdebeer/SVG-cards.
 """
 
-from pathlib import Path
 import types
+from pathlib import Path
 
 from kivy.core.image import Image as CoreImage
-
 
 CARD_IMG = types.SimpleNamespace(
     SUIT_NAME={"c": "club", "d": "diamond", "h": "heart", "s": "spade"},

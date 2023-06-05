@@ -2,13 +2,12 @@
 Manage the widgets interaction on the game board
 """
 
-from .core.piles import WastePile
-from .core.moves import Moves, Move, Flip, FlipWaste
-from .core.board import Board
+import typing
 
 from .brain.brainforce import BrainForce
-
-import typing
+from .core.board import Board
+from .core.moves import Flip, FlipWaste, Move, Moves
+from .core.piles import WastePile
 
 if typing.TYPE_CHECKING:
     from .widgets.board_widget import BoardWidget

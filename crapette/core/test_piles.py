@@ -1,5 +1,5 @@
-from .piles import TableauPile
 from .cards import Card
+from .piles import TableauPile
 
 
 def test_tableau_equal():

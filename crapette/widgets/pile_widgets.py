@@ -4,14 +4,14 @@ Widget representing the place of the piles of cards on the board.
 It's mostly used for positionning the cards on the board.
 """
 
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.properties import StringProperty, NumericProperty
 from kivy.app import App
 from kivy.input.motionevent import MotionEvent
+from kivy.properties import NumericProperty, StringProperty
+from kivy.uix.relativelayout import RelativeLayout
 
 from .. import crapette
+from ..core.piles import FoundationPile, StockPile, _Pile
 from ..images.card_data import CARD_IMG
-from ..core.piles import StockPile, _Pile, FoundationPile
 from .card_widget import CardWidget
 
 
