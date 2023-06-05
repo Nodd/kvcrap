@@ -75,7 +75,15 @@ select = [
     # "C90",
     "I",
     "N",
+    # "D",
+    "UP",
+    "YTT",
+    # "ANN",
+    "ASYNC",
+    "S",
     ]
 ignore = [
     "E501", # Line too long
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+    "S101", # Use of `assert` detected
     ]
