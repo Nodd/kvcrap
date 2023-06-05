@@ -1,3 +1,10 @@
+Howto install assets:
+
+    wget https://github.com/htdebeer/SVG-cards/archive/refs/heads/master.zip
+    unzip master.zip
+    https://github.com/htdebeer/SVG-cards/archive/refs/heads/master.zip
+
+
 First google answer
 ===================
 https://sourceforge.net/projects/vector-cards/
@@ -26,3 +33,9 @@ Links to:
 - https://sourceforge.net/projects/svg-cards/
 Saved in png/
 One big SVG
+
+OpenGameArt.com
+
+https://opengameart.org/content/greywyvern-playing-card-set
+https://opengameart.org/content/vintage-playing-cards
+https://opengameart.org/content/playing-cards-0
