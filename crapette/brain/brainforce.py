@@ -85,11 +85,8 @@ class BoardNode:
                         and isinstance(pile_orig, TableauPile)
                         and isinstance(pile_dest, TableauPile)
                     ):
-                        if to_empty_tableau_before:
-                            # Avoid trying each empty slot, it's useless
-                            continue
-                        elif len(pile_orig) == 1:
-                            # Would just swap empty slots
+                        if to_empty_tableau_before or len(pile_orig) == 1:
+                            # Avoid trying each empty slot or swap empty slots
                             continue
                         else:
                             to_empty_tableau_before = True
