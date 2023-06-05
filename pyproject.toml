@@ -85,9 +85,29 @@ select = [
     # "FBT",
     "B",
     "A",
+    "COM",
+    "C4",
+    "DTZ",
+    "T10",
+    "DJ",
+    "EM",
+    "EXE",
+    "FA",
+    "ISC",
+    "ICN",
+    "G",
+    "INP",
+    "PIE",
+    # "T20",# print/pprint found
+    "PYI",
+    "PT",
+    "Q",
+    "RSE",
+    "RET",
     ]
 ignore = [
     "E501", # Line too long
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S101", # Use of `assert` detected
+    "COM812", # Trailing comma missing
     ]

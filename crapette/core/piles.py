@@ -323,31 +323,30 @@ class CrapePile(_PlayerPile):
                     f"Add {self.name}: Impossible, player can never put cards ({card}) on its own crapette pile"
                 )
             return False
-        else:
-            if not self:
-                if _DEBUG:
-                    print(
-                        f"Add {self.name}: Impossible, the other player can not put card {card} on an empty crapette pile"
-                    )
-                return False
-            if card.suit != self.top_card.suit:
-                if _DEBUG:
-                    print(
-                        f"Add {self.name}: Impossible, the other player can not put card {card} with a different suit than {self.top_card}"
-                    )
-                return False
-            rank = self.top_card.rank
-            if card.rank not in [rank - 1, rank + 1]:
-                if _DEBUG:
-                    print(
-                        f"Add {self.name}: Impossible, the other player can only put card one rank above or below {self.top_card}, not {card}"
-                    )
-                return False
+        if not self:
             if _DEBUG:
                 print(
-                    f"Add {self.name}: Possible, the other player can put {card} over {self.top_card})"
+                    f"Add {self.name}: Impossible, the other player can not put card {card} on an empty crapette pile"
                 )
-            return True
+            return False
+        if card.suit != self.top_card.suit:
+            if _DEBUG:
+                print(
+                    f"Add {self.name}: Impossible, the other player can not put card {card} with a different suit than {self.top_card}"
+                )
+            return False
+        rank = self.top_card.rank
+        if card.rank not in [rank - 1, rank + 1]:
+            if _DEBUG:
+                print(
+                    f"Add {self.name}: Impossible, the other player can only put card one rank above or below {self.top_card}, not {card}"
+                )
+            return False
+        if _DEBUG:
+            print(
+                f"Add {self.name}: Possible, the other player can put {card} over {self.top_card})"
+            )
+        return True
 
 
 # namedtuple for all piles specific to a player

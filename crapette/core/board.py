@@ -121,7 +121,7 @@ class Board:
         player1_crape_rank = self.players_piles[1].crape.rank
         if player0_crape_rank > player1_crape_rank:
             return 0
-        elif player0_crape_rank < player1_crape_rank:
+        if player0_crape_rank < player1_crape_rank:
             return 1
 
         # Player with highest tableau goes first
@@ -133,11 +133,11 @@ class Board:
         )
         if player0_tableau_rank > player1_tableau_rank:
             return 0
-        elif player0_tableau_rank < player1_tableau_rank:
+        if player0_tableau_rank < player1_tableau_rank:
             return 1
-        else:
-            # Extreme measures
-            return random.randint(0, 1)
+
+        # Extreme measures
+        return random.randint(0, 1)
 
     def __eq__(self, other):
         """Doesn't check if cards face up or down"""

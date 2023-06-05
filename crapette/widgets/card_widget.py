@@ -101,9 +101,9 @@ class CardWidget(ScatterLayout):
         if self.card.face_up:
             self._moving = True
             return super().on_touch_down(touch)
-        else:
-            self._flipping = True
-            return True
+
+        self._flipping = True
+        return True
 
     def on_touch_up(self, touch):
         super().on_touch_up(touch)
