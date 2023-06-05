@@ -113,16 +113,15 @@ class CardWidget(ScatterLayout):
             return True
 
         if not self._moving:
-            if self._flipping:
-                if self.collide_point(touch.x, touch.y):
-                    self.game_manager.flip_card_up(self)
-                else:
-                    debug("Cancel flip")
-                self._flipping = False
-                return True
-            else:
+            if not self._flipping:
                 return False
 
+            if self.collide_point(touch.x, touch.y):
+                self.game_manager.flip_card_up(self)
+            else:
+                debug("Cancel flip")
+            self._flipping = False
+            return True
         debug("TOUCH UP", self.card)
         self._moving = False
 

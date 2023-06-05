@@ -91,13 +91,11 @@ class Card:
 
     def __str__(self):
         """Sting representation of the card"""
-        txt = f"{self.rank_symbol}{self.suit_symbol}{'^' if self._face_up else 'v'}"
-        return txt
+        return f"{self.rank_symbol}{self.suit_symbol}{'^' if self._face_up else 'v'}"
 
     def __repr__(self):
         # return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
-        txt = f"{self.rank_symbol}{self.suit_symbol}{self.player}{'^' if self._face_up else 'v'}"
-        return txt
+        return self.__str__()
 
     def __eq__(self, other):
         return (

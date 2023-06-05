@@ -174,10 +174,9 @@ class Board:
         # Check tableau piles, order doesn't matter
         self_tableau = sorted(self.tableau_piles, reverse=True)
         other_tableau = sorted(other.tableau_piles, reverse=True)
-        for pile, pile_other in zip(self_tableau, other_tableau):
-            if pile != pile_other:
-                return False
-        return True
+        return all(
+            pile == pile_other for pile, pile_other in zip(self_tableau, other_tableau)
+        )
 
     def __hash__(self):
         """

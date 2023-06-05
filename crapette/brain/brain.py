@@ -35,10 +35,10 @@ class Brain:
         card = crapette_pile.top_card
         if not card.face_up:  # Don't cheat
             return False
-        for foundation_pile in self.board.foundation_piles:
-            if foundation_pile.can_add_card(card, crapette_pile, self.player):
-                return True
-        return False
+        return any(
+            foundation_pile.can_add_card(card, crapette_pile, self.player)
+            for foundation_pile in self.board.foundation_piles
+        )
 
     def check_player_stock_tableau(self):
         """Check if the card on the player stock can potentially be put on the tableau"""
@@ -48,10 +48,10 @@ class Brain:
         card = stock_pile.top_card
         if not card.face_up:  # Don't cheat
             return False
-        for foundation_pile in self.board.foundation_piles:
-            if foundation_pile.can_add_card(card, stock_pile, self.player):
-                return True
-        return False
+        return any(
+            foundation_pile.can_add_card(card, stock_pile, self.player)
+            for foundation_pile in self.board.foundation_piles
+        )
 
     def check_potential_space(self):
         """Check if any tableau pile can potentially go over another tableau pile

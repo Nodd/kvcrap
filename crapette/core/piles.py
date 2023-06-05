@@ -278,7 +278,6 @@ class WastePile(_PlayerPile):
                 print(
                     f"Add {self.name}: Possible, the player can put card {card} here from its stock pile"
                 )
-            return True
         else:
             if self.is_empty:
                 if _DEBUG:
@@ -303,7 +302,7 @@ class WastePile(_PlayerPile):
                 print(
                     f"Add {self.name}: Possible, the other player can put {card} over {self.top_card}"
                 )
-            return True
+        return True
 
     def can_pop_card(self, player):
         if _DEBUG:

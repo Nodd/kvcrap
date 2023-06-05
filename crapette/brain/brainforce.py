@@ -183,11 +183,7 @@ class BoardScore:
 
     @property
     def empty_tableau_score(self):
-        empty_slot = 0
-        for pile in self.board.tableau_piles:
-            if pile.is_empty:
-                empty_slot += 1
-        return empty_slot
+        return sum(pile.is_empty for pile in self.board.tableau_piles)
 
     @property
     def clean_tableau_score(self):
@@ -198,11 +194,7 @@ MAX_COST = (float("inf"),)
 
 
 def compute_move_cost(move: Move):
-    if isinstance(move.destination, FoundationPile):
-        cost = 0
-    else:
-        cost = 1
-    return cost
+    return 0 if isinstance(move.destination, FoundationPile) else 1
 
 
 def compute_moves_cost(moves):
