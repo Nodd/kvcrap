@@ -66,3 +66,9 @@ build-backend = "setuptools.build_meta"
 minversion = "6.0"
 addopts = "--cov crapette"
 testpaths = ["crapette"]
+
+[tool.ruff]
+select = ["E", "F"]
+ignore = [
+    "E501", # Line too long
+    ]

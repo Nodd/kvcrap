@@ -15,14 +15,16 @@ from kivy.core.window import Window
 import kivy.config
 import kivy.resources
 
-kivy.require("1.10.0")
-kivy.resources.resource_add_path(str(Path(__file__).parent))
-kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
-
 from .images.card_data import CARD_IMG
 from .game_manager import GameManager
 from .core.board import Board
-from . import widgets  # Load all widgets
+
+# Load all widgets
+from . import widgets  # ruff: noqa: F401
+
+kivy.require("1.10.0")
+kivy.resources.resource_add_path(str(Path(__file__).parent))
+kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
 
 class BackGround(FloatLayout):
@@ -60,9 +62,9 @@ class CrapetteApp(App):
         game_width_max = 2 * (
             self.card_height + self.card_width * (1 + 12 * self.card_overlap)
         )
-        game_width_min = 2 * (
-            self.card_width + self.card_width * (1 + 12 * self.card_overlap)
-        )
+        # game_width_min = 2 * (
+        #     self.card_width + self.card_width * (1 + 12 * self.card_overlap)
+        # )
         game_height = self.card_height * Board.NB_ROWS
         self.wide = width / height > game_width_max / game_height
 

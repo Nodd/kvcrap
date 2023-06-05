@@ -56,14 +56,14 @@ class Board:
     def new_game(self):
         """Reset the board and distribute the cards for a new game"""
         FOUNDATIONS_PER_PLAYER = 4
-        for player, player_piles in enumerate(self.players_piles):
+        for player, player_piles_ in enumerate(self.players_piles):
             # Create deck
             deck = new_deck(player)
 
             # Fill crape
-            player_piles.crape.set_cards(deck[: player_piles.crape.NB_CARDS_START])
-            deck = deck[player_piles.crape.NB_CARDS_START :]
-            player_piles.crape.face_up = True
+            player_piles_.crape.set_cards(deck[: player_piles_.crape.NB_CARDS_START])
+            deck = deck[player_piles_.crape.NB_CARDS_START :]
+            player_piles_.crape.face_up = True
 
             # Fill tableau
             for index, tableau_index in enumerate(
@@ -78,15 +78,15 @@ class Board:
             deck = deck[FOUNDATIONS_PER_PLAYER:]
 
             # Fill stock
-            player_piles.stock.set_cards(deck)
+            player_piles_.stock.set_cards(deck)
 
             # Empty waste
-            player_piles.waste.clear()
+            player_piles_.waste.clear()
 
             # Check number of cards
-            assert len(player_piles.crape) == 13
-            assert len(player_piles.waste) == 0
-            assert len(player_piles.stock) == 35
+            assert len(player_piles_.crape) == 13
+            assert len(player_piles_.waste) == 0
+            assert len(player_piles_.stock) == 35
 
         # Check tableau
         for tableau_pile in self.tableau_piles:

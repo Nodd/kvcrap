@@ -1,13 +1,11 @@
 """
 Manage the widgets interaction on the game board
 """
-from pprint import pprint
 
 from .core.piles import WastePile
 from .core.moves import Moves, Move, Flip, FlipWaste
 from .core.board import Board
 
-from .brain.brain import Brain
 from .brain.brainforce import BrainForce
 
 import typing

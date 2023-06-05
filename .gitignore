@@ -22,3 +22,6 @@ build/
 # Android
 .buildozer/
 bin/
+
+# Ruff
+.ruff_cache

@@ -1,12 +1,11 @@
 """IA for playing the crapette"""
 
-import os
 import sys
 from pprint import pprint
 
 from ..core.board import Board
 from ..core.moves import Move
-from ..core.piles import CrapePile, FoundationPile, TableauPile, WastePile, _PlayerPile
+from ..core.piles import FoundationPile, TableauPile, _PlayerPile
 
 sys.setrecursionlimit(10 ** 5)
 _DEBUG = False
