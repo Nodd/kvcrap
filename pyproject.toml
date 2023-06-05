@@ -74,6 +74,7 @@ select = [
     "W",
     # "C90",
     "I",
+    "N",
     ]
 ignore = [
     "E501", # Line too long

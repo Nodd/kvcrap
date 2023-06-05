@@ -15,6 +15,7 @@ class Board:
     NB_PLAYERS = len(PLAYERS)
     FOUNDATION_SUITES = "dchsshcd"
     assert len(FOUNDATION_SUITES) == NB_PILES
+    FOUNDATIONS_PER_PLAYER = 4
 
     def __init__(self, new_game=True):
         # Setup the piles on the board
@@ -55,7 +56,6 @@ class Board:
 
     def new_game(self):
         """Reset the board and distribute the cards for a new game"""
-        FOUNDATIONS_PER_PLAYER = 4
         for player, player_piles_ in enumerate(self.players_piles):
             # Create deck
             deck = new_deck(player)
@@ -68,14 +68,14 @@ class Board:
             # Fill tableau
             for index, tableau_index in enumerate(
                 range(
-                    player * FOUNDATIONS_PER_PLAYER,
-                    player * FOUNDATIONS_PER_PLAYER + FOUNDATIONS_PER_PLAYER,
+                    player * self.FOUNDATIONS_PER_PLAYER,
+                    player * self.FOUNDATIONS_PER_PLAYER + self.FOUNDATIONS_PER_PLAYER,
                 )
             ):
                 card = deck[index]
                 card.face_up = True
                 self.tableau_piles[tableau_index].set_cards([card])
-            deck = deck[FOUNDATIONS_PER_PLAYER:]
+            deck = deck[self.FOUNDATIONS_PER_PLAYER :]
 
             # Fill stock
             player_piles_.stock.set_cards(deck)

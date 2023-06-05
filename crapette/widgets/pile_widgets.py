@@ -119,8 +119,7 @@ class TableauPileWidget(PileWidget):
         assert index >= 0
 
         app: crapette.CrapetteApp = App.get_running_app()
-        OFFSET_FACTOR: float = CARD_IMG.OFFSET_FACTOR
-        return app.card_width * (0.5 + OFFSET_FACTOR * index)
+        return app.card_width * (0.5 + CARD_IMG.OFFSET_FACTOR * index)
 
 
 class TableauLeftPileWidget(TableauPileWidget):
