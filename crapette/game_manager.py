@@ -136,7 +136,7 @@ class GameManager:
 
     def crapette_mode_prev(self):
         """Rollback one step in crapette mode"""
-        move = self.moves.prev()
+        move = self.moves.prev_move()
         self.update_prev_next_enabled()
 
         if isinstance(move, Move):
@@ -148,7 +148,7 @@ class GameManager:
 
     def crapette_mode_next(self):
         """'Rollforward' one step in crapette mode"""
-        move = self.moves.next()
+        move = self.moves.next_move()
         self.update_prev_next_enabled()
 
         if isinstance(move, Move):

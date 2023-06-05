@@ -37,14 +37,14 @@ class Moves:
     def has_next(self):
         return bool(self._next_moves)
 
-    def prev(self):
+    def prev_move(self):
         if not self._prev_moves:
             return None
         move = self._prev_moves.pop()
         self._next_moves.append(move)
         return move
 
-    def next(self):
+    def next_move(self):
         if not self._next_moves:
             return None
         move = self._next_moves.pop()

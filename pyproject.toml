@@ -81,6 +81,10 @@ select = [
     # "ANN",
     "ASYNC",
     "S",
+    "BLE",
+    # "FBT",
+    "B",
+    "A",
     ]
 ignore = [
     "E501", # Line too long

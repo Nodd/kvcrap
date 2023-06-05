@@ -118,7 +118,7 @@ class Card:
         return self._hash
 
     @property
-    def id(self):
+    def id(self):  # ruff: noqa: A003
         """Like a hash, but uses only suit and rank"""
         return self._id
 
