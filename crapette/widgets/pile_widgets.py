@@ -62,6 +62,7 @@ class FoundationPileWidget(PileWidget):
         pile: FoundationPile = self.pile  # type: ignore
         if pile.is_full:
             for card in pile:
+                # BUG: self.card_widgets doesn't exist
                 self.card_widgets[card].set_face_up()
 
 
