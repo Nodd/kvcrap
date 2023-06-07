@@ -28,11 +28,11 @@ class _Pile:
         assert self._cards, f"No card to pop in {self._name}"
         return self._cards.pop()
 
-    def can_add_card(self, card, origin, player):
+    def can_add_card(self, card: Card, origin, player: int):
         """Check if the card can be added to the pile"""
         raise NotImplementedError
 
-    def can_pop_card(self, player):
+    def can_pop_card(self, player: int):
         """Check if the top card can be taken from the pile"""
         raise NotImplementedError
 
@@ -69,7 +69,7 @@ class _Pile:
         return not len(self._cards)
 
     @property
-    def top_card(self):
+    def top_card(self) -> Card | None:
         """topmost card of the pile, or None if pile is empty"""
         try:
             return self._cards[-1]
@@ -221,6 +221,8 @@ class TableauPile(_Pile):
 class _PlayerPile(_Pile):
     """Piles specific to the player"""
 
+    _name_tpl = "_PilePlayer{player}"
+
     def __init__(self, player):
         assert player in {0, 1}
         super().__init__(self._name_tpl.format(player=player))
@@ -266,7 +268,7 @@ class WastePile(_PlayerPile):
 
     _name_tpl = "WastePlayer{player}"
 
-    def can_add_card(self, card, origin, player):
+    def can_add_card(self, card: Card, origin, player):
         if self._player == player:
             if not isinstance(origin, StockPile) and origin.player == player:
                 if _DEBUG:
@@ -329,6 +331,7 @@ class CrapePile(_PlayerPile):
                     f"Add {self.name}: Impossible, the other player can not put card {card} on an empty crapette pile"
                 )
             return False
+        assert self.top_card is not None
         if card.suit != self.top_card.suit:
             if _DEBUG:
                 print(
