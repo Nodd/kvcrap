@@ -131,6 +131,15 @@ class BoardWidget(BoxLayout):
         """Flips up the card widget"""
         card_widget.set_face_up()
 
+    def flip_pile(self, pile_widget: PileWidget):
+        # Update cards
+        for card in pile_widget.pile:
+            card.face_up = not card.face_up
+            card_widget = self.card_widgets[card]
+            card_widget.update_image()
+            self.put_on_top(card_widget)
+        self.update_counts()
+
     def flip_waste_to_stock(self, player: int):
         """When the stock is empty, flip the waste back to the stock"""
         stock_widget = self.ids[f"player{player}stock"]
@@ -141,12 +150,12 @@ class BoardWidget(BoxLayout):
         waste_widget.pile.clear()
 
         # Update cards
-        for index, card in enumerate(stock_widget.pile):
+        for card in stock_widget.pile:
             card.face_up = False
             card_widget = self.card_widgets[card]
             card_widget.update_image()
             card_widget.pile_widget = stock_widget
-            card_widget.set_center_animated(stock_widget.card_pos(index))
+            card_widget.set_center_animated(stock_widget.card_pos())
             self.put_on_top(card_widget)
         self.update_counts()
 
