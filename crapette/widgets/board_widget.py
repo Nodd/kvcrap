@@ -128,7 +128,7 @@ class BoardWidget(BoxLayout):
         ).start(background_halo)
 
     def flip_card_up(self, card_widget: CardWidget):
-        """Flips up the card and register the flip as a move"""
+        """Flips up the card widget"""
         card_widget.set_face_up()
 
     def flip_waste_to_stock(self, player: int):
@@ -151,6 +151,7 @@ class BoardWidget(BoxLayout):
         self.update_counts()
 
     def put_on_top(self, card_widget: CardWidget):
+        """Puts a card widget above the other cards on the board widget."""
         self.app.root.remove_widget(card_widget)
         self.app.root.add_widget(card_widget)
 
