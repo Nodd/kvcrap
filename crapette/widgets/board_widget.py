@@ -8,7 +8,7 @@ from .card_widget import CardWidget
 from .pile_widgets import PileWidget
 
 if typing.TYPE_CHECKING:
-    from .. import game_manager
+    from crapette import game_manager
 
 TRANSITION_DURATION = 0.5
 

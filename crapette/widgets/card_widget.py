@@ -8,7 +8,7 @@ from kivy.animation import Animation
 from kivy.properties import StringProperty
 from kivy.uix.scatterlayout import ScatterLayout
 
-from ..images.card_data import card2img
+from crapette.images.card_data import card2img
 
 MAX_RANDOM_ANGLE = 5  # °
 

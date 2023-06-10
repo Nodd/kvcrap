@@ -9,9 +9,10 @@ from kivy.input.motionevent import MotionEvent
 from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.relativelayout import RelativeLayout
 
-from .. import crapette
-from ..core.piles import FoundationPile, StockPile, _Pile
-from ..images.card_data import CARD_IMG
+from crapette import crapette
+from crapette.core.piles import FoundationPile, StockPile, _Pile
+from crapette.images.card_data import CARD_IMG
+
 from .card_widget import CardWidget
 
 

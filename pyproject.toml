@@ -104,6 +104,9 @@ select = [
     "Q",
     "RSE",
     "RET",
+    # "SLF", # SLF001 Private member accessed
+    "SIM",
+    "TID",
     ]
 ignore = [
     "E501", # Line too long
