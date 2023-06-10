@@ -28,7 +28,6 @@ class BrainForce:
         print("Conclusion :")
         pprint(best_node.moves)
         print(flush=True)
-        return
 
 
 class BoardNode:
@@ -64,9 +63,7 @@ class BoardNode:
         # Check all origin piles
         for pile_orig in piles_orig:
             # Consider top card if available
-            if pile_orig.is_empty:
-                continue
-            if not pile_orig.face_up:
+            if pile_orig.is_empty or not pile_orig.face_up:
                 continue
             card = pile_orig.top_card
 
