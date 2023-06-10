@@ -108,10 +108,19 @@ select = [
     "SIM",
     "TID",
     "TCH",
+    "INT",
+    "ARG",
+    "PTH",
+    # "TD", # TODOs
+    # "ERA", # Found commented-out code
+    # "PD#, # Pandas
+    "PGH",
     ]
 ignore = [
     "E501", # Line too long
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
     "S101", # Use of `assert` detected
     "COM812", # Trailing comma missing
+    "ARG002", # Unused method argument
+    "ARG005", # Unused lambda argument
     ]

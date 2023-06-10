@@ -64,7 +64,7 @@ class FoundationPileWidget(PileWidget):
         super().add_card(card_widget)
 
         # Flip foundation pile if full
-        pile: FoundationPile = self.pile  # type: ignore
+        pile: FoundationPile = self.pile  # type: ignore[assignment]
         if pile.is_full:
             for card in pile:
                 # BUG: self.card_widgets doesn't exist
