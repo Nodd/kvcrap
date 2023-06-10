@@ -7,7 +7,7 @@ from ..core.board import Board
 from ..core.moves import Move
 from ..core.piles import FoundationPile, TableauPile, _PlayerPile
 
-sys.setrecursionlimit(10 ** 5)
+sys.setrecursionlimit(10**5)
 _DEBUG = False
 # if os.name == "nt":
 #     # Fix utf8 output in console
