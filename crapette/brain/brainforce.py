@@ -50,7 +50,7 @@ class BoardNode:
 
         # Piles to take from
         player_piles = self.board.players_piles[self.player]
-        piles_orig = self.board.tableau_piles + [player_piles.crape, player_piles.stock]
+        piles_orig = [*self.board.tableau_piles, player_piles.crape, player_piles.stock]
 
         # Piles to push to
         enemy_piles = self.board.players_piles[1 - self.player]
@@ -94,7 +94,7 @@ class BoardNode:
 
                     # Compute the cost
                     move = Move(card, pile_orig, pile_dest)
-                    cost = self.cost + (compute_move_cost(move),)
+                    cost = (*self.cost, compute_move_cost(move))
                     try:
                         next_board_node = known_nodes[next_board]
                     except KeyError:
@@ -106,7 +106,7 @@ class BoardNode:
                         if next_board_node.visited or cost > next_board_node.cost:
                             continue
                     next_board_node.cost = cost
-                    next_board_node.moves = self.moves + [move]
+                    next_board_node.moves = [*self.moves, move]
 
 
 class BrainDijkstra:
@@ -160,7 +160,8 @@ class BoardScore:
             self.crapette_score,
             self.stock_score,
             self.empty_tableau_score,
-        ) + tuple(self.clean_tableau_score)
+            *self.clean_tableau_score,
+        )
 
     @property
     def foundation_score(self):

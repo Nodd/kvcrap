@@ -116,6 +116,10 @@ select = [
     # "PD#, # Pandas
     "PGH",
     "PL",
+    "TRY",
+    "FLY",
+    # "NPY", # Numpy
+    "RUF",
     ]
 ignore = [
     "E501", # Line too long

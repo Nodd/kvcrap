@@ -93,7 +93,7 @@ class GameManager:
         self.check_win()
         self.check_end_of_turn(pile_widget)
 
-        #  Brain(self.board, self.active_player).checks()
+        # Brain(self.board, self.active_player).checks()
         BrainForce(self.board, self.active_player).compute_states()
 
         return True
@@ -105,7 +105,7 @@ class GameManager:
         self.moves.record_flip(card_widget, card_widget.pile_widget)
         self.update_prev_next_enabled()
 
-        #  Brain(self.board, self.active_player).checks()
+        # Brain(self.board, self.active_player).checks()
         BrainForce(self.board, self.active_player).compute_states()
 
     def flip_waste_to_stock(self):
