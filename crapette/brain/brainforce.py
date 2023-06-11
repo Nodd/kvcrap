@@ -1,5 +1,6 @@
 """IA for playing the crapette."""
 
+import functools
 import sys
 from pprint import pprint
 
@@ -49,65 +50,71 @@ class BoardNode:
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
             return
 
-        # Piles to take from
-        player_piles = self.board.players_piles[self.player]
-        piles_orig = [*self.board.tableau_piles, player_piles.crape, player_piles.stock]
-
-        # Piles to push to
-        enemy_piles = self.board.players_piles[1 - self.player]
-        piles_dest = (
-            self.board.foundation_piles
-            + self.board.tableau_piles
-            + [enemy_piles.crape, enemy_piles.waste]
-        )
-
-        # Check all origin piles
-        for pile_orig in piles_orig:
-            # Consider top card if available
-            if pile_orig.is_empty or not pile_orig.face_up:
-                continue
+        # Check all possible origin piles
+        for pile_orig in self._piles_orig:
             card = pile_orig.top_card
 
             to_empty_tableau_before = False
-            # Check all destination piles for each origin pile
-            for pile_dest in piles_dest:
+            # Check all possible destination piles for each possible origin pile
+            for pile_dest in self._piles_dest:
                 # Skip "no move" move
                 if pile_dest is pile_orig:
                     continue
 
                 # Check if the move is possible
-                if pile_dest.can_add_card(card, pile_orig, self.player):
-                    # Avoid equivalent moves with empty piles on the tableau
-                    if (
-                        pile_dest.is_empty
-                        and isinstance(pile_orig, TableauPile)
-                        and isinstance(pile_dest, TableauPile)
-                    ):
-                        to_empty_tableau_before = True
-                        if to_empty_tableau_before or len(pile_orig) == 1:
-                            # Avoid trying each empty slot or swap empty slots
-                            continue
+                if not pile_dest.can_add_card(card, pile_orig, self.player):
+                    continue
 
-                    # Instantiate neighbor
-                    next_board = self.board.copy()
-                    next_board[pile_orig].pop_card()
-                    next_board[pile_dest].add_card(card)
+                # Avoid equivalent moves with empty piles on the tableau
+                if (
+                    pile_dest.is_empty
+                    and isinstance(pile_orig, TableauPile)
+                    and isinstance(pile_dest, TableauPile)
+                ):
+                    to_empty_tableau_before = True
+                    if to_empty_tableau_before or len(pile_orig) == 1:
+                        # Avoid trying each empty slot or swap empty slots
+                        continue
 
-                    # Compute the cost
-                    move = Move(card, pile_orig, pile_dest)
-                    cost = (*self.cost, compute_move_cost(move))
-                    try:
-                        next_board_node = known_nodes[next_board]
-                    except KeyError:
-                        # Add this unknown new board
-                        next_board_node = BoardNode(next_board, self.player)
-                        known_nodes[next_board] = next_board_node
-                    else:
-                        # Skip if cost is higher
-                        if next_board_node.visited or cost > next_board_node.cost:
-                            continue
-                    next_board_node.cost = cost
-                    next_board_node.moves = [*self.moves, move]
+                # Instantiate neighbor
+                next_board = self.board.copy()
+                next_board[pile_orig].pop_card()
+                next_board[pile_dest].add_card(card)
+
+                # Compute the cost
+                move = Move(card, pile_orig, pile_dest)
+                cost = (*self.cost, compute_move_cost(move))
+                try:
+                    next_board_node = known_nodes[next_board]
+                except KeyError:
+                    # Add this unknown new board
+                    next_board_node = BoardNode(next_board, self.player)
+                    known_nodes[next_board] = next_board_node
+                else:
+                    # Skip if cost is higher
+                    if next_board_node.visited or cost > next_board_node.cost:
+                        continue
+                next_board_node.cost = cost
+                next_board_node.moves = [*self.moves, move]
+
+    @functools.cached_property
+    def _piles_orig(self):
+        """Piles to take cards from."""
+        player_piles = self.board.players_piles[self.player]
+        piles_orig = *self.board.tableau_piles, player_piles.crape, player_piles.stock
+
+        # Return only piles with top card available
+        return [p for p in piles_orig if not p.is_empty and p.face_up]
+
+    @functools.cached_property
+    def _piles_dest(self):
+        """Piles to put cards to."""
+        enemy_piles = self.board.players_piles[1 - self.player]
+        return (
+            self.board.foundation_piles
+            + self.board.tableau_piles
+            + [enemy_piles.crape, enemy_piles.waste]
+        )
 
 
 class BrainDijkstra:
