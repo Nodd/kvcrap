@@ -156,7 +156,7 @@ class CardWidget(ScatterLayout):
 
         # Check if the card can be moved by the player
         # TODO: avoid using self.pile_widget and self.game_manager, how ?
-        Logger.debug("TOUCH DOWN", self.card)
+        Logger.debug("TOUCH DOWN %s", self.card)
         can_pop = self.pile_widget.pile.can_pop_card(self.game_manager.active_player)
         assert can_pop in (True, False), can_pop
         if not can_pop:
@@ -186,7 +186,7 @@ class CardWidget(ScatterLayout):
                 Logger.debug("Cancel flip")
             self._flipping = False
             return True
-        Logger.debug("TOUCH UP", self.card)
+        Logger.debug("TOUCH UP %s", self.card)
         self._moving = False
 
         # Look for the pile the card was dropped on
@@ -196,10 +196,10 @@ class CardWidget(ScatterLayout):
                 break
 
         if pile_widget is None:
-            Logger.debug(f"{self.card} not dropped on a pile, return it")
+            Logger.debug("%s not dropped on a pile, return it", self.card)
             self.set_center_animated(self.pile_widget.card_pos())
         elif pile_widget == self.pile_widget:
-            Logger.debug(f"{self.card} dropped on same pile, return it")
+            Logger.debug("%s dropped on same pile, return it", self.card)
             self.set_center_animated(self.pile_widget.card_pos())
         else:
             moved = self.game_manager.move_card(self, pile_widget)
