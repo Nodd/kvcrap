@@ -9,6 +9,7 @@ class Card:
     MIN_RANK = 1
     MAX_RANK = 13
     RANKS = list(range(MIN_RANK, MAX_RANK + 1))
+    NB_RANKS = len(RANKS)
     RED = "dh"  # Diamonds, Hearts
     BLACK = "cs"  # Clubs, Spades
     SUITS = RED + BLACK
@@ -118,12 +119,13 @@ class Card:
         return self._id
 
 
-def new_deck(player):
+def new_deck(player, shuffle=True):
     """Build a new shuffled deck.
 
-    A deck is simply a list of cards.
+    A deck is simply a list of Card instances.
     """
     assert player in (0, 1)
     cards = [Card(r, s, player) for s in Card.SUITS for r in Card.RANKS]
-    random.shuffle(cards)
+    if shuffle:
+        random.shuffle(cards)
     return cards

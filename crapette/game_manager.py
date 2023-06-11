@@ -22,12 +22,18 @@ class GameManager:
         self.crapette_mode: bool = False
         self.board_widget: BoardWidget = self.ids["game_board"]
 
-    def setup(self):
+    def setup(self, custom_new_game=None):
         self.board = Board()
-        self.board.new_game()
+        if custom_new_game is not None:
+            custom_new_game(self.board)
+        else:
+            self.board.new_game()
         self.board_widget.setup(self)
 
-        self.set_active_player(self.board_widget.board.compute_first_player())
+        if custom_new_game is not None:
+            self.set_active_player(0)
+        else:
+            self.set_active_player(self.board_widget.board.compute_first_player())
 
     def set_active_player(self, player: int):
         """Change the active player and updates the GUI accordingly."""

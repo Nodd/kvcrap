@@ -2,7 +2,7 @@
 
 Mostly used for initialisation and use of .kv file.
 """
-
+import sys
 from pathlib import Path
 
 import kivy
@@ -92,7 +92,15 @@ class CrapetteApp(App):
 
     def new_game(self):
         self.set_menu_visible(False)
-        self.game_manager.setup()
+
+        if len(sys.argv) == 2:
+            from crapette import custom_test_games
+
+            custom_new_game = getattr(custom_test_games, sys.argv[1])
+        else:
+            custom_new_game = None
+
+        self.game_manager.setup(custom_new_game)
 
 
 def main():

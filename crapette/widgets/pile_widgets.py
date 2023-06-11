@@ -73,9 +73,8 @@ class FoundationPileWidget(PileWidget):
         # Flip foundation pile if full
         pile: FoundationPile = self.pile  # type: ignore[assignment]
         if pile.is_full:
-            for card in pile:
-                # BUG: self.card_widgets doesn't exist
-                self.card_widgets[card].set_face_up()
+            game_manager = App.get_running_app().game_manager
+            game_manager.board_widget.flip_pile(self)
 
 
 class PlayerPileWidget(PileWidget):
