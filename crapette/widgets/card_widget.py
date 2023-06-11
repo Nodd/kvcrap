@@ -3,6 +3,7 @@
 import random
 
 from kivy.animation import Animation
+from kivy.core.window import Window
 from kivy.logger import Logger
 from kivy.properties import StringProperty
 from kivy.uix.scatterlayout import ScatterLayout
@@ -164,6 +165,7 @@ class CardWidget(ScatterLayout):
 
         if self.card.face_up:
             self._moving = True
+            Window.show_cursor = False
             return super().on_touch_down(touch)
 
         self._flipping = True
@@ -188,6 +190,7 @@ class CardWidget(ScatterLayout):
             return True
         Logger.debug("TOUCH UP %s", self.card)
         self._moving = False
+        Window.show_cursor = True
 
         # Look for the pile the card was dropped on
         pile_widget = None
