@@ -64,7 +64,7 @@ class GameManager:
 
             # Freeze board
             self.active_player = None
-            for card_widget in self.card_widgets.values():
+            for card_widget in self.board_widget.card_widgets.values():
                 card_widget.do_translation = False
             return True
         return False
@@ -90,7 +90,9 @@ class GameManager:
         self.moves.record_move(card_widget, old_pile_widget, pile_widget)
         self.update_prev_next_enabled()
 
-        self.check_win()
+        if self.check_win():
+            return True
+
         self.check_end_of_turn(pile_widget)
 
         # Brain(self.board, self.active_player).checks()
