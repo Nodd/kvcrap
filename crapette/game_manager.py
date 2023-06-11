@@ -2,6 +2,8 @@
 
 import typing
 
+from kivy.logger import Logger
+
 from .brain.brainforce import BrainForce
 from .core.board import Board
 from .core.moves import Flip, FlipWaste, Move, Moves
@@ -9,13 +11,6 @@ from .core.piles import WastePile
 
 if typing.TYPE_CHECKING:
     from .widgets.board_widget import BoardWidget
-
-_DEBUG = False
-
-
-def debug(*s: str):
-    if _DEBUG:
-        print(*s)
 
 
 class GameManager:
@@ -81,7 +76,7 @@ class GameManager:
         )
         assert can_add in (True, False), can_add
         if not can_add:
-            debug("Dropped on an incompatible pile")
+            Logger.debug("Dropped on an incompatible pile")
             return False
 
         self.board_widget.move_card(card_widget, pile_widget)

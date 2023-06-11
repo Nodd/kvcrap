@@ -3,19 +3,13 @@
 import random
 
 from kivy.animation import Animation
+from kivy.logger import Logger
 from kivy.properties import StringProperty
 from kivy.uix.scatterlayout import ScatterLayout
 
 from crapette.images.card_data import card2img
 
 MAX_RANDOM_ANGLE = 5  # °
-
-_DEBUG = False
-
-
-def debug(*s):
-    if _DEBUG:
-        print(*s)
 
 
 class CardWidget(ScatterLayout):
@@ -157,12 +151,12 @@ class CardWidget(ScatterLayout):
 
         # Stop the event if this is the end of the game.
         if self.game_manager.active_player is None:
-            debug("End of game")
+            Logger.debug("End of game")
             return True
 
         # Check if the card can be moved by the player
         # TODO: avoid using self.pile_widget and self.game_manager, how ?
-        debug("TOUCH DOWN", self.card)
+        Logger.debug("TOUCH DOWN", self.card)
         can_pop = self.pile_widget.pile.can_pop_card(self.game_manager.active_player)
         assert can_pop in (True, False), can_pop
         if not can_pop:
@@ -179,7 +173,7 @@ class CardWidget(ScatterLayout):
         super().on_touch_up(touch)
 
         if self.game_manager.active_player is None:
-            debug("End of game")
+            Logger.debug("End of game")
             return True
 
         if not self._moving:
@@ -189,10 +183,10 @@ class CardWidget(ScatterLayout):
             if self.collide_point(touch.x, touch.y):
                 self.game_manager.flip_card_up(self)
             else:
-                debug("Cancel flip")
+                Logger.debug("Cancel flip")
             self._flipping = False
             return True
-        debug("TOUCH UP", self.card)
+        Logger.debug("TOUCH UP", self.card)
         self._moving = False
 
         # Look for the pile the card was dropped on
@@ -202,10 +196,10 @@ class CardWidget(ScatterLayout):
                 break
 
         if pile_widget is None:
-            debug(f"{self.card} not dropped on a pile, return it")
+            Logger.debug(f"{self.card} not dropped on a pile, return it")
             self.set_center_animated(self.pile_widget.card_pos())
         elif pile_widget == self.pile_widget:
-            debug(f"{self.card} dropped on same pile, return it")
+            Logger.debug(f"{self.card} dropped on same pile, return it")
             self.set_center_animated(self.pile_widget.card_pos())
         else:
             moved = self.game_manager.move_card(self, pile_widget)

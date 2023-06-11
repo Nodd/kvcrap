@@ -10,6 +10,7 @@ import kivy.config
 import kivy.resources
 from kivy.app import App
 from kivy.core.window import Window
+from kivy.logger import LOG_LEVELS, Logger
 from kivy.properties import BooleanProperty, NumericProperty
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
@@ -23,6 +24,7 @@ from .images.card_data import CARD_IMG
 kivy.require("1.10.0")
 kivy.resources.resource_add_path(str(Path(__file__).parent))
 kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
+Logger.setLevel(LOG_LEVELS["debug"])  # debug, info, warning, error, critical, trace
 
 
 class BackGround(FloatLayout):

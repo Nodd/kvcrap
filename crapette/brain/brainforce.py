@@ -3,12 +3,14 @@
 import sys
 from pprint import pprint
 
+from kivy.logger import Logger
+
 from crapette.core.board import Board
 from crapette.core.moves import Move
 from crapette.core.piles import FoundationPile, TableauPile, _PlayerPile
 
 sys.setrecursionlimit(10**5)
-_DEBUG = False
+
 # if os.name == "nt":
 #     # Fix utf8 output in console
 #     sys.stdout = open(1, "w", encoding="utf-8", closefd=False)  # fd 1 is stdout
@@ -20,9 +22,8 @@ class BrainForce:
         self.player = player
 
     def compute_states(self):
-        if _DEBUG:
-            print("*" * 50)
-            print(f"compute_states for player {self.player}")
+        Logger.debug("*" * 50)
+        Logger.debug(f"compute_states for player {self.player}")
 
         best_node = BrainDijkstra(self.board, self.player).compute_search()
         print("Conclusion :")
