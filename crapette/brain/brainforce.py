@@ -1,4 +1,4 @@
-"""IA for playing the crapette"""
+"""IA for playing the crapette."""
 
 import sys
 from pprint import pprint

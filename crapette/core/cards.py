@@ -1,10 +1,10 @@
-"""Class for card parameters and methods"""
+"""Class for card parameters and methods."""
 
 import random
 
 
 class Card:
-    """Card information"""
+    """Card information."""
 
     MIN_RANK = 1
     MAX_RANK = 13
@@ -33,12 +33,12 @@ class Card:
 
     @property
     def rank(self):
-        """Rank of the card, between MIN_RANK (1) and MAX_RANK (13)"""
+        """Rank of the card, between MIN_RANK (1) and MAX_RANK (13)."""
         return self._rank
 
     @property
     def suit(self):
-        """Caracter representing the suit of the card
+        """Caracter representing the suit of the card.
 
         - c: Clubs
         - d: Diamonds
@@ -67,7 +67,7 @@ class Card:
 
     @property
     def player(self):
-        """Original player for the card
+        """Original player for the card.
 
         Useful to get the decoration on the back of the card.
         """
@@ -75,20 +75,20 @@ class Card:
 
     @property
     def face_up(self):
-        """State of the card, facing up (True) or down (False)"""
+        """State of the card, facing up (True) or down (False)."""
         return self._face_up
 
     @face_up.setter
     def face_up(self, is_face_up):
-        """Setter for the satate of the card"""
+        """Setter for the satate of the card."""
         self._face_up = bool(is_face_up)
 
     def is_same_color(self, other):
-        """Check if this card has the same color (red or black) as another card"""
+        """Check if this card has the same color (red or black) as another card."""
         return self._color == other._color
 
     def __str__(self):
-        """Sting representation of the card"""
+        """Sting representation of the card."""
         return f"{self.rank_symbol}{self.suit_symbol}{'^' if self._face_up else 'v'}"
 
     def __repr__(self):
@@ -114,12 +114,12 @@ class Card:
 
     @property
     def id(self):  # ruff: noqa: A003
-        """Like a hash, but uses only suit and rank"""
+        """Like a hash, but uses only suit and rank."""
         return self._id
 
 
 def new_deck(player):
-    """Build a new shuffled deck
+    """Build a new shuffled deck.
 
     A deck is simply a list of cards.
     """

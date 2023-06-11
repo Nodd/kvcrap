@@ -1,4 +1,4 @@
-"""Class for pile of cards parameters and methods"""
+"""Class for pile of cards parameters and methods."""
 
 from collections import namedtuple
 
@@ -8,14 +8,14 @@ _DEBUG = False
 
 
 class _Pile:
-    """Defines the Pile interface and some generic methods for all piles"""
+    """Defines the Pile interface and some generic methods for all piles."""
 
     def __init__(self, name):
         self._name = str(name)
         self._cards = []
 
     def add_card(self, card):
-        """Add a card to the pile"""
+        """Add a card to the pile."""
         self._cards.append(card)
 
     def pop_card(self):
@@ -27,18 +27,18 @@ class _Pile:
         return self._cards.pop()
 
     def can_add_card(self, card: Card, origin, player: int):
-        """Check if the card can be added to the pile"""
+        """Check if the card can be added to the pile."""
         raise NotImplementedError
 
     def can_pop_card(self, player: int):
-        """Check if the top card can be taken from the pile"""
+        """Check if the top card can be taken from the pile."""
         raise NotImplementedError
 
     def __iter__(self):
         yield from self._cards
 
     def __getitem__(self, index):
-        """Index pile to get card"""
+        """Index pile to get card."""
         return self._cards[index]
 
     def __len__(self):
@@ -59,7 +59,7 @@ class _Pile:
 
     @property
     def name(self):
-        """Name of the pile"""
+        """Name of the pile."""
         return self._name
 
     @property
@@ -68,7 +68,7 @@ class _Pile:
 
     @property
     def top_card(self) -> Card | None:
-        """topmost card of the pile, or None if pile is empty"""
+        """topmost card of the pile, or None if pile is empty."""
         try:
             return self._cards[-1]
         except IndexError:
@@ -76,31 +76,31 @@ class _Pile:
 
     @property
     def rank(self):
-        """Rank of the topmost card of the pile"""
+        """Rank of the topmost card of the pile."""
         return self._cards[-1].rank
 
     @property
     def suit(self):
-        """Suit of the topmost card of the pile"""
+        """Suit of the topmost card of the pile."""
         return self._cards[-1].suit
 
     @property
     def player(self):
-        """Initial player of the topmost card of the pile"""
+        """Initial player of the topmost card of the pile."""
         return self._cards[-1].player
 
     @property
     def face_up(self):
-        """State of the topmost card of the pile"""
+        """State of the topmost card of the pile."""
         return self._cards[-1].face_up
 
     @face_up.setter
     def face_up(self, is_face_up):
-        """Setter of the state of the topmost card of the pile"""
+        """Setter of the state of the topmost card of the pile."""
         self._cards[-1].face_up = is_face_up
 
     def set_cards(self, cards):
-        """Replaces the cards in the pile
+        """Replaces the cards in the pile.
 
         Warning, nothing is checked !
         """
@@ -108,7 +108,7 @@ class _Pile:
         self._cards = cards
 
     def clear(self):
-        """Empty the pile"""
+        """Empty the pile."""
         self._cards = []
 
     def cards_ids(self):
@@ -127,7 +127,7 @@ class FoundationPile(_Pile):
 
     def can_add_card(self, card, origin, player):
         """Card can be added if it has the same suit as the pile, and a rank
-        just above the last card
+        just above the last card.
         """
         if card.suit != self._suit:
             if _DEBUG:
@@ -144,7 +144,7 @@ class FoundationPile(_Pile):
         return True
 
     def can_pop_card(self, player):
-        """Cards can never be removed from here
+        """Cards can never be removed from here.
 
         Note: except when rolling back in crapette mode, but that's not maanged here
         """
@@ -156,11 +156,11 @@ class FoundationPile(_Pile):
 
     @property
     def is_full(self):
-        """If the pile is full from Ace to King"""
+        """If the pile is full from Ace to King."""
         return len(self._cards) == Card.MAX_RANK
 
     def __eq__(self, other):
-        """Doesn't check if cards face up or down"""
+        """Doesn't check if cards face up or down."""
         return (
             isinstance(other, FoundationPile)
             and self._suit == other._suit
@@ -169,7 +169,7 @@ class FoundationPile(_Pile):
 
 
 class TableauPile(_Pile):
-    """Side piles where cards go from King to Ace with alternate colors"""
+    """Side piles where cards go from King to Ace with alternate colors."""
 
     def __init__(self, tableau_id):
         super().__init__(f"Tableau{tableau_id}")
@@ -217,7 +217,7 @@ class TableauPile(_Pile):
 
 
 class _PlayerPile(_Pile):
-    """Piles specific to the player"""
+    """Piles specific to the player."""
 
     _name_tpl = "_PilePlayer{player}"
 
@@ -242,7 +242,7 @@ class _PlayerPile(_Pile):
         return self._player
 
     def __eq__(self, other):
-        """Doesn't check if cards face up or down"""
+        """Doesn't check if cards face up or down."""
         return (
             isinstance(other, self.__class__)
             and self._name == other._name
@@ -251,7 +251,7 @@ class _PlayerPile(_Pile):
 
 
 class StockPile(_PlayerPile):
-    """Biggest and lowest priority of the 2 piles a player has to empty"""
+    """Biggest and lowest priority of the 2 piles a player has to empty."""
 
     _name_tpl = "StockPlayer{player}"
 
@@ -311,7 +311,7 @@ class WastePile(_PlayerPile):
 
 
 class CrapePile(_PlayerPile):
-    """Smallest and high-priorty pile the player has to empty"""
+    """Smallest and high-priorty pile the player has to empty."""
 
     _name_tpl = "CrapePlayer{player}"
     NB_CARDS_START = 13
@@ -355,5 +355,5 @@ PlayerPiles = namedtuple("PlayerPiles", ["stock", "waste", "crape"])
 
 
 def player_piles(player):
-    """Return a PlayerPiles instance with the 3 piles for a player"""
+    """Return a PlayerPiles instance with the 3 piles for a player."""
     return PlayerPiles(StockPile(player), WastePile(player), CrapePile(player))

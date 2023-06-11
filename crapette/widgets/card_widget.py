@@ -19,7 +19,7 @@ def debug(*s):
 
 
 class CardWidget(ScatterLayout):
-    """Widget representing a card on the board"""
+    """Widget representing a card on the board."""
 
     source = StringProperty()
 

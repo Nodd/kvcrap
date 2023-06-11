@@ -1,5 +1,5 @@
 """
-Data for using card artworks
+Data for using card artworks.
 
 This version uses cars provided for free (LGPL-2.1) on
 https://github.com/htdebeer/SVG-cards.

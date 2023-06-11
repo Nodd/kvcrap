@@ -1,4 +1,4 @@
-"""Manage the widgets interaction on the game board"""
+"""Manage the widgets interaction on the game board."""
 
 import typing
 
@@ -35,7 +35,7 @@ class GameManager:
         self.set_active_player(self.board_widget.board.compute_first_player())
 
     def set_active_player(self, player: int):
-        """Changes the active player and updates the GUI accordingly"""
+        """Changes the active player and updates the GUI accordingly."""
         assert not self.crapette_mode
 
         self.moves = Moves()
@@ -57,7 +57,7 @@ class GameManager:
             self.set_active_player(1 - self.active_player)
 
     def check_win(self):
-        """End the game if the player has won"""
+        """End the game if the player has won."""
         if self.board.check_win(self.active_player):
             print(f"Player {self.active_player} wins !!!")
 
@@ -98,7 +98,7 @@ class GameManager:
         return True
 
     def flip_card_up(self, card_widget):
-        """Flips up the card and register the flip as a move"""
+        """Flips up the card and register the flip as a move."""
         self.board_widget.flip_card_up(card_widget)
 
         self.moves.record_flip(card_widget, card_widget.pile_widget)
@@ -108,7 +108,7 @@ class GameManager:
         BrainForce(self.board, self.active_player).compute_states()
 
     def flip_waste_to_stock(self):
-        """When the stock is empty, flip the waste back to the stock"""
+        """When the stock is empty, flip the waste back to the stock."""
         self.board_widget.flip_waste_to_stock(self.active_player)
 
         self.moves.record_waste_flip()
@@ -126,7 +126,7 @@ class GameManager:
                 self.crapette_mode_next()
 
     def update_prev_next_enabled(self):
-        """Update enabled state of history buttons"""
+        """Update enabled state of history buttons."""
         next_button = self.ids[f"player{self.active_player}nextbutton"]
         next_button.disabled = not self.crapette_mode or not self.moves.has_next
 
@@ -134,7 +134,7 @@ class GameManager:
         prev_button.disabled = not self.crapette_mode or not self.moves.has_prev
 
     def crapette_mode_prev(self):
-        """Rollback one step in crapette mode"""
+        """Rollback one step in crapette mode."""
         move = self.moves.prev_move()
         self.update_prev_next_enabled()
 
@@ -146,7 +146,7 @@ class GameManager:
             print("FlipWaste")
 
     def crapette_mode_next(self):
-        """'Rollforward' one step in crapette mode"""
+        """'Rollforward' one step in crapette mode."""
         move = self.moves.next_move()
         self.update_prev_next_enabled()
 

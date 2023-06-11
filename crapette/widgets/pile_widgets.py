@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 class PileWidget(RelativeLayout):
-    """Parent widget for all pile types"""
+    """Parent widget for all pile types."""
 
     rotation = NumericProperty()
 
@@ -54,7 +54,7 @@ class PileWidget(RelativeLayout):
 
 
 class FoundationPileWidget(PileWidget):
-    """Piles for foundations
+    """Piles for foundations.
 
     Left and right foundations should be different, because the rotation is not
     the same.

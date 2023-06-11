@@ -15,7 +15,7 @@ class Brain:
             print("   ", tableau_pile, tableau_pile_dest)
 
     def check_foundation_tableau(self):
-        """Check which card from the foundation can potentially be put on the tableau
+        """Check which card from the foundation can potentially be put on the tableau.
 
         Returns a list of (card, tableau_pile, index).
         """
@@ -28,7 +28,7 @@ class Brain:
         return potential
 
     def check_player_crapette_tableau(self):
-        """Check if the card on the player crapette can potentially be put on the tableau"""
+        """Check if the card on the player crapette can potentially be put on the tableau."""
         crapette_pile = self.board.players_piles[self.player].crape
         if not crapette_pile:
             return False
@@ -41,7 +41,7 @@ class Brain:
         )
 
     def check_player_stock_tableau(self):
-        """Check if the card on the player stock can potentially be put on the tableau"""
+        """Check if the card on the player stock can potentially be put on the tableau."""
         stock_pile = self.board.players_piles[self.player].stock
         if not stock_pile:
             return False
@@ -54,7 +54,7 @@ class Brain:
         )
 
     def check_potential_space(self):
-        """Check if any tableau pile can potentially go over another tableau pile
+        """Check if any tableau pile can potentially go over another tableau pile.
 
         Returns a list of (tableau_pile, tableau_pile_dest)
         """

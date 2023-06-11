@@ -38,7 +38,7 @@ class Board:
         )
 
     def __getitem__(self, name):
-        """Can take a pile name or a pile object (not necessarily from this board)"""
+        """Can take a pile name or a pile object (not necessarily from this board)."""
         if hasattr(name, "name"):
             name = name.name
         return self._pile_by_names[name]
@@ -50,7 +50,7 @@ class Board:
         return self.__repr__()
 
     def new_game(self):
-        """Reset the board and distribute the cards for a new game"""
+        """Reset the board and distribute the cards for a new game."""
         for player, player_piles_ in enumerate(self.players_piles):
             # Create deck
             deck = new_deck(player)
@@ -95,7 +95,7 @@ class Board:
             assert len(foundation_pile) == 0
 
     def copy(self):
-        """Create a copy of the board
+        """Create a copy of the board.
 
         The piles will be new objects, but will contain the same card objects
         as the current board, don't modify their state.
@@ -135,7 +135,7 @@ class Board:
         return random.randint(0, 1)
 
     def __eq__(self, other):
-        """Doesn't check if cards face up or down"""
+        """Doesn't check if cards face up or down."""
         # Check player piles for both players
         for player in range(Board.NB_PLAYERS):
             for pile, pile_other in zip(

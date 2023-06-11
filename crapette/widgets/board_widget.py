@@ -21,7 +21,7 @@ class BoardWidget(BoxLayout):
         self.card_widgets: CardWidget = None
 
     def setup(self, game_manager: "game_manager.GameManager"):
-        """Prepare and initialize the board for a new game"""
+        """Prepare and initialize the board for a new game."""
         self.app = App.get_running_app()
         self.ids = self.app.root.ids
         self.game_manager = game_manager
@@ -83,7 +83,7 @@ class BoardWidget(BoxLayout):
                 card_widget.center = pile_widget.card_pos(index)
 
     def update_counts(self):
-        """Update displayed card counts"""
+        """Update displayed card counts."""
         for player in range(self.board.NB_PLAYERS):
             stock_pile = self.ids[f"player{player}stock"].pile
             crape_pile = self.ids[f"player{player}crape"].pile
@@ -93,7 +93,7 @@ class BoardWidget(BoxLayout):
             crape_label.text = str(len(crape_pile)) if crape_pile else ""
 
     def move_card(self, card_widget: CardWidget, pile_widget: PileWidget):
-        """Low level card move"""
+        """Low level card move."""
         self.put_on_top(card_widget)
 
         # Remove from previous pile
@@ -107,7 +107,7 @@ class BoardWidget(BoxLayout):
         self.update_counts()
 
     def set_active_player(self, player: int):
-        """Changes the active player and updates the GUI accordingly"""
+        """Changes the active player and updates the GUI accordingly."""
         next_player_btn = self.ids[f"player{player}crapebutton"]
         next_player_btn.disabled = False
         Animation(
@@ -128,7 +128,7 @@ class BoardWidget(BoxLayout):
         ).start(background_halo)
 
     def flip_card_up(self, card_widget: CardWidget):
-        """Flips up the card widget"""
+        """Flips up the card widget."""
         card_widget.set_face_up()
 
     def flip_pile(self, pile_widget: PileWidget):
@@ -141,7 +141,7 @@ class BoardWidget(BoxLayout):
         self.update_counts()
 
     def flip_waste_to_stock(self, player: int):
-        """When the stock is empty, flip the waste back to the stock"""
+        """When the stock is empty, flip the waste back to the stock."""
         stock_widget = self.ids[f"player{player}stock"]
         waste_widget = self.ids[f"player{player}waste"]
 
