@@ -35,9 +35,8 @@ class PileWidget(RelativeLayout):
     def set_pile(self, pile: Pile):
         """Set the underlying Pile backend.
 
-        This should be used once for initalization only.
+        This should be used for game initalization only.
         """
-        assert not hasattr(self, "pile"), f"pile aldeary initalized for {self!r}"
         self.pile = pile
 
     def card_pos(self, index: int = None) -> tuple[float, float]:
