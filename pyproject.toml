@@ -78,7 +78,7 @@ select = [
     "D",
     "UP",
     "YTT",
-    # "ANN",
+    # "ANN", # Missing type annotations
     "ASYNC",
     "S",
     "BLE",
