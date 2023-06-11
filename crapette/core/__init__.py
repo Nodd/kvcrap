@@ -1,3 +1,1 @@
-"""
-Crapette card game backend.
-"""
+"""Crapette card game backend."""

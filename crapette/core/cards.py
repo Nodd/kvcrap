@@ -1,6 +1,4 @@
-"""
-Class for card parameters and methods
-"""
+"""Class for card parameters and methods"""
 
 import random
 

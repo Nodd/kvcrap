@@ -1,6 +1,4 @@
-"""
-Initialization and data for a crapette game board backend.
-"""
+"""Initialization and data for a crapette game board backend."""
 
 import random
 

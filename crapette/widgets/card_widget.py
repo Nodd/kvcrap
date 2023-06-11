@@ -1,6 +1,4 @@
-"""
-Widget representing a card on the board.
-"""
+"""Widget representing a card on the board."""
 
 import random
 

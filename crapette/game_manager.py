@@ -1,6 +1,4 @@
-"""
-Manage the widgets interaction on the game board
-"""
+"""Manage the widgets interaction on the game board"""
 
 import typing
 

@@ -1,6 +1,4 @@
-"""
-Widgets on the game board
-"""
+"""Widgets on the game board"""
 
 # ruff: noqa: F401
 

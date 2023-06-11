@@ -1,3 +1,1 @@
-"""
-Crapette card game intelligence.
-"""
+"""Crapette card game intelligence."""
