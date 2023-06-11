@@ -16,7 +16,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
 # (list) List of inclusions using pattern matching
-source.include_patterns = crapette/images/*.png,crapette/images/png/1x/*.png
+source.include_patterns = crapette/images/*.png,crapette/images/png/2x/*.png
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec
@@ -46,7 +46,7 @@ requirements = python3,kivy
 #garden_requirements =
 
 # (str) Presplash of the application
-presplash.filename = %(source.dir)s/crapette/images/png/1x/back-green.png
+presplash.filename = %(source.dir)s/crapette/images/png/2x/back-green.png
 
 # (str) Icon of the application
 #icon.filename = %(source.dir)s/data/icon.png

@@ -33,7 +33,6 @@ a = Analysis(
     datas=[
         ("crapette/crapette.kv", "crapette/"),
         ("crapette/images/*.png", "crapette/images/"),
-        ("crapette/images/png/1x/*.png", "crapette/images/png/1x/"),
         ("crapette/images/png/2x/*.png", "crapette/images/png/2x/"),
     ],
     hookspath=[],  # hookspath(),
