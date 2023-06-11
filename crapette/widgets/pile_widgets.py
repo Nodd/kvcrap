@@ -3,21 +3,23 @@ Widget representing the place of the piles of cards on the board.
 
 It's mostly used for positionning the cards on the board.
 """
+from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
 from kivy.app import App
-from kivy.input.motionevent import MotionEvent
 from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.relativelayout import RelativeLayout
 
 from crapette.core.piles import FoundationPile, StockPile, _Pile
 from crapette.images.card_data import CARD_IMG
 
-from .card_widget import CardWidget
-
 if TYPE_CHECKING:
+    from kivy.input.motionevent import MotionEvent
+
     from crapette import crapette
+
+    from .card_widget import CardWidget
 
 
 class PileWidget(RelativeLayout):
