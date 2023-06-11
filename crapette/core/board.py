@@ -174,9 +174,10 @@ class Board:
         )
 
     def __hash__(self):
-        """
+        """Compute a hash for the board.
+
         Warning, boards are mutable in general !
-        This is only used in AI computations where boards are frozen.
+        This is only used in AI computations where boards are "frozen".
 
         Doesn't differ if cards face up or down
         """

@@ -1,5 +1,4 @@
-"""
-Widget representing the place of the piles of cards on the board.
+"""Widget representing the place of the piles of cards on the board.
 
 It's mostly used for positionning the cards on the board.
 """
