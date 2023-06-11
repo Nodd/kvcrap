@@ -139,7 +139,6 @@ class BoardWidget(BoxLayout):
             card_widget = self.card_widgets[card]
             card_widget.update_image()
             self.put_on_top(card_widget)
-        self.update_counts()
 
     def flip_waste_to_stock(self, player: int):
         """When the stock is empty, flip the waste back to the stock."""
