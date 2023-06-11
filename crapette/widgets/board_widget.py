@@ -36,7 +36,8 @@ class BoardWidget(BoxLayout):
         """Configures the piles.
 
         Configures the relation between the pile widgets and the backend piles, and
-        updates the `pile_widgets` list."""
+        updates the `pile_widgets` list.
+        """
         self.pile_widgets = []
         for player, player_piles in enumerate(self.board.players_piles):
             self.pile_widgets.append(self.ids[f"player{player}stock"])
