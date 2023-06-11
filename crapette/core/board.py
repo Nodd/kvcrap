@@ -15,6 +15,8 @@ class Board:
     assert len(FOUNDATION_SUITES) == NB_PILES
     FOUNDATIONS_PER_PLAYER = 4
 
+    __slots__ = ["players_piles", "foundation_piles", "tableau_piles", "_pile_by_names"]
+
     def __init__(self):
         # Setup the piles on the board
         self.players_piles = [player_piles(p) for p in self.PLAYERS]
@@ -25,8 +27,6 @@ class Board:
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
         self._pile_by_names = {p.name: p for p in self.piles}
-
-        self._hash_cache = None
 
     @property
     def piles(self):
@@ -94,18 +94,6 @@ class Board:
             foundation_pile.clear()
             assert len(foundation_pile) == 0
 
-    def copy(self):
-        """Create a copy of the board.
-
-        The piles will be new objects, but will contain the same card objects
-        as the current board, don't modify their state.
-        """
-        board = Board()
-        for pile, pile_copy in zip(self.piles, board.piles):
-            pile_copy._cards = pile._cards.copy()
-
-        return board
-
     def compute_first_player(self):
         """Compute the starting player.
 
@@ -134,17 +122,48 @@ class Board:
         # Extreme measures
         return random.randint(0, 1)
 
+    def check_win(self, player):
+        players_piles = self.players_piles[player]
+        return (
+            not players_piles.stock
+            and not players_piles.waste
+            and not players_piles.crape
+        )
+
+
+class HashBoard(Board):
+    """Create a hashable version of a Board.
+
+    Warning, Board objects are mutable in general !
+    This is only used in AI computations where boards are "frozen".
+    """
+
+    __slots__ = ["_hash_cache"]
+
+    def __init__(self, board):
+        super().__init__()
+
+        # The piles will be new objects, but will contain the same card objects
+        # as the current board, don't modify their state.
+        for pile, pile_orig in zip(self.piles, board.piles, strict=True):
+            pile._cards = pile_orig._cards.copy()
+
+        self._hash_cache = None
+
     def __eq__(self, other):
-        """Doesn't check if cards face up or down."""
-        # Check player piles for both players
+        """Compute equivalence (not strict equality) between HashBoard instances."""
+        # Check player piles equality for both players
         for player in range(Board.NB_PLAYERS):
             for pile, pile_other in zip(
-                self.players_piles[player], other.players_piles[player]
+                self.players_piles[player], other.players_piles[player], strict=True
             ):
+                # Note: Card deck origin could be ignored for optimization,
+                # but the expected speedup would be negligible
                 if pile != pile_other:
                     return False
 
-        # Check foundation, inversion between same suit piles doesn't matter
+        # Check foundation
+        # Inversion between same suit piles doesn't matter
         for i_suit in range(Card.NB_SUITS):
             self_foundation_pile_right = self.foundation_piles[i_suit]
             other_foundation_pile_right = other.foundation_piles[i_suit]
@@ -170,14 +189,12 @@ class Board:
         self_tableau = sorted(self.tableau_piles, reverse=True)
         other_tableau = sorted(other.tableau_piles, reverse=True)
         return all(
-            pile == pile_other for pile, pile_other in zip(self_tableau, other_tableau)
+            pile == pile_other
+            for pile, pile_other in zip(self_tableau, other_tableau, strict=True)
         )
 
     def __hash__(self):
         """Compute a hash for the board.
-
-        Warning, boards are mutable in general !
-        This is only used in AI computations where boards are "frozen".
 
         Doesn't differ if cards face up or down
         """
@@ -198,11 +215,3 @@ class Board:
             tup = tuple(p.cards_ids() for p in piles)
             self._hash_cache = hash(tup)
         return self._hash_cache
-
-    def check_win(self, player):
-        players_piles = self.players_piles[player]
-        return (
-            not players_piles.stock
-            and not players_piles.waste
-            and not players_piles.crape
-        )

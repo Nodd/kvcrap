@@ -6,7 +6,7 @@ from pprint import pprint
 
 from kivy.logger import Logger
 
-from crapette.core.board import Board
+from crapette.core.board import Board, HashBoard
 from crapette.core.moves import Move
 from crapette.core.piles import FoundationPile, TableauPile, _PlayerPile
 
@@ -33,7 +33,7 @@ class BrainForce:
 
 
 class BoardNode:
-    def __init__(self, board: Board, player: int) -> None:
+    def __init__(self, board: HashBoard, player: int) -> None:
         self.board = board
         self.player = player
 
@@ -71,13 +71,14 @@ class BoardNode:
                     and isinstance(pile_orig, TableauPile)
                     and isinstance(pile_dest, TableauPile)
                 ):
+                    # Bug : if clase below is alwas True, but shouldn't# Bug : if clase below is alwas True, but shouldn't
                     to_empty_tableau_before = True
                     if to_empty_tableau_before or len(pile_orig) == 1:
                         # Avoid trying each empty slot or swap empty slots
                         continue
 
                 # Instantiate neighbor
-                next_board = self.board.copy()
+                next_board = HashBoard(self.board)
                 next_board[pile_orig].pop_card()
                 next_board[pile_dest].add_card(card)
 
@@ -119,7 +120,7 @@ class BoardNode:
 
 class BrainDijkstra:
     def __init__(self, board: Board, player: int) -> None:
-        self.board = board
+        self.board = HashBoard(board)
         self.player = player
 
         # Initialize
