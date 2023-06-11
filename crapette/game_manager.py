@@ -31,6 +31,7 @@ class GameManager:
 
     def setup(self):
         self.board = Board()
+        self.board.new_game()
         self.board_widget.setup(self)
 
         self.set_active_player(self.board_widget.board.compute_first_player())

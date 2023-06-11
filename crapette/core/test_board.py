@@ -3,10 +3,10 @@ from .cards import Card
 
 
 def test_equal():
-    board = Board(new_game=False)
-    assert board == Board(new_game=False)
+    board = Board()
+    assert board == Board()
 
-    board2 = Board(new_game=False)
+    board2 = Board()
     card = Card(1, "s", 0)
     board.tableau_piles[0].add_card(card)
     board2.tableau_piles[0].add_card(card)
@@ -14,8 +14,8 @@ def test_equal():
 
 
 def test_equal_different_order():
-    board = Board(new_game=False)
-    board2 = Board(new_game=False)
+    board = Board()
+    board2 = Board()
     card = Card(1, "s", 0)
     board.tableau_piles[0].add_card(card)
     board2.tableau_piles[1].add_card(card)
@@ -23,8 +23,8 @@ def test_equal_different_order():
 
 
 def test_not_equal():
-    board = Board(new_game=False)
-    board2 = Board(new_game=False)
+    board = Board()
+    board2 = Board()
     card1 = Card(1, "s", 0)
     card2 = Card(2, "s", 0)
 
@@ -35,11 +35,11 @@ def test_not_equal():
 
 
 def test_hash_equal():
-    board = Board(new_game=False)
-    assert hash(board) == hash(Board(new_game=False))
+    board = Board()
+    assert hash(board) == hash(Board())
 
-    board = Board(new_game=False)  # Reinitialize to avoid caching
-    board2 = Board(new_game=False)
+    board = Board()  # Reinitialize to avoid caching
+    board2 = Board()
     card = Card(1, "s", 0)
     board.tableau_piles[0].add_card(card)
     board2.tableau_piles[0].add_card(card)
@@ -47,8 +47,8 @@ def test_hash_equal():
 
 
 def test_hash_equal_different_order():
-    board = Board(new_game=False)
-    board2 = Board(new_game=False)
+    board = Board()
+    board2 = Board()
     card = Card(1, "s", 0)
     board.tableau_piles[0].add_card(card)
     board2.tableau_piles[1].add_card(card)
@@ -56,8 +56,8 @@ def test_hash_equal_different_order():
 
 
 def test_hash_not_equal():
-    board = Board(new_game=False)
-    board2 = Board(new_game=False)
+    board = Board()
+    board2 = Board()
     card1 = Card(1, "s", 0)
     card2 = Card(2, "s", 0)
 

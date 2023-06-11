@@ -17,7 +17,7 @@ class Board:
     assert len(FOUNDATION_SUITES) == NB_PILES
     FOUNDATIONS_PER_PLAYER = 4
 
-    def __init__(self, new_game=True):
+    def __init__(self):
         # Setup the piles on the board
         self.players_piles = [player_piles(p) for p in self.PLAYERS]
         self.foundation_piles = [
@@ -29,9 +29,6 @@ class Board:
         self._pile_by_names = {p.name: p for p in self.piles}
 
         self._hash_cache = None
-
-        if new_game:
-            self.new_game()
 
     @property
     def piles(self):
@@ -105,7 +102,7 @@ class Board:
         The piles will be new objects, but will contain the same card objects
         as the current board, don't modify their state.
         """
-        board = Board(new_game=False)
+        board = Board()
         for pile, pile_copy in zip(self.piles, board.piles):
             pile_copy._cards = pile._cards.copy()
 

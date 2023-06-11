@@ -82,7 +82,7 @@ select = [
     "ASYNC",
     "S",
     "BLE",
-    # "FBT",
+    # "FBT", # Boolean traps
     "B",
     "A",
     "COM",

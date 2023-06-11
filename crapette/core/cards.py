@@ -20,14 +20,14 @@ class Card:
     RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
     RANK_NAME = {1: "Ace", 11: "Jack", 12: "Queen", 13: "King"}
 
-    def __init__(self, rank, suit, player, face_up=False):
+    def __init__(self, rank, suit, player):
         assert rank in self.RANKS
         assert suit in self.SUITS
         assert player in self.PLAYERS
         self._rank = rank
         self._suit = suit
         self._player = player
-        self._face_up = bool(face_up)
+        self._face_up = False
         self._color = "red" if suit in self.RED else "black"
         self._hash = hash((self._rank, self._suit, self._player))
         # Like a hash, but uses only suit and rank
