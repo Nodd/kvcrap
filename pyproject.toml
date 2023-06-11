@@ -75,7 +75,7 @@ select = [
     # "C90",
     "I",
     "N",
-    # "D",
+    "D",
     "UP",
     "YTT",
     # "ANN",
@@ -129,6 +129,7 @@ ignore = [
     "ARG002", # Unused method argument
     "ARG005", # Unused lambda argument
     "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
+    "D1", # Missing docstring
     "D203", # one-blank-line-before-class incompatible with no-blank-line-before-class
     "D213", # multi-line-summary-second-line incompatible with multi-line-summary-first-line
     ]

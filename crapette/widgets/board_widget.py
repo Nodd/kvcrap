@@ -33,7 +33,7 @@ class BoardWidget(BoxLayout):
         self.update_counts()
 
     def setup_piles(self):
-        """Configures the piles.
+        """Configure the piles.
 
         Configures the relation between the pile widgets and the backend piles, and
         updates the `pile_widgets` list.
@@ -54,7 +54,7 @@ class BoardWidget(BoxLayout):
             self.ids[f"foundation{foundation}"].set_pile(foundation_pile)
 
     def setup_card_widgets(self):
-        """Creates and add a widget for every card.
+        """Create and add a widget for every card.
 
         Updates the `card_widgets` list.
 
@@ -75,7 +75,7 @@ class BoardWidget(BoxLayout):
                 self.app.root.add_widget(card_widget)
 
     def place_cards(self):
-        """Resets the card widget positions in the piles."""
+        """Reset the card widget positions in the piles."""
         if not self.pile_widgets:
             return
         for pile_widget in self.pile_widgets:
@@ -108,7 +108,7 @@ class BoardWidget(BoxLayout):
         self.update_counts()
 
     def set_active_player(self, player: int):
-        """Changes the active player and updates the GUI accordingly."""
+        """Change the active player and updates the GUI accordingly."""
         next_player_btn = self.ids[f"player{player}crapebutton"]
         next_player_btn.disabled = False
         Animation(
@@ -161,12 +161,12 @@ class BoardWidget(BoxLayout):
         self.update_counts()
 
     def put_on_top(self, card_widget: CardWidget):
-        """Puts a card widget above the other cards on the board widget."""
+        """Put a card widget above the other cards on the board widget."""
         self.app.root.remove_widget(card_widget)
         self.app.root.add_widget(card_widget)
 
     def set_crapette_mode(self, crapette_mode, player: int):
-        """Toggles the crapette mode."""
+        """Toggle the crapette mode."""
         ids = self.app.root.ids
         crapette_button = ids[f"player{player}crapebutton"]
 

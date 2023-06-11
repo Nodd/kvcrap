@@ -68,7 +68,7 @@ class _Pile:
 
     @property
     def top_card(self) -> Card | None:
-        """topmost card of the pile, or None if pile is empty."""
+        """Topmost card of the pile, or None if pile is empty."""
         try:
             return self._cards[-1]
         except IndexError:
@@ -100,7 +100,7 @@ class _Pile:
         self._cards[-1].face_up = is_face_up
 
     def set_cards(self, cards):
-        """Replaces the cards in the pile.
+        """Replace the cards in the pile.
 
         Warning, nothing is checked !
         """
@@ -126,8 +126,9 @@ class FoundationPile(_Pile):
         self._suit = suit
 
     def can_add_card(self, card, origin, player):
-        """Card can be added if it has the same suit as the pile, and a rank
-        just above the last card.
+        """Check if the card can be added to the pile.
+
+        Card can be added if it has the same suit as the pile, and a rank just above the last card.
         """
         if card.suit != self._suit:
             if _DEBUG:
@@ -176,7 +177,9 @@ class TableauPile(_Pile):
         self._id = tableau_id
 
     def can_add_card(self, card, origin, player):
-        """True if either the pile is empty or the color from the top card is
+        """Check if the card can be added to the pile.
+
+        True if either the pile is empty or the color from the top card is
         different from the card color and the rank is just below.
         """
         # Empty pile can accept any card
@@ -256,6 +259,7 @@ class StockPile(_PlayerPile):
     _name_tpl = "StockPlayer{player}"
 
     def can_add_card(self, card, origin, player):
+        """Check if the card can be added to the pile."""
         if _DEBUG:
             print(f"Add {self.name}: Impossible, it's never allowed to add cards here")
         return False
@@ -267,6 +271,7 @@ class WastePile(_PlayerPile):
     _name_tpl = "WastePlayer{player}"
 
     def can_add_card(self, card: Card, origin, player):
+        """Check if the card can be added to the pile."""
         if self._player == player:
             if not isinstance(origin, StockPile) and origin.player == player:
                 if _DEBUG:
@@ -317,6 +322,7 @@ class CrapePile(_PlayerPile):
     NB_CARDS_START = 13
 
     def can_add_card(self, card, origin, player):
+        """Check if the card can be added to the pile."""
         if self._player == player:
             if _DEBUG:
                 print(

@@ -35,7 +35,7 @@ class GameManager:
         self.set_active_player(self.board_widget.board.compute_first_player())
 
     def set_active_player(self, player: int):
-        """Changes the active player and updates the GUI accordingly."""
+        """Change the active player and updates the GUI accordingly."""
         assert not self.crapette_mode
 
         self.moves = Moves()

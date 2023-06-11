@@ -51,7 +51,7 @@ class CardWidget(ScatterLayout):
         animation.start(self)
 
     def update_image(self):
-        """Shows the correct image for the card.
+        """Show the correct image for the card.
 
         It can be the face or the back, depending on the card state.
 
@@ -143,7 +143,7 @@ class CardWidget(ScatterLayout):
         return self.card == self.pile_widget.pile.top_card
 
     def on_touch_down(self, touch):
-        """Starts a movement when the card is pressed down, if the current player has the right to do it.
+        """Start a movement when the card is pressed down, if the current player has the right to do it.
 
         Return `False` to continue event propagation, or `True` to stop it.
         """
