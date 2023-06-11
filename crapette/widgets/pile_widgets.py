@@ -10,7 +10,7 @@ from kivy.app import App
 from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.relativelayout import RelativeLayout
 
-from crapette.core.piles import FoundationPile, StockPile, _Pile
+from crapette.core.piles import FoundationPile, Pile, StockPile
 from crapette.images.card_data import CARD_IMG
 
 if TYPE_CHECKING:
@@ -32,7 +32,12 @@ class PileWidget(RelativeLayout):
         except AttributeError:
             return "PileWidget()"
 
-    def set_pile(self, pile: _Pile):
+    def set_pile(self, pile: Pile):
+        """Set the underlying Pile backend.
+
+        This should be used once for initalization only.
+        """
+        assert not hasattr(self, "pile"), f"pile aldeary initalized for {self!r}"
         self.pile = pile
 
     def card_pos(self, index: int = None) -> tuple[float, float]:
@@ -40,14 +45,15 @@ class PileWidget(RelativeLayout):
 
         If no index is given, the position for the top card is returned.
         """
-        # Default implementation, all cards in the center of the pile
+        # In the default implementation, all cards are in the center of the pile.
         center: tuple[float, float] = self.center
         return center
 
     def pop_card(self):
+        """Remove a card from the top of pile."""
         self.pile.pop_card()
 
-    def add_card(self, card_widget: CardWidget):
+    def add_card_widget(self, card_widget: CardWidget):
         self.pile.add_card(card_widget.card)
         card_widget.pile_widget = self
 
@@ -61,8 +67,8 @@ class FoundationPileWidget(PileWidget):
 
     background = StringProperty()
 
-    def add_card(self, card_widget: CardWidget):
-        super().add_card(card_widget)
+    def add_card_widget(self, card_widget: CardWidget):
+        super().add_card_widget(card_widget)
 
         # Flip foundation pile if full
         pile: FoundationPile = self.pile  # type: ignore[assignment]

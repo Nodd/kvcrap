@@ -101,7 +101,7 @@ class BoardWidget(BoxLayout):
         card_widget.pile_widget.pop_card()
 
         # Add to new pile
-        pile_widget.add_card(card_widget)
+        pile_widget.add_card_widget(card_widget)
         card_widget.set_center_animated(pile_widget.card_pos())
         card_widget.apply_random_rotation(pile_widget.rotation)
 

@@ -7,7 +7,7 @@ from kivy.logger import Logger
 from .cards import Card
 
 
-class _Pile:
+class Pile:
     """Defines the Pile interface and some generic methods for all piles."""
 
     def __init__(self, name):
@@ -116,7 +116,7 @@ class _Pile:
         return tuple(c.id for c in self._cards)
 
 
-class FoundationPile(_Pile):
+class FoundationPile(Pile):
     """Pile in the center where the suites are build from Ace to King."""
 
     def __init__(self, suit, foundation_id):
@@ -167,7 +167,7 @@ class FoundationPile(_Pile):
         )
 
 
-class TableauPile(_Pile):
+class TableauPile(Pile):
     """Side piles where cards go from King to Ace with alternate colors."""
 
     def __init__(self, tableau_id):
@@ -212,7 +212,7 @@ class TableauPile(_Pile):
         return isinstance(other, TableauPile) and self._cards == other._cards
 
 
-class _PlayerPile(_Pile):
+class _PlayerPile(Pile):
     """Piles specific to the player."""
 
     _name_tpl = "_PilePlayer{player}"
