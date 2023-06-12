@@ -204,11 +204,11 @@ FloatLayout:
                 Spacer:
             Spacer:
 
-<BoardWidget@BoxLayout>:
+<BoardWidget>: # @BoxLayout
     orientation: "vertical"
     size: root.size
 
-<TableauPileWidget@RelativeLayout>:
+<TableauPileWidget>:  # @RelativeLayout
     size_hint: None, 1
     size: app.card_width * (1 + 12 * app.card_overlap), app.card_height
 
@@ -218,15 +218,15 @@ FloatLayout:
     #     Rectangle:
     #         size: self.size
 
-<TableauRightPileWidget@TableauPileWidget>:
+<TableauRightPileWidget>: # @TableauPileWidget
     PileBackground:
         pos_hint: {'x': 0, 'center_y': 0.5}
 
-<TableauLeftPileWidget@TableauPileWidget>:
+<TableauLeftPileWidget>: # @TableauPileWidget
     PileBackground:
         pos_hint: {'right': 1, 'center_y': 0.5}
 
-<FoundationPileWidget@RelativeLayout>:
+<FoundationPileWidget>: # @RelativeLayout
     id: parent
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     size_hint: None, 1
@@ -251,7 +251,7 @@ FloatLayout:
 <FoundationPileWidgetRight@FoundationPileWidget>:
     rotation: -90 if app.wide else 0
 
-<PlayerPileWidget@RelativeLayout>:
+<PlayerPileWidget>: # @RelativeLayout
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     size_hint: None, 1
     size: self.height, self.height
@@ -265,7 +265,7 @@ FloatLayout:
 
     PileBackground:
 
-<CardImage@Image>:
+<CardImage>: # @Image
     keep_ratio: True
     allow_stretch: True
     mipmap: True
@@ -286,7 +286,7 @@ FloatLayout:
 <Spacer@Widget>:
     size_hint: 1, 1
 
-<CardWidget@Scatter>:
+<CardWidget>: # @ScatterLayout
     id: parent
 
     size_hint: None, None
