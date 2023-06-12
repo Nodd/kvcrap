@@ -3,6 +3,7 @@
 import random
 
 from kivy.animation import Animation
+from kivy.app import App
 from kivy.core.window import Window
 from kivy.logger import Logger
 from kivy.properties import StringProperty
@@ -11,6 +12,7 @@ from kivy.uix.scatterlayout import ScatterLayout
 from crapette.images.card_data import card2img
 
 MAX_RANDOM_ANGLE = 5  # °
+DEFAULT_MOVE_DURATION = 0.1  # s
 
 
 class CardWidget(ScatterLayout):
@@ -42,7 +44,9 @@ class CardWidget(ScatterLayout):
         This is only a visual effect, this function doesn't change
         the state of the game.
         """
-        animation = Animation(center=pos, duration=0.1, transition="out_quad")
+        animation = Animation(
+            center=pos, duration=DEFAULT_MOVE_DURATION, transition="out_quad"
+        )
         animation.start(self)
 
     def update_image(self):
@@ -55,7 +59,7 @@ class CardWidget(ScatterLayout):
         """
         self.source = card2img(self.card)
 
-    def random_rotation_animation_factory(self, duration=0.1):
+    def random_rotation_animation_factory(self, duration=DEFAULT_MOVE_DURATION):
         """Create an Animation to display the card with a random rotation error.
 
         It's just for fun, to make it look like the card was placed by hand on the board,
@@ -165,7 +169,7 @@ class CardWidget(ScatterLayout):
 
         if self.card.face_up:
             self._moving = True
-            Window.show_cursor = False
+            self.start_moving_animation()
             return super().on_touch_down(touch)
 
         self._flipping = True
@@ -190,7 +194,7 @@ class CardWidget(ScatterLayout):
             return True
         Logger.debug("TOUCH UP %s", self.card)
         self._moving = False
-        Window.show_cursor = True
+        self.finish_moving_animation()
 
         # Look for the pile the card was dropped on
         pile_widget = None
@@ -212,3 +216,35 @@ class CardWidget(ScatterLayout):
         self.apply_random_rotation()
 
         return True
+
+    def start_moving_animation(self):
+        Window.show_cursor = False
+        app = App.get_running_app()
+        zoom_factor = 1.1
+        animation = Animation(
+            height=app.card_height * zoom_factor,
+            duration=DEFAULT_MOVE_DURATION,
+            transition="out_sine",
+        )
+        animation &= Animation(
+            width=app.card_width * zoom_factor,
+            duration=DEFAULT_MOVE_DURATION,
+            transition="out_sine",
+        )
+        animation &= self.random_rotation_animation_factory()
+        animation.start(self)
+
+    def finish_moving_animation(self):
+        Window.show_cursor = True
+        app = App.get_running_app()
+        animation = Animation(
+            height=app.card_height,
+            duration=DEFAULT_MOVE_DURATION,
+            transition="out_sine",
+        )
+        animation &= Animation(
+            width=app.card_width,
+            duration=DEFAULT_MOVE_DURATION,
+            transition="out_sine",
+        )
+        animation.start(self)
