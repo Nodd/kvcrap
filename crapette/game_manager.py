@@ -88,7 +88,6 @@ class GameManager:
         self.board_widget.move_card(card_widget, pile_widget)
 
         self.moves.record_move(card_widget, old_pile_widget, pile_widget)
-        self.update_prev_next_enabled()
 
         if self.check_win():
             return True
@@ -105,7 +104,6 @@ class GameManager:
         self.board_widget.flip_card_up(card_widget)
 
         self.moves.record_flip(card_widget, card_widget.pile_widget)
-        self.update_prev_next_enabled()
 
         # Brain(self.board, self.active_player).checks()
         BrainForce(self.board, self.active_player).compute_states()
@@ -115,47 +113,13 @@ class GameManager:
         self.board_widget.flip_waste_to_stock(self.active_player)
 
         self.moves.record_waste_flip()
-        self.update_prev_next_enabled()
 
     def toggle_crapette_mode(self):
         self.crapette_mode = not self.crapette_mode
 
         self.board_widget.set_crapette_mode(self.crapette_mode, self.active_player)
-        self.update_prev_next_enabled()
 
         # If crapette mode cancelled, reset
         if not self.crapette_mode:
-            while self.moves.has_next:
-                self.crapette_mode_next()
-
-    def update_prev_next_enabled(self):
-        """Update enabled state of history buttons."""
-        next_button = self.ids[f"player{self.active_player}nextbutton"]
-        next_button.disabled = not self.crapette_mode or not self.moves.has_next
-
-        prev_button = self.ids[f"player{self.active_player}prevbutton"]
-        prev_button.disabled = not self.crapette_mode or not self.moves.has_prev
-
-    def crapette_mode_prev(self):
-        """Rollback one step in crapette mode."""
-        move = self.moves.prev_move()
-        self.update_prev_next_enabled()
-
-        if isinstance(move, Move):
-            self.board_widget.move_card(move.card, move.origin)
-        elif isinstance(move, Flip):
-            move.card.set_face_down()
-        elif isinstance(move, FlipWaste):
-            print("FlipWaste")
-
-    def crapette_mode_next(self):
-        """'Rollforward' one step in crapette mode."""
-        move = self.moves.next_move()
-        self.update_prev_next_enabled()
-
-        if isinstance(move, Move):
-            self.board_widget.move_card(move.card, move.destination)
-        elif isinstance(move, Flip):
-            move.card.set_face_up()
-        elif isinstance(move, FlipWaste):
-            self.board_widget.flip_waste_to_stock(self.active_player)
+            # TODO
+            raise NotImplementedError

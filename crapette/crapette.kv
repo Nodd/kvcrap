@@ -33,15 +33,8 @@ FloatLayout:
         id: game_board
 
         BoxLayout:
-            BoxLayout:
-                orientation: "vertical"
-                CrapetteButton:
-                    id: player0crapebutton
-                BoxLayout:
-                    PreviousButton:
-                        id: player0prevbutton
-                    NextButton:
-                        id: player0nextbutton
+            CrapetteButton:
+                id: player0crapebutton
             CardCount:
                 id: player1crapecount
                 halign: 'right'
@@ -121,15 +114,8 @@ FloatLayout:
             CardCount:
                 id: player0crapecount
                 halign: 'left'
-            BoxLayout:
-                orientation: "vertical"
-                BoxLayout:
-                    PreviousButton:
-                        id: player1prevbutton
-                    NextButton:
-                        id: player1nextbutton
-                CrapetteButton:
-                    id: player1crapebutton
+            CrapetteButton:
+                id: player1crapebutton
 
     Button:
         id: menu_button
@@ -308,20 +294,6 @@ FloatLayout:
 <CrapetteButton@Button>:
     text: 'Crapette !'
     on_press: app.game_manager.toggle_crapette_mode()
-    size_hint: 1, 1
-    opacity: 0
-    disabled: True
-
-<NextButton@Button>:
-    text: 'Next ->'
-    on_press: app.game_manager.crapette_mode_next()
-    size_hint: 1, 1
-    opacity: 0
-    disabled: True
-
-<PreviousButton@Button>:
-    text: '<- Previous'
-    on_press: app.game_manager.crapette_mode_prev()
     size_hint: 1, 1
     opacity: 0
     disabled: True

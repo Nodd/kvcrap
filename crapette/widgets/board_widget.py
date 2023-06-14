@@ -172,14 +172,3 @@ class BoardWidget(BoxLayout):
         background_crapette = self.ids["background_crapette"]
         background_crapette.opacity = 1 if crapette_mode else 0
         crapette_button.text = "Cancel ! (Sorry...)" if crapette_mode else "Crapette !"
-
-        prev_next_buttons = [
-            ids[f"player{player}nextbutton"],
-            ids[f"player{player}prevbutton"],
-        ]
-        for btn in prev_next_buttons:
-            Animation(
-                opacity=1 if crapette_mode else 0,
-                duration=TRANSITION_DURATION,
-                transition="out_cubic",
-            ).start(btn)
