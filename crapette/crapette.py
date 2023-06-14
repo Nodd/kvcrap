@@ -2,6 +2,8 @@
 
 Mostly used for initialisation and use of .kv file.
 """
+
+import datetime
 import sys
 from pathlib import Path
 
@@ -9,6 +11,7 @@ import kivy
 import kivy.config
 import kivy.resources
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.logger import LOG_LEVELS, Logger
 from kivy.properties import BooleanProperty, NumericProperty
@@ -52,10 +55,21 @@ class CrapetteApp(App):
         self.game_manager = GameManager(self)
 
         # Resize callback
-        self.on_window_resize(Window, *Window.size)
         Window.bind(on_resize=self.on_window_resize)
 
-    def on_window_resize(self, window, width, height):
+        self._do_resize_event = None
+
+    def on_window_resize(self, _window, width, height):
+        if self._do_resize_event is not None:
+            self._do_resize_event.cancel()
+
+        layout_delay_s = 0.1  # s
+        self._do_resize_event = Clock.schedule_once(
+            lambda _dt: self.do_resize(width, height), layout_delay_s
+        )
+
+    def do_resize(self, width, height):
+        """Delay the layout computing to avoid visual lag."""
         self.card_height = height / Board.NB_ROWS
         self.card_width = self.card_height * CARD_IMG.RATIO
 
@@ -67,8 +81,6 @@ class CrapetteApp(App):
         # )
         game_height = self.card_height * Board.NB_ROWS
         self.wide = width / height > game_width_max / game_height
-
-        self.game_manager.board_widget.place_cards()
 
     def set_menu_visible(self, menu_visible):
         ids = self.root.ids

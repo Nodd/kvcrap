@@ -1,7 +1,9 @@
+import datetime
 import typing
 
 from kivy.animation import Animation
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 
 from .card_widget import CardWidget
@@ -19,6 +21,28 @@ class BoardWidget(BoxLayout):
 
         self.pile_widgets: PileWidget = None
         self.card_widgets: CardWidget = None
+
+        self.game_manager = None
+        self._do_layout_event = None
+
+    def do_layout(self, *args, **kwargs):
+        """Delay the layout computing to avoid visual lag."""
+        if self._do_layout_event is not None:
+            self._do_layout_event.cancel()
+
+        super_do_layout = super().do_layout
+
+        def real_do_layout(_dt):
+            print("  ", datetime.datetime.now(), _dt)
+            super_do_layout(*args, **kwargs)
+
+            self.place_cards()
+            if self.game_manager:
+                # with contextlib.suppress(KeyError):  # KeyError on window initialization
+                self.place_background_halo(self.game_manager.active_player)
+
+        layout_delay_s = 0.2  # s
+        self._do_layout_event = Clock.schedule_once(real_do_layout, layout_delay_s)
 
     def setup(self, game_manager: "game_manager.GameManager"):
         """Prepare and initialize the board for a new game."""
@@ -121,6 +145,10 @@ class BoardWidget(BoxLayout):
             opacity=0, duration=TRANSITION_DURATION, transition="out_cubic"
         ).start(prev_player_btn)
 
+        self.place_background_halo(player)
+
+    def place_background_halo(self, player):
+        """Place the background ahlo indicating that it's the player's turn."""
         background_halo = self.ids["background_halo"]
         Animation(
             y=0 if player == 0 else self.app.root.height,
