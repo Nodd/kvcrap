@@ -19,6 +19,8 @@ class Card:
     RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
     RANK_NAME = {1: "Ace", 11: "Jack", 12: "Queen", 13: "King"}
 
+    __slots__ = ["_rank", "_suit", "_player", "_face_up", "_color", "_hash", "_id"]
+
     def __init__(self, rank, suit, player):
         assert rank in self.RANKS
         assert suit in self.SUITS
