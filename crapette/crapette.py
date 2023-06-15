@@ -3,7 +3,8 @@
 Mostly used for initialisation and use of .kv file.
 """
 
-import datetime
+import os
+import random
 import sys
 from pathlib import Path
 
@@ -105,13 +106,22 @@ class CrapetteApp(App):
     def new_game(self):
         self.set_menu_visible(False)
 
+        custom_new_game = None
+        seed = None
+
         if len(sys.argv) == 2:
-            from crapette import custom_test_games
+            arg = sys.argv[1]
+            try:
+                seed = int(arg)
+            except ValueError:
+                from crapette import custom_test_games
 
-            custom_new_game = getattr(custom_test_games, sys.argv[1])
-        else:
-            custom_new_game = None
+                custom_new_game = getattr(custom_test_games, arg)
 
+        if seed is None:
+            seed = int.from_bytes(os.urandom(16), "big")
+            print("SEED:", seed)
+        random.seed(seed)
         self.game_manager.setup(custom_new_game)
 
 
