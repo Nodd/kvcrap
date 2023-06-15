@@ -12,7 +12,7 @@ class Pile:
 
     def __init__(self, name):
         self._name = str(name)
-        self._cards = []
+        self._cards: list[Card] = []
 
     def add_card(self, card):
         """Add a card to the pile."""

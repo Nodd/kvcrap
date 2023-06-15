@@ -1,6 +1,7 @@
 """Widget representing a card on the board."""
 
 import random
+import typing
 
 from kivy.animation import Animation
 from kivy.app import App
@@ -10,6 +11,9 @@ from kivy.properties import StringProperty
 from kivy.uix.scatterlayout import ScatterLayout
 
 from crapette.images.card_data import card2img
+
+if typing.TYPE_CHECKING:
+    from .pile_widgets import Pile
 
 MAX_RANDOM_ANGLE = 5  # °
 DEFAULT_MOVE_DURATION = 0.1  # s
@@ -25,7 +29,7 @@ class CardWidget(ScatterLayout):
         self.source = card2img(card)
         self.game_manager = game_manager
 
-        self.pile_widget = None
+        self.pile_widget: Pile | None = None
         self._moving = False
         self._flipping = False
         self.main_rotation = 0

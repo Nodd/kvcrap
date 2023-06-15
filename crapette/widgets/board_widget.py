@@ -11,6 +11,7 @@ from .pile_widgets import PileWidget
 
 if typing.TYPE_CHECKING:
     from crapette import game_manager
+    from crapette.core.cards import Card
 
 TRANSITION_DURATION = 0.5
 
@@ -19,8 +20,8 @@ class BoardWidget(BoxLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.pile_widgets: PileWidget = None
-        self.card_widgets: CardWidget = None
+        self.pile_widgets: list[PileWidget] = None
+        self.card_widgets: dict[Card, CardWidget] = None
 
         self.game_manager = None
         self._do_layout_event = None
