@@ -71,11 +71,10 @@ class BoardNode:
                     and isinstance(pile_orig, TableauPile)
                     and isinstance(pile_dest, TableauPile)
                 ):
-                    # Bug : if clase below is alwas True, but shouldn't# Bug : if clase below is alwas True, but shouldn't
-                    to_empty_tableau_before = True
                     if to_empty_tableau_before or len(pile_orig) == 1:
                         # Avoid trying each empty slot or swap empty slots
                         continue
+                    to_empty_tableau_before = True
 
                 # Instantiate neighbor
                 next_board = HashBoard(self.board)
