@@ -10,6 +10,8 @@ from .cards import Card
 class Pile:
     """Defines the Pile interface and some generic methods for all piles."""
 
+    __slots__ = ["_name", "_cards"]
+
     def __init__(self, name):
         self._name = str(name)
         self._cards: list[Card] = []
@@ -119,6 +121,8 @@ class Pile:
 class FoundationPile(Pile):
     """Pile in the center where the suites are build from Ace to King."""
 
+    __slots__ = ["_foundation_id", "_suit"]
+
     def __init__(self, suit, foundation_id):
         assert suit in Card.SUITS
         super().__init__(f"Foundation{foundation_id}{suit}")
@@ -170,6 +174,8 @@ class FoundationPile(Pile):
 class TableauPile(Pile):
     """Side piles where cards go from King to Ace with alternate colors."""
 
+    __slots__ = ["_id"]
+
     def __init__(self, tableau_id):
         super().__init__(f"Tableau{tableau_id}")
         self._id = tableau_id
@@ -217,6 +223,8 @@ class _PlayerPile(Pile):
 
     _name_tpl = "_PilePlayer{player}"
 
+    __slots__ = ["_player"]
+
     def __init__(self, player):
         assert player in {0, 1}
         super().__init__(self._name_tpl.format(player=player))
@@ -251,6 +259,8 @@ class StockPile(_PlayerPile):
 
     _name_tpl = "StockPlayer{player}"
 
+    __slots__ = []
+
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile."""
         Logger.debug(
@@ -263,6 +273,8 @@ class WastePile(_PlayerPile):
     """Pile where the player throws his card when he can not play anymore."""
 
     _name_tpl = "WastePlayer{player}"
+
+    __slots__ = []
 
     def can_add_card(self, card: Card, origin, player):
         """Check if the card can be added to the pile."""
@@ -307,6 +319,8 @@ class CrapePile(_PlayerPile):
 
     _name_tpl = "CrapePlayer{player}"
     NB_CARDS_START = 13
+
+    __slots__ = []
 
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile."""
