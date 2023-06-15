@@ -33,6 +33,15 @@ class BrainForce:
 
 
 class BoardNode:
+    __slots__ = [
+        "board",
+        "player",
+        "cost",
+        "score",
+        "visited",
+        "moves",
+    ]
+
     def __init__(self, board: HashBoard, player: int) -> None:
         self.board = board
         self.player = player
@@ -50,13 +59,16 @@ class BoardNode:
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
             return
 
+        piles_orig = self.piles_orig()
+        piles_dest = self.piles_dest()
+
         # Check all possible origin piles
-        for pile_orig in self._piles_orig:
+        for pile_orig in piles_orig:
             card = pile_orig.top_card
 
             to_empty_tableau_before = False
             # Check all possible destination piles for each possible origin pile
-            for pile_dest in self._piles_dest:
+            for pile_dest in piles_dest:
                 # Skip "no move" move
                 if pile_dest is pile_orig:
                     continue
@@ -97,8 +109,7 @@ class BoardNode:
                 next_board_node.cost = cost
                 next_board_node.moves = [*self.moves, move]
 
-    @functools.cached_property
-    def _piles_orig(self):
+    def piles_orig(self):
         """Piles to take cards from."""
         player_piles = self.board.players_piles[self.player]
         piles_orig = *self.board.tableau_piles, player_piles.crape, player_piles.stock
@@ -106,8 +117,7 @@ class BoardNode:
         # Return only piles with top card available
         return [p for p in piles_orig if not p.is_empty and p.face_up]
 
-    @functools.cached_property
-    def _piles_dest(self):
+    def piles_dest(self):
         """Piles to put cards to."""
         enemy_piles = self.board.players_piles[1 - self.player]
         return (
@@ -156,6 +166,7 @@ class BrainDijkstra:
 
 class BoardScore:
     WORSE = (-float("inf"),) * 11
+    __slots__ = ["board", "player"]
 
     def __init__(self, board: Board, player: int):
         self.board = board
