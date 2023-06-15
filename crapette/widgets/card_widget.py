@@ -256,8 +256,6 @@ class CardWidget(ScatterLayout):
             transition="out_sine",
         )
         animation &= Animation(
-            width=app.card_width,
-            duration=DEFAULT_MOVE_DURATION,
-            transition="out_sine",
+            width=app.card_width, duration=DEFAULT_MOVE_DURATION, transition="out_sine"
         )
         animation.start(self)

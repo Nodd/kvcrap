@@ -37,14 +37,7 @@ class BrainForce:
 
 
 class BoardNode:
-    __slots__ = [
-        "board",
-        "player",
-        "cost",
-        "score",
-        "visited",
-        "moves",
-    ]
+    __slots__ = ["board", "player", "cost", "score", "visited", "moves"]
 
     def __init__(self, board: HashBoard, player: int) -> None:
         self.board = board
