@@ -1,7 +1,7 @@
 """IA for playing the crapette."""
 
-import functools
 import sys
+import timeit
 from pprint import pprint
 
 from kivy.logger import Logger
@@ -26,7 +26,10 @@ class BrainForce:
         Logger.debug("*" * 50)
         Logger.debug("compute_states for player %s", self.player)
 
+        start_time = timeit.default_timer()
         best_node = BrainDijkstra(self.board, self.player).compute_search()
+        elapsed = timeit.default_timer() - start_time
+        Logger.info("AI time: %gs", elapsed)
         print("Conclusion :")
         pprint(best_node.moves)
         print(flush=True)
