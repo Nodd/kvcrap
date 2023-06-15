@@ -51,9 +51,14 @@ class BoardNode:
         self.visited: bool = False
         self.moves: list = []
 
-    def search_neighbors(self, known_nodes: dict):
+    def search_neighbors(
+        self,
+        known_nodes: dict[HashBoard, "BoardNode"],
+        known_nodes_unvisited: dict[HashBoard, "BoardNode"],
+    ):
         # This one was searched
         self.visited = True
+        del known_nodes_unvisited[self.board]
 
         # If last move was from a player pile, stop here
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
@@ -102,6 +107,7 @@ class BoardNode:
                     # Add this unknown new board
                     next_board_node = BoardNode(next_board, self.player)
                     known_nodes[next_board] = next_board_node
+                    known_nodes_unvisited[next_board] = next_board_node
                 else:
                     # Skip if cost is higher
                     if next_board_node.visited or cost > next_board_node.cost:
@@ -137,13 +143,12 @@ class BrainDijkstra:
         first_node.cost = ()
         first_node.moves = []
         self.known_nodes = {self.board: first_node}
+        self.known_nodes_unvisited = {self.board: first_node}
 
     def _select_next_node(self) -> BoardNode | None:
         min_cost: tuple = MAX_COST
         next_node = None
-        for node in self.known_nodes.values():
-            if node.visited:
-                continue
+        for node in self.known_nodes_unvisited.values():
             if node.cost < min_cost:
                 min_cost = node.cost
                 next_node = node
@@ -155,7 +160,7 @@ class BrainDijkstra:
 
         next_node = self._select_next_node()
         while next_node is not None:
-            next_node.search_neighbors(self.known_nodes)
+            next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
             if next_node.score > max_score:
                 max_score = next_node.score
                 best_node = next_node
