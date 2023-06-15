@@ -7,6 +7,7 @@ from pprint import pprint
 from kivy.logger import Logger
 
 from crapette.core.board import Board, HashBoard
+from crapette.core.cards import Card
 from crapette.core.moves import Move
 from crapette.core.piles import FoundationPile, TableauPile, _PlayerPile
 
@@ -74,27 +75,28 @@ class BoardNode:
         for pile_orig in piles_orig:
             card = pile_orig.top_card
 
-            to_empty_tableau_before = False
+            # Precomputations
+            is_pile_orig_one_card_tableau = len(pile_orig) == 1 and isinstance(
+                pile_orig, TableauPile
+            )
+
             # Check all possible destination piles for each possible origin pile
             for pile_dest in piles_dest:
                 # Skip "no move" move
                 if pile_dest is pile_orig:
                     continue
 
+                # Avoid equivalent moves with empty piles on the tableau
+                if (
+                    is_pile_orig_one_card_tableau
+                    and pile_dest.is_empty
+                    and isinstance(pile_dest, TableauPile)
+                ):
+                    continue
+
                 # Check if the move is possible
                 if not pile_dest.can_add_card(card, pile_orig, self.player):
                     continue
-
-                # Avoid equivalent moves with empty piles on the tableau
-                if (
-                    pile_dest.is_empty
-                    and isinstance(pile_orig, TableauPile)
-                    and isinstance(pile_dest, TableauPile)
-                ):
-                    if to_empty_tableau_before or len(pile_orig) == 1:
-                        # Avoid trying each empty slot or swap empty slots
-                        continue
-                    to_empty_tableau_before = True
 
                 # Instantiate neighbor
                 next_board = HashBoard(self.board)
@@ -129,11 +131,34 @@ class BoardNode:
     def piles_dest(self):
         """Piles to put cards to."""
         enemy_piles = self.board.players_piles[1 - self.player]
-        return (
-            self.board.foundation_piles
-            + self.board.tableau_piles
-            + [enemy_piles.crape, enemy_piles.waste]
-        )
+        tableau_piles = self.board.tableau_piles
+
+        # Check only one empty pile in tableau since all empty piles are equivalent
+        tableau_piles_filtered = []
+        has_empty = False
+        for p in tableau_piles:
+            if p.is_empty:
+                if has_empty:
+                    continue
+                has_empty = True
+            tableau_piles_filtered.append(p)
+
+        # If both fondations are the same, keep only one
+        foundation_piles_filtered = self.board.foundation_piles[: Card.NB_SUITS]
+        for p1, p2 in zip(
+            self.board.foundation_piles[Card.NB_SUITS :],
+            self.board.foundation_piles[Card.NB_SUITS - 1 :: -1],
+            strict=True,
+        ):
+            if p1 != p2:
+                foundation_piles_filtered.append(p1)
+
+        return [
+            *foundation_piles_filtered,
+            *tableau_piles_filtered,
+            enemy_piles.crape,
+            enemy_piles.waste,
+        ]
 
 
 class BrainDijkstra:

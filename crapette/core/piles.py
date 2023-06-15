@@ -121,22 +121,25 @@ class Pile:
 class FoundationPile(Pile):
     """Pile in the center where the suites are build from Ace to King."""
 
-    __slots__ = ["_foundation_id", "_suit"]
+    __slots__ = ["_foundation_id", "foundation_suit"]
 
     def __init__(self, suit, foundation_id):
         assert suit in Card.SUITS
         super().__init__(f"Foundation{foundation_id}{suit}")
         self._foundation_id = foundation_id
-        self._suit = suit
+        self.foundation_suit = suit
 
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile.
 
         Card can be added if it has the same suit as the pile, and a rank just above the last card.
         """
-        if card.suit != self._suit:
+        if card.suit != self.foundation_suit:
             Logger.debug(
-                "Add %s: Impossible, %s has not suit %s", self.name, card, self._suit
+                "Add %s: Impossible, %s has not suit %s",
+                self.name,
+                card,
+                self.foundation_suit,
             )
             return False
         if card.rank != len(self._cards) + 1:
@@ -169,8 +172,8 @@ class FoundationPile(Pile):
         """Doesn't check if cards face up or down."""
         return (
             isinstance(other, FoundationPile)
-            and self._suit == other._suit
-            and self._cards == other._cards
+            and self.foundation_suit == other.foundation_suit
+            and len(self._cards) == len(other._cards)
         )
 
 
