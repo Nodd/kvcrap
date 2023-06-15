@@ -24,7 +24,7 @@ class BrainForce:
 
     def compute_states(self):
         Logger.debug("*" * 50)
-        Logger.debug(f"compute_states for player {self.player}")
+        Logger.debug("compute_states for player %s", self.player)
 
         best_node = BrainDijkstra(self.board, self.player).compute_search()
         print("Conclusion :")
