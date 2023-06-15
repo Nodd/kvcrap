@@ -221,6 +221,15 @@ class CardWidget(ScatterLayout):
 
         return True
 
+    def abort_moving(self):
+        """Brutaly cancel the card movement.
+
+        Used when crapette mode starts.
+        """
+        if self._moving:
+            self._moving = False
+            self.set_center_animated(self.pile_widget.card_pos())
+
     def start_moving_animation(self):
         Window.show_cursor = False
         app = App.get_running_app()

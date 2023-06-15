@@ -8,6 +8,7 @@ from .brain.brainforce import BrainForce
 from .core.board import Board
 from .core.moves import Flip, FlipWaste, Move, Moves
 from .core.piles import WastePile
+from .widgets.pile_widgets import FoundationPileWidget, PlayerPileWidget
 
 if typing.TYPE_CHECKING:
     from .widgets.board_widget import BoardWidget
@@ -39,7 +40,7 @@ class GameManager:
         """Change the active player and updates the GUI accordingly."""
         assert not self.crapette_mode
 
-        self.moves = Moves()
+        self.last_move: None | Move | FlipWaste = None
         self.active_player = player
 
         self.board_widget.set_active_player(player)
@@ -87,7 +88,7 @@ class GameManager:
 
         self.board_widget.move_card(card_widget, pile_widget)
 
-        self.moves.record_move(card_widget, old_pile_widget, pile_widget)
+        self.last_move = Move(card_widget, old_pile_widget, pile_widget)
 
         if self.check_win():
             return True
@@ -103,7 +104,7 @@ class GameManager:
         """Flips up the card and register the flip as a move."""
         self.board_widget.flip_card_up(card_widget)
 
-        self.moves.record_flip(card_widget, card_widget.pile_widget)
+        self.last_move = Flip(card_widget, card_widget.pile_widget)
 
         # Brain(self.board, self.active_player).checks()
         BrainForce(self.board, self.active_player).compute_states()
@@ -112,14 +113,24 @@ class GameManager:
         """When the stock is empty, flip the waste back to the stock."""
         self.board_widget.flip_waste_to_stock(self.active_player)
 
-        self.moves.record_waste_flip()
+        self.last_move = FlipWaste()
 
     def toggle_crapette_mode(self):
         self.crapette_mode = not self.crapette_mode
 
         self.board_widget.set_crapette_mode(self.crapette_mode, self.active_player)
 
-        # If crapette mode cancelled, reset
-        if not self.crapette_mode:
+        if self.crapette_mode:
+            for card_widget in self.board_widget.card_widgets.values():
+                card_widget.abort_moving()
+            if isinstance(self.last_move, Move):
+                if isinstance(self.last_move.origin, PlayerPileWidget) or isinstance(
+                    self.last_move.destination, FoundationPileWidget
+                ):
+                    self.board_widget.move_card(
+                        self.last_move.card, self.last_move.origin
+                    )
+        else:
+            # If crapette mode cancelled, reset
             # TODO
-            raise NotImplementedError
+            pass
