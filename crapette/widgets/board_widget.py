@@ -1,4 +1,3 @@
-import datetime
 import typing
 
 from kivy.animation import Animation
@@ -34,7 +33,6 @@ class BoardWidget(BoxLayout):
         super_do_layout = super().do_layout
 
         def real_do_layout(_dt):
-            print("  ", datetime.datetime.now(), _dt)
             super_do_layout(*args, **kwargs)
 
             self.place_cards()
