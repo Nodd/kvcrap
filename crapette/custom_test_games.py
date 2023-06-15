@@ -31,3 +31,20 @@ def empty_stock(board: Board):
     )
 
     # TODO: The game should not be locked, add a button to end the turn
+
+
+def brain_combination(board: Board):
+    deck = new_deck(player=0, shuffle=False)
+    diamonds = deck[: Card.NB_RANKS]
+    clubs = deck[2 * Card.NB_RANKS : 3 * Card.NB_RANKS]
+
+    n = 8
+    for i in range(n - 1):
+        card = diamonds.pop()
+        card.face_up = True
+        board.tableau_piles[i % 2].add_card(card)
+        card = clubs.pop()
+        card.face_up = True
+        board.tableau_piles[1 - i % 2].add_card(card)
+
+    board.players_piles[0].crape.add_card(diamonds[0])
