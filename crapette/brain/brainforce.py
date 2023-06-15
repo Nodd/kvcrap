@@ -149,13 +149,9 @@ class BrainDijkstra:
         self.known_nodes_unvisited = {self.board: first_node}
 
     def _select_next_node(self) -> BoardNode | None:
-        min_cost: tuple = MAX_COST
-        next_node = None
-        for node in self.known_nodes_unvisited.values():
-            if node.cost < min_cost:
-                min_cost = node.cost
-                next_node = node
-        return next_node
+        return min(
+            self.known_nodes_unvisited.values(), default=None, key=lambda o: o.cost
+        )
 
     def compute_search(self):
         max_score = BoardScore.WORSE
