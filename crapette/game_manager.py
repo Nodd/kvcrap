@@ -88,12 +88,17 @@ class GameManager:
 
         self.board_widget.move_card(card_widget, pile_widget)
 
-        self.last_move = Move(card_widget, old_pile_widget, pile_widget)
-
         if self.check_win():
             return True
 
         self.check_end_of_turn(pile_widget)
+
+        if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
+            pile_widget, FoundationPileWidget
+        ):
+            self.last_move = Move(card_widget, old_pile_widget, pile_widget)
+        else:
+            self.last_move = None
 
         # Brain(self.board, self.active_player).checks()
         BrainForce(self.board, self.active_player).compute_states()
@@ -124,13 +129,8 @@ class GameManager:
             for card_widget in self.board_widget.card_widgets.values():
                 card_widget.abort_moving()
             if isinstance(self.last_move, Move):
-                if isinstance(self.last_move.origin, PlayerPileWidget) or isinstance(
-                    self.last_move.destination, FoundationPileWidget
-                ):
-                    self.board_widget.move_card(
-                        self.last_move.card, self.last_move.origin
-                    )
+                self.board_widget.move_card(self.last_move.card, self.last_move.origin)
         else:
             # If crapette mode cancelled, reset
-            # TODO
-            pass
+            # TODO: Cancel all actions done while in crapette mode
+            self.board_widget.move_card(self.last_move.card, self.last_move.destination)
