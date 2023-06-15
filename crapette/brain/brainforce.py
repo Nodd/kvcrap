@@ -133,7 +133,7 @@ class BrainDijkstra:
         self.player = player
 
         # Initialize
-        first_node = BoardNode(self.board, self.player)
+        first_node = BoardNode(HashBoard(self.board), self.player)
         first_node.cost = ()
         first_node.moves = []
         self.known_nodes = {self.board: first_node}
