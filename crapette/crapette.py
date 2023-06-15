@@ -28,7 +28,7 @@ from .images.card_data import CARD_IMG
 kivy.require("1.10.0")
 kivy.resources.resource_add_path(str(Path(__file__).parent))
 kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
-Logger.setLevel(LOG_LEVELS["warning"])  # debug, info, warning, error, critical, trace
+Logger.setLevel(LOG_LEVELS["info"])  # debug, info, warning, error, critical, trace
 
 
 class BackGround(FloatLayout):
@@ -120,7 +120,7 @@ class CrapetteApp(App):
 
         if seed is None:
             seed = int.from_bytes(os.urandom(16), "big")
-            print("SEED:", seed)
+            Logger.info("Game seed: %d", seed)
         random.seed(seed)
         self.game_manager.setup(custom_new_game)
 
