@@ -1,6 +1,6 @@
 """Class for pile of cards parameters and methods."""
 
-from collections import namedtuple
+from typing import NamedTuple
 
 from kivy.logger import Logger
 
@@ -396,8 +396,12 @@ class CrapePile(_PlayerPile):
         return True
 
 
-# namedtuple for all piles specific to a player
-PlayerPiles = namedtuple("PlayerPiles", ["stock", "waste", "crape"])
+class PlayerPiles(NamedTuple):
+    """NamedTuple for all piles specific to a player."""
+
+    stock: StockPile
+    waste: WastePile
+    crape: CrapePile
 
 
 def player_piles(player):

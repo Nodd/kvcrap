@@ -1,8 +1,22 @@
-from collections import namedtuple
+from typing import NamedTuple
 
-Move = namedtuple("Move", ["card", "origin", "destination"])
-Flip = namedtuple("Flip", ["card", "pile"])
-FlipWaste = namedtuple("FlipWaste", [])
+from .cards import Card
+from .piles import Pile
+
+
+class Move(NamedTuple):
+    card: Card
+    origin: Pile
+    destination: Pile
+
+
+class Flip(NamedTuple):
+    card: Card
+    pile: Pile
+
+
+class FlipWaste(NamedTuple):
+    pass
 
 
 class Moves:
