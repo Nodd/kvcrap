@@ -2,9 +2,17 @@
 
 from typing import NamedTuple
 
-from kivy.logger import Logger
+from kivy.logger import LOG_LEVELS, Logger
 
 from .cards import Card
+
+
+if Logger.isEnabledFor(LOG_LEVELS["debug"]):
+    logger_debug = Logger.debug
+else:
+
+    def logger_debug(*_args):
+        pass
 
 
 class Pile:
@@ -135,7 +143,7 @@ class FoundationPile(Pile):
         Card can be added if it has the same suit as the pile, and a rank just above the last card.
         """
         if card.suit != self.foundation_suit:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, %s has not suit %s",
                 self.name,
                 card,
@@ -143,14 +151,14 @@ class FoundationPile(Pile):
             )
             return False
         if card.rank != len(self._cards) + 1:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, %s has not rank %s",
                 self.name,
                 card,
                 len(self._cards) + 1,
             )
             return False
-        Logger.debug("Add %s: Possible, %s can be added", self.name, card)
+        logger_debug("Add %s: Possible, %s can be added", self.name, card)
         return True
 
     def can_pop_card(self, player):
@@ -158,7 +166,7 @@ class FoundationPile(Pile):
 
         Note: except when rolling back in crapette mode, but that's not maanged here
         """
-        Logger.debug(
+        logger_debug(
             "Pop %s: Impossible, it's never possible to pop card from here", self.name
         )
         return False
@@ -194,7 +202,7 @@ class TableauPile(Pile):
         """
         # Empty pile can accept any card
         if not self._cards:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Possible, empty pile can accept any card, including %s",
                 self.name,
                 card,
@@ -203,7 +211,7 @@ class TableauPile(Pile):
 
         # Need alternate colors
         if card.is_same_color(self.top_card):
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, %s has same color as top card %s",
                 self.name,
                 card,
@@ -213,7 +221,7 @@ class TableauPile(Pile):
 
         # New card must be 1 rank lower that last card in pile
         if card.rank != self.top_card.rank - 1:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, %s is not a rank lower than %s",
                 self.name,
                 card,
@@ -221,13 +229,13 @@ class TableauPile(Pile):
             )
             return False
 
-        Logger.debug(
+        logger_debug(
             "Add %s: Possible, %s can go over %s", self.name, card, self.top_card
         )
         return True
 
     def can_pop_card(self, player):
-        Logger.debug("Pop %s: Possible, can always pop card from here", self.name)
+        logger_debug("Pop %s: Possible, can always pop card from here", self.name)
         return True
 
     def __eq__(self, other):
@@ -248,12 +256,12 @@ class _PlayerPile(Pile):
 
     def can_pop_card(self, player):
         if player != self._player:
-            Logger.debug(
+            logger_debug(
                 "Pop %s: Impossible, only the player can pop cards from its piles",
                 self.name,
             )
             return False
-        Logger.debug(
+        logger_debug(
             "Pop %s: Possible, the player can pop cards from its piles", self.name
         )
         return True
@@ -280,7 +288,7 @@ class StockPile(_PlayerPile):
 
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile."""
-        Logger.debug(
+        logger_debug(
             "Add %s: Impossible, it's never allowed to add cards here", self.name
         )
         return False
@@ -297,27 +305,27 @@ class WastePile(_PlayerPile):
         """Check if the card can be added to the pile."""
         if self._player == player:
             if not isinstance(origin, StockPile) and origin.player == player:
-                Logger.debug(
+                logger_debug(
                     "Add %s: Impossible, the player can only put cards here from its stock pile (%s)",
                     self.name,
                     card,
                 )
                 return False
-            Logger.debug(
+            logger_debug(
                 "Add %s: Possible, the player can put card %s here from its stock pile",
                 self.name,
                 card,
             )
         else:
             if self.is_empty:
-                Logger.debug(
+                logger_debug(
                     "Add %s: Impossible, the other player can not put card %s on an empty waste pile",
                     self.name,
                     card,
                 )
                 return False
             if card.suit != self.top_card.suit:
-                Logger.debug(
+                logger_debug(
                     "Add %s: Impossible, the other player can not put card %s with a different suit than %s",
                     self.name,
                     card,
@@ -326,14 +334,14 @@ class WastePile(_PlayerPile):
                 return False
             rank = self.top_card.rank
             if card.rank not in [rank - 1, rank + 1]:
-                Logger.debug(
+                logger_debug(
                     "Add %s: Impossible, the other player can only put card one rank above or below %s, not %s",
                     self.name,
                     self.top_card,
                     card,
                 )
                 return False
-            Logger.debug(
+            logger_debug(
                 "Add %s: Possible, the other player can put %s over %s",
                 self.name,
                 card,
@@ -342,7 +350,7 @@ class WastePile(_PlayerPile):
         return True
 
     def can_pop_card(self, player):
-        Logger.debug(
+        logger_debug(
             "Pop %s: Impossible, cards can never be taken from here", self.name
         )
         return False
@@ -359,14 +367,14 @@ class CrapePile(_PlayerPile):
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile."""
         if self._player == player:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, player can never put cards (%s) on its own crapette pile",
                 self.name,
                 card,
             )
             return False
         if not self:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, the other player can not put card %s on an empty crapette pile",
                 self.name,
                 card,
@@ -374,7 +382,7 @@ class CrapePile(_PlayerPile):
             return False
         assert self.top_card is not None
         if card.suit != self.top_card.suit:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, the other player can not put card %s with a different suit than %s",
                 self.name,
                 card,
@@ -383,14 +391,14 @@ class CrapePile(_PlayerPile):
             return False
         rank = self.top_card.rank
         if card.rank not in [rank - 1, rank + 1]:
-            Logger.debug(
+            logger_debug(
                 "Add %s: Impossible, the other player can only put card one rank above or below %s, not %s",
                 self.name,
                 self.top_card,
                 card,
             )
             return False
-        Logger.debug(
+        logger_debug(
             "Add %s: Possible, the other player can put %s over %s)",
             self.name,
             card,
