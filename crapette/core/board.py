@@ -15,7 +15,12 @@ class Board:
     assert len(FOUNDATION_SUITES) == NB_PILES
     FOUNDATIONS_PER_PLAYER = 4
 
-    __slots__ = ["players_piles", "foundation_piles", "tableau_piles", "_pile_by_names"]
+    __slots__ = [
+        "players_piles",
+        "foundation_piles",
+        "tableau_piles",
+        "_pile_by_names_cache",
+    ]
 
     def __init__(self):
         # Setup the piles on the board
@@ -26,7 +31,7 @@ class Board:
             for i, s in enumerate(self.FOUNDATION_SUITES)
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
-        self._pile_by_names = {p.name: p for p in self.piles}
+        self._pile_by_names_cache = None
 
     @property
     def piles(self):
@@ -41,7 +46,9 @@ class Board:
         """Can take a pile name or a pile object (not necessarily from this board)."""
         if hasattr(name, "name"):
             name = name.name
-        return self._pile_by_names[name]
+        if self._pile_by_names_cache is None:
+            self._pile_by_names_cache = {p.name: p for p in self.piles}
+        return self._pile_by_names_cache[name]
 
     def __repr__(self):
         return f"Board:{id(self)}"
