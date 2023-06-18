@@ -75,20 +75,19 @@ class BoardNode:
 
             # Check all possible destination piles for each possible origin pile
             for pile_dest in piles_dest:
-                # Skip "no move" move
-                if pile_dest is pile_orig:
+                # Check if the move is possible
+                if pile_dest is pile_orig or not pile_dest.can_add_card(
+                    card, pile_orig, self.player
+                ):
                     continue
 
                 # Avoid equivalent moves with empty piles on the tableau
+                # It's an important optimization when there are multiple empty piles on the tableau
                 if (
                     is_pile_orig_one_card_tableau
                     and pile_dest.is_empty
                     and isinstance(pile_dest, TableauPile)
                 ):
-                    continue
-
-                # Check if the move is possible
-                if not pile_dest.can_add_card(card, pile_orig, self.player):
                     continue
 
                 # Instantiate neighbor

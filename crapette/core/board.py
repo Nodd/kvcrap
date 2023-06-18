@@ -147,58 +147,45 @@ class HashBoard(Board):
 
     __slots__ = ["_hash_cache"]
 
-    def __init__(self, board):
+    def __init__(self, board: Board):
         super().__init__()
 
         # The piles will be new objects, but will contain the same card objects
         # as the current board, don't modify their state.
         for pile, pile_orig in zip(self.piles, board.piles, strict=True):
-            pile._cards = pile_orig._cards.copy()
+            pile._cards = [*pile_orig._cards]  # A bit faster than .copy()
 
         self._hash_cache = None
 
-    def __eq__(self, other):
+    def sorted_foundation_piles_indexed(self, suit_index: int):
+        return sorted(
+            (
+                self.foundation_piles[suit_index],
+                self.foundation_piles[2 * Card.NB_SUITS - suit_index - 1],
+            )
+        )
+
+    def __eq__(self, other: "HashBoard"):
         """Compute equivalence (not strict equality) between HashBoard instances."""
         # Check player piles equality for both players
-        for player in range(Board.NB_PLAYERS):
-            for pile, pile_other in zip(
-                self.players_piles[player], other.players_piles[player], strict=True
-            ):
-                # Note: Card deck origin could be ignored for optimization,
-                # but the expected speedup would be negligible
-                if pile != pile_other:
-                    return False
+        # Note: Card deck origin could be ignored for optimization,
+        # but the expected speedup would be negligible
+        if self.players_piles != other.players_piles:
+            return False
 
         # Check foundation
         # Inversion between same suit piles doesn't matter
-        for i_suit in range(Card.NB_SUITS):
-            self_foundation_pile_right = self.foundation_piles[i_suit]
-            other_foundation_pile_right = other.foundation_piles[i_suit]
-            self_foundation_pile_left = self.foundation_piles[
-                Card.NB_SUITS - i_suit - 1
-            ]
-            other_foundation_pile_left = other.foundation_piles[
-                Card.NB_SUITS - i_suit - 1
-            ]
-            if not (
-                (
-                    self_foundation_pile_right == other_foundation_pile_right
-                    and self_foundation_pile_left == other_foundation_pile_left
-                )
-                or (
-                    self_foundation_pile_right == other_foundation_pile_left
-                    and self_foundation_pile_left == other_foundation_pile_right
-                )
-            ):
-                return False
+        if any(
+            self.sorted_foundation_piles_indexed(i_suit)
+            != other.sorted_foundation_piles_indexed(i_suit)
+            for i_suit in range(Card.NB_SUITS)
+        ):
+            return False
 
         # Check tableau piles, order doesn't matter
         self_tableau = sorted(self.tableau_piles, reverse=True)
         other_tableau = sorted(other.tableau_piles, reverse=True)
-        return all(
-            pile == pile_other
-            for pile, pile_other in zip(self_tableau, other_tableau, strict=True)
-        )
+        return self_tableau == other_tableau
 
     def __hash__(self):
         """Compute a hash for the board.
@@ -210,15 +197,9 @@ class HashBoard(Board):
             piles = list(self.players_piles[0]) + list(self.players_piles[1])
 
             # Foundation, inversion between same suit piles doesn't matter
-            for i in range(Card.NB_SUITS):
-                piles += sorted(
-                    [
-                        self.foundation_piles[i],
-                        self.foundation_piles[Card.NB_SUITS - i - 1],
-                    ]
-                )
+            for i_suit in range(Card.NB_SUITS):
+                piles += self.sorted_foundation_piles_indexed(i_suit)
             piles += sorted(self.tableau_piles, reverse=True)
-            # It's a bit faster to create an intermediate list comprehension than a generator
-            tup = tuple(p.cards_ids() for p in piles)
-            self._hash_cache = hash(tup)
+
+            self._hash_cache = hash(tuple(p.cards_ids() for p in piles))
         return self._hash_cache
