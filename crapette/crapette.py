@@ -119,7 +119,7 @@ class CrapetteApp(App):
                 custom_new_game = getattr(custom_test_games, arg)
 
         if seed is None:
-            seed = int.from_bytes(os.urandom(16), "big")
+            seed = int.from_bytes(os.urandom(8), "big")
             Logger.info("Game seed: %d", seed)
         random.seed(seed)
         self.game_manager.setup(custom_new_game)
