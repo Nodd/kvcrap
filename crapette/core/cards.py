@@ -19,7 +19,7 @@ class Card:
     RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
     RANK_NAME = {1: "Ace", 11: "Jack", 12: "Queen", 13: "King"}
 
-    __slots__ = ["_rank", "_suit", "_player", "_face_up", "_color", "_hash", "_id"]
+    __slots__ = ["_rank", "_suit", "_player", "_face_up", "_color", "_hash", "id"]
 
     def __init__(self, rank, suit, player):
         assert rank in self.RANKS
@@ -32,7 +32,7 @@ class Card:
         self._color = "red" if suit in self.RED else "black"
         self._hash = hash((self._rank, self._suit, self._player))
         # Like a hash, but uses only suit and rank
-        self._id = ord(self._suit) * 100 + self._rank
+        self.id = ord(self._suit) * 100 + self._rank
 
     @property
     def rank(self):
@@ -114,11 +114,6 @@ class Card:
 
     def __hash__(self):
         return self._hash
-
-    @property
-    def id(self):  # ruff: noqa: A003
-        """Like a hash, but uses only suit and rank."""
-        return self._id
 
 
 def new_deck(player, shuffle=True):
