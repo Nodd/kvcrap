@@ -3,7 +3,7 @@
 import random
 
 from .cards import Card, new_deck
-from .piles import FoundationPile, TableauPile, player_piles
+from .piles import FoundationPile, Pile, TableauPile, player_piles
 
 
 class Board:
@@ -24,14 +24,14 @@ class Board:
 
     def __init__(self):
         # Setup the piles on the board
-        self.players_piles = [player_piles(p) for p in self.PLAYERS]
+        self.players_piles = [player_piles(0), player_piles(1)]
         self.foundation_piles = [
             # Diamonds, Clubs, Hearts, Spades and reverse
             FoundationPile(s, i)
             for i, s in enumerate(self.FOUNDATION_SUITES)
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
-        self._pile_by_names_cache = None
+        self._pile_by_names_cache = {p.name: p for p in self.piles}
 
     @property
     def piles(self):
@@ -42,13 +42,9 @@ class Board:
             + self.tableau_piles
         )
 
-    def __getitem__(self, name):
-        """Can take a pile name or a pile object (not necessarily from this board)."""
-        if hasattr(name, "name"):
-            name = name.name
-        if self._pile_by_names_cache is None:
-            self._pile_by_names_cache = {p.name: p for p in self.piles}
-        return self._pile_by_names_cache[name]
+    def get_pile(self, pile):
+        """Return the board's pile with the same name as `pile`."""
+        return self._pile_by_names_cache[pile.name]
 
     def __repr__(self):
         return f"Board:{id(self)}"
@@ -150,12 +146,18 @@ class HashBoard(Board):
     def __init__(self, board: Board):
         super().__init__()
 
-        # The piles will be new objects, but will contain the same card objects
-        # as the current board, don't modify their state.
-        for pile, pile_orig in zip(self.piles, board.piles, strict=True):
-            pile._cards = [*pile_orig._cards]  # A bit faster than .copy()
+        # Pass pile content by reference
+        # They should not be modified, except in `HashBoard.with_move()`
+        for pile, board_pile in zip(self.piles, board.piles, strict=True):
+            pile._cards = board_pile._cards
 
         self._hash_cache = None
+
+    def with_move(self, pile_orig: Pile, pile_dest: Pile, card: Card):
+        new = HashBoard(self)
+        new.get_pile(pile_orig)._cards = pile_orig._cards[:-1]
+        new.get_pile(pile_dest)._cards = [*pile_dest._cards, card]
+        return new
 
     def sorted_foundation_piles_indexed(self, suit_index: int):
         return sorted(

@@ -91,9 +91,8 @@ class BoardNode:
                     continue
 
                 # Instantiate neighbor
-                next_board = HashBoard(self.board)
-                next_board[pile_orig].pop_card()
-                next_board[pile_dest].add_card(card)
+                next_board = self.board.with_move(pile_orig, pile_dest, card)
+                hash(next_board)
 
                 # Compute the cost
                 move = Move(card, pile_orig, pile_dest)
@@ -155,15 +154,14 @@ class BoardNode:
 
 class BrainDijkstra:
     def __init__(self, board: Board, player: int) -> None:
-        self.board = HashBoard(board)
-        self.player = player
+        hash_board = HashBoard(board)
 
         # Initialize
-        first_node = BoardNode(HashBoard(self.board), self.player)
+        first_node = BoardNode(hash_board, player)
         first_node.cost = ()
         first_node.moves = []
-        self.known_nodes = {self.board: first_node}
-        self.known_nodes_unvisited = {self.board: first_node}
+        self.known_nodes = {hash_board: first_node}
+        self.known_nodes_unvisited = {hash_board: first_node}
 
     def _select_next_node(self) -> BoardNode | None:
         return min(
