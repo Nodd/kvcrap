@@ -1,5 +1,7 @@
 """Manage the widgets interaction on the game board."""
 
+import multiprocessing
+import sys
 import typing
 
 from kivy.logger import Logger
@@ -23,6 +25,8 @@ class GameManager:
         self.crapette_mode: bool = False
         self.board_widget: BoardWidget = self.ids["game_board"]
 
+        self._brain_process = None
+
     def setup(self, custom_new_game=None):
         self.board = Board()
         if custom_new_game is not None:
@@ -45,8 +49,7 @@ class GameManager:
 
         self.board_widget.set_active_player(player)
 
-        # Brain(self.board, self.active_player).checks()
-        BrainForce(self.board, self.active_player).compute_states()
+        self.check_moves()
 
     def check_end_of_turn(self, pile_widget):
         """End the player turn if conditions are met."""
@@ -100,8 +103,7 @@ class GameManager:
         else:
             self.last_move = None
 
-        # Brain(self.board, self.active_player).checks()
-        BrainForce(self.board, self.active_player).compute_states()
+        self.check_moves()
 
         return True
 
@@ -111,8 +113,7 @@ class GameManager:
 
         self.last_move = Flip(card_widget, card_widget.pile_widget)
 
-        # Brain(self.board, self.active_player).checks()
-        BrainForce(self.board, self.active_player).compute_states()
+        self.check_moves()
 
     def flip_waste_to_stock(self):
         """When the stock is empty, flip the waste back to the stock."""
@@ -134,3 +135,17 @@ class GameManager:
             # If crapette mode cancelled, reset
             # TODO: Cancel all actions done while in crapette mode
             self.board_widget.move_card(self.last_move.card, self.last_move.destination)
+
+    def check_moves(self):
+        brain = BrainForce(self.board, self.active_player)
+        if "--mono" in sys.argv[1:]:
+            brain.compute_states()
+        else:
+            if self._brain_process is not None:
+                if self._brain_process.is_alive():
+                    self._brain_process.kill()
+                    self._brain_process.join()
+                self._brain_process.close()
+
+            self._brain_process = multiprocessing.Process(target=brain.compute_states)
+            self._brain_process.start()

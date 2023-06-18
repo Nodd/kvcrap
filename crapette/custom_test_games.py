@@ -38,7 +38,7 @@ def brain_combination(board: Board):
     diamonds = deck[: Card.NB_RANKS]
     clubs = deck[2 * Card.NB_RANKS : 3 * Card.NB_RANKS]
 
-    n = 8
+    n = 9
     for i in range(n - 1):
         card = diamonds.pop()
         card.face_up = True

@@ -109,7 +109,7 @@ class CrapetteApp(App):
         custom_new_game = None
         seed = None
 
-        if len(sys.argv) == 2:
+        if len(sys.argv) >= 2:
             arg = sys.argv[1]
             try:
                 seed = int(arg)
