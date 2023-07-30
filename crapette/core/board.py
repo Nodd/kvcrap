@@ -123,7 +123,7 @@ class Board:
             return 1
 
         # Extreme measures
-        return random.randint(0, 1)
+        return 0
 
     def check_win(self, player):
         players_piles = self.players_piles[player]
