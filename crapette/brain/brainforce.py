@@ -174,6 +174,7 @@ class BrainDijkstra:
 
         next_node = self._select_next_node()
         while next_node is not None:
+            # print(next_node.board.to_text())
             next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
             if next_node.score > max_score:
                 max_score = next_node.score

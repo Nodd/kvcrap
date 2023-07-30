@@ -133,6 +133,73 @@ class Board:
             and not players_piles.crape
         )
 
+    def to_text(self):
+        str_lines = []
+        player_space_left = " " * (13 * 3)
+
+        def _player_pile_str(pile):
+            if not pile:
+                return "  "
+            card = pile.top_card
+            return card.str_rank_suit if card.face_up else "##"
+
+        player_piles = self.players_piles[1]
+        line = [
+            player_space_left,
+            _player_pile_str(player_piles.crape),
+            "  ",
+            _player_pile_str(player_piles.waste),
+            " ",
+            _player_pile_str(player_piles.stock),
+        ]
+        str_lines.append("".join(line))
+
+        for tableau_row in range(self.FOUNDATIONS_PER_PLAYER):
+            index_left = tableau_row + 4  # 4, 5, 6, 7
+            index_right = 3 - tableau_row  # 3, 2, 1, 0
+
+            tableau_pile_left = self.tableau_piles[index_left]
+            tableau_pile_right = self.tableau_piles[index_right]
+            foundation_pile_left = self.foundation_piles[index_left]
+            foundation_pile_right = self.foundation_piles[index_right]
+
+            space_left = ["  "] * (13 - len(tableau_pile_left))
+            tableau_left = [c.str_rank_suit for c in tableau_pile_left[::-1]]
+            tableau_right = [c.str_rank_suit for c in tableau_pile_right]
+            if foundation_pile_left:
+                foundation_left = foundation_pile_left.top_card.str_rank_suit
+            else:
+                foundation_left = "  "
+            if foundation_pile_right:
+                foundation_right = foundation_pile_right.top_card.str_rank_suit
+            else:
+                foundation_right = "  "
+            separator = ["|"]
+            str_line = " ".join(
+                space_left
+                + tableau_left
+                + separator
+                + [foundation_left]
+                + [foundation_right]
+                + separator
+                + tableau_right
+            )
+            str_lines.append(str_line)
+
+        player_piles = self.players_piles[0]
+        line = [
+            player_space_left,
+            _player_pile_str(player_piles.stock),
+            " ",
+            _player_pile_str(player_piles.waste),
+            "  ",
+            _player_pile_str(player_piles.crape),
+        ]
+        str_lines.append("".join(line))
+
+        str_lines = ["⌄" * 88, *str_lines, "⌃" * 88]
+        return "\n".join(str_lines)
+
 
 class HashBoard(Board):
     """Create a hashable version of a Board.

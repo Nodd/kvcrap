@@ -16,7 +16,7 @@ class Card:
     NB_SUITS = len(SUITS)
     PLAYERS = (0, 1)
     SUIT_SYMBOL = {"c": "\u2663", "d": "\u2666", "h": "\u2665", "s": "\u2660"}
-    RANK_SYMBOL = {1: "A", 11: "J", 12: "Q", 13: "K"}
+    RANK_SYMBOL = {1: "A", 10: "0", 11: "J", 12: "Q", 13: "K"}
     RANK_NAME = {1: "Ace", 11: "Jack", 12: "Queen", 13: "King"}
 
     __slots__ = ["_rank", "_suit", "_player", "_face_up", "_color", "_hash", "id"]
@@ -91,8 +91,13 @@ class Card:
         return self._color == other._color
 
     def __str__(self):
-        """Sting representation of the card."""
+        """Represent the card as a string."""
         return f"{self.rank_symbol}{self.suit_symbol}{'^' if self._face_up else 'v'}"
+
+    @property
+    def str_rank_suit(self):
+        """Represent the card as a string with only symbol and suit."""
+        return f"{self.rank_symbol}{self.suit_symbol}"
 
     def __repr__(self):
         # return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
