@@ -8,7 +8,7 @@ from kivy.logger import Logger
 
 from .brain.brainforce import BrainForce
 from .core.board import Board
-from .core.moves import Flip, FlipWaste, Move, Moves
+from .core.moves import Flip, FlipWaste, Move
 from .core.piles import WastePile
 from .widgets.pile_widgets import FoundationPileWidget, PlayerPileWidget
 
