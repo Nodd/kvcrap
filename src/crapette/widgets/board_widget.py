@@ -125,8 +125,7 @@ class BoardWidget(BoxLayout):
 
         # Add to new pile
         pile_widget.add_card_widget(card_widget)
-        card_widget.set_center_animated(pile_widget.card_pos())
-        card_widget.apply_random_rotation(pile_widget.rotation)
+        card_widget.animate_move_to_pile()
 
         self.update_counts()
 
@@ -182,7 +181,7 @@ class BoardWidget(BoxLayout):
             card_widget = self.card_widgets[card]
             card_widget.update_image()
             card_widget.pile_widget = stock_widget
-            card_widget.set_center_animated(stock_widget.card_pos())
+            card_widget.animate_move_to_pile()
             self.put_on_top(card_widget)
         self.update_counts()
 

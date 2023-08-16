@@ -76,7 +76,6 @@ class GameManager:
     def move_card(self, card_widget, pile_widget):
         """Move a card to another pile and register the move.
 
-        Returns True if the card was moved, or False if the move is not possible.
         It only checks the destination, not if the card was movable by the player.
         """
         old_pile_widget = card_widget.pile_widget
@@ -87,12 +86,13 @@ class GameManager:
         assert can_add in (True, False), can_add
         if not can_add:
             Logger.debug("Dropped on an incompatible pile")
-            return False
+            card_widget.animate_move_to_pile()
+            return
 
         self.board_widget.move_card(card_widget, pile_widget)
 
         if self.check_win():
-            return True
+            return
 
         self.check_end_of_turn(pile_widget)
 
@@ -104,8 +104,6 @@ class GameManager:
             self.last_move = None
 
         self.check_moves()
-
-        return True
 
     def flip_card_up(self, card_widget):
         """Flips up the card and register the flip as a move."""

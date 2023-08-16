@@ -40,17 +40,20 @@ class CardWidget(ScatterLayout):
     def __repr__(self):
         return f"CardWidget({self.card!r})"
 
-    def set_center_animated(self, pos):
-        """Animate a card move on the board.
+    def animate_move_to_pile(self):
+        """Animate a card on the board to move to its pile.
 
-        `pos` is the new coordinates of the car center.
+        It also applies a random rotation error, as if the card was put manually.
 
         This is only a visual effect, this function doesn't change
         the state of the game.
         """
         animation = Animation(
-            center=pos, duration=DEFAULT_MOVE_DURATION, transition="out_quad"
+            center=self.pile_widget.card_pos(),
+            duration=DEFAULT_MOVE_DURATION,
+            transition="out_quad",
         )
+        animation &= self.random_rotation_animation_factory()
         animation.start(self)
 
     def update_image(self):
@@ -72,23 +75,11 @@ class CardWidget(ScatterLayout):
         This is only a visual effect, this function doesn't change
         the state of the game.
         """
-        angle = self.main_rotation
+        angle = self.pile_widget.rotation
         angle += random.triangular(-MAX_RANDOM_ANGLE, MAX_RANDOM_ANGLE)
         if self.rotation > 180:
             angle += 360
         return Animation(rotation=angle, duration=duration, transition="out_sine")
-
-    def apply_random_rotation(self, main_rotation: float = None):
-        """Apply a random rotation error.
-
-        Optionally change the global rotation of the card, for example on the foundation piles.
-
-        This is only a visual effect, this function doesn't change
-        the state of the game.
-        """
-        if main_rotation is not None:
-            self.main_rotation = main_rotation
-        self.random_rotation_animation_factory().start(self)
 
     def set_face_up(self):
         """Flip the card so that the face is up.
@@ -114,13 +105,13 @@ class CardWidget(ScatterLayout):
         """
         # Save state
         height = self.height
-        y = self.y
+        center = self.center
 
         # Fade out by reducing the height and compensing the position so that the center doesn't change
         duration_out = 0.2
         animation = Animation(height=0, duration=duration_out, transition="out_sine")
         animation &= Animation(
-            y=y + height / 2, duration=duration_out, transition="out_sine"
+            center=center, duration=duration_out, transition="out_sine"
         )
 
         # Update the image after the first animation
@@ -130,7 +121,7 @@ class CardWidget(ScatterLayout):
         duration_in = 0.1
         animation += (
             Animation(height=height, duration=duration_in, transition="in_sine")
-            & Animation(y=y, duration=duration_in, transition="in_sine")
+            & Animation(center=center, duration=duration_in, transition="in_sine")
             & self.random_rotation_animation_factory()
         )
         animation.start(self)
@@ -208,16 +199,12 @@ class CardWidget(ScatterLayout):
 
         if pile_widget is None:
             Logger.debug("%s not dropped on a pile, return it", self.card)
-            self.set_center_animated(self.pile_widget.card_pos())
+            self.animate_move_to_pile()
         elif pile_widget == self.pile_widget:
             Logger.debug("%s dropped on same pile, return it", self.card)
-            self.set_center_animated(self.pile_widget.card_pos())
+            self.animate_move_to_pile()
         else:
-            moved = self.game_manager.move_card(self, pile_widget)
-            if not moved:
-                self.set_center_animated(self.pile_widget.card_pos())
-
-        self.apply_random_rotation()
+            self.game_manager.move_card(self, pile_widget)
 
         return True
 
@@ -228,7 +215,7 @@ class CardWidget(ScatterLayout):
         """
         if self._moving:
             self._moving = False
-            self.set_center_animated(self.pile_widget.card_pos())
+            self.animate_move_to_pile()
 
     def start_moving_animation(self):
         Window.show_cursor = False
