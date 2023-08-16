@@ -161,23 +161,24 @@ FloatLayout:
 
                     Button:
                         text: 'Play face to face'
-                        on_press: app.new_game()
+                        on_press: app.new_game("player","player")
                         size_hint: 1, 1
 
                     Button:
                         text: 'Play against a remote player'
-                        on_press: app.new_game()
+                        on_press: app.new_game("player", "remote")
                         size_hint: 1, 1
                         disabled: True
+                        opacity: 0.1
 
                     Button:
                         text: 'Play against {0} AI'.format(cards.Card(int(ai_difficulty.value), "h", 0).rank_name)
-                        on_press: app.new_game()
+                        on_press: app.new_game("player", "ai")
                         size_hint: 1, 1
 
                     Button:
                         text: 'Watch a {0} AI vs {0} AI match'.format(cards.Card(int(ai_difficulty.value), "h", 0).rank_name)
-                        on_press: app.new_game()
+                        on_press: app.new_game("ai", "ai")
                         size_hint: 1, 1
 
                     Slider:

@@ -27,7 +27,13 @@ class GameManager:
 
         self._brain_process = None
 
-    def setup(self, custom_new_game=None):
+    def setup(self, player0: str, player1: str, custom_new_game=None):
+        assert player0 in {"player", "ai"}
+        assert player1 in {"player", "remote", "ai"}
+
+        self.player0_type = player0
+        self.player1_type = player1
+
         self.board = Board()
         if custom_new_game is not None:
             custom_new_game(self.board)

@@ -103,7 +103,7 @@ class CrapetteApp(App):
         game_board = ids["game_board"]
         game_board.disabled = menu_visible
 
-    def new_game(self):
+    def new_game(self, player0, player1):
         self.set_menu_visible(False)
 
         custom_new_game = None
@@ -122,7 +122,7 @@ class CrapetteApp(App):
             seed = int.from_bytes(os.urandom(8), "big")
             Logger.info("Game seed: %d", seed)
         random.seed(seed)
-        self.game_manager.setup(custom_new_game)
+        self.game_manager.setup(player0, player1, custom_new_game)
 
 
 def main():
