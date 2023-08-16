@@ -31,14 +31,6 @@ kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Logger.setLevel(LOG_LEVELS["info"])  # debug, info, warning, error, critical, trace
 
 
-class BackGround(FloatLayout):
-    pass
-
-
-class CardImage(Image):
-    pass
-
-
 # main app
 class CrapetteApp(App):
     title = "Crapette in Kivy"
