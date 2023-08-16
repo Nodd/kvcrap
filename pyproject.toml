@@ -38,6 +38,10 @@ test = ["pytest", "pytest-cov"]
 [project.gui-scripts]
 crapette = "crapette.crapette:main"
 
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
 [tool.setuptools]
 packages = ["crapette"]
 zip-safe = false
@@ -50,12 +54,9 @@ crapette = ["crapette.kv", "images/png/*/*.png"]
 [tool.setuptools.dynamic.version]
 attr = "crapette.__version__"
 
-[build-system]
-requires = ["setuptools>=61.2"]
-build-backend = "setuptools.build_meta"
-
 [tool.pytest.ini_options]
 minversion = "6.0"
+pythonpath = "src"         # Pytest >= 7.0, otherwise use PYTHONPATH=src pytest
 addopts = "--cov crapette"
 testpaths = ["tests"]
 
