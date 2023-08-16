@@ -138,7 +138,10 @@ class GameManager:
         else:
             # If crapette mode cancelled, reset
             # TODO: Cancel all actions done while in crapette mode
-            self.board_widget.move_card(self.last_move.card, self.last_move.destination)
+            if isinstance(self.last_move, Move):
+                self.board_widget.move_card(
+                    self.last_move.card, self.last_move.destination
+                )
 
     def check_moves(self):
         brain = BrainForce(self.board, self.active_player)
