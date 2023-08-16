@@ -108,20 +108,14 @@ class Board:
         if player0_crape_rank < player1_crape_rank:
             return 1
 
-        # Player with highest tableau goes first
+        # In case of a tie, player with highest tableau goes first
         player0_tableau_rank = sorted(
             (p.rank for p in self.tableau_piles[:4]), reverse=True
         )
         player1_tableau_rank = sorted(
             (p.rank for p in self.tableau_piles[4:]), reverse=True
         )
-        if player0_tableau_rank > player1_tableau_rank:
-            return 0
-        if player0_tableau_rank < player1_tableau_rank:
-            return 1
-
-        # Extreme measures
-        return 0
+        return 1 if player0_tableau_rank < player1_tableau_rank else 0
 
     def check_win(self, player):
         players_piles = self.players_piles[player]
