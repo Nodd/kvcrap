@@ -22,9 +22,11 @@ class Brain:
         potential = []
         for tableau_pile in self.board.tableau_piles:
             for index, card in enumerate(tableau_pile):
-                for foundation_pile in self.board.foundation_piles:
-                    if foundation_pile.can_add_card(card, tableau_pile, self.player):
-                        potential.append((card, tableau_pile, index))
+                potential.extend(
+                    (card, tableau_pile, index)
+                    for foundation_pile in self.board.foundation_piles
+                    if foundation_pile.can_add_card(card, tableau_pile, self.player)
+                )
         return potential
 
     def check_player_crapette_tableau(self):
