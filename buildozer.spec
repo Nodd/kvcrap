@@ -10,13 +10,13 @@ package.name = crapette
 package.domain = perso.jomarto
 
 # (str) Source code where the main.py live
-source.dir = .
+source.dir = src
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas
 
 # (list) List of inclusions using pattern matching
-source.include_patterns = crapette/images/*.png,crapette/images/png/2x/*.png
+source.include_patterns = src/crapette/images/*.png,src/crapette/images/png/2x/*.png
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec

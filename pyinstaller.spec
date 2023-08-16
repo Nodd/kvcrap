@@ -28,8 +28,8 @@ binaries = []  # config["binaries"]
 block_cipher = None
 
 a = Analysis(
-    ["main.py"],
-    pathex=["./"],
+    ["src/main.py"],
+    pathex=["./src"],
     datas=[
         ("crapette/crapette.kv", "crapette/"),
         ("crapette/images/*.png", "crapette/images/"),

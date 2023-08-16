@@ -1,5 +1,5 @@
-from .cards import Card
-from .piles import TableauPile
+from crapette.core.cards import Card
+from crapette.core.piles import TableauPile
 
 
 def test_tableau_equal():

@@ -1,5 +1,5 @@
-from .board import Board, HashBoard
-from .cards import Card
+from crapette.core.board import Board, HashBoard
+from crapette.core.cards import Card
 
 
 def test_equal():

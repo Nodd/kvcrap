@@ -1,4 +1,4 @@
-from .cards import Card
+from crapette.core.cards import Card
 
 
 def test_equal():
