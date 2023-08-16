@@ -1,7 +1,5 @@
 """Initialization and data for a crapette game board backend."""
 
-import random
-
 from .cards import Card, new_deck
 from .piles import FoundationPile, Pile, TableauPile, player_piles
 
