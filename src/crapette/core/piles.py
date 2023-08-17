@@ -239,12 +239,11 @@ class WastePile(_PlayerPile):
             # Last move of the turn, the player puts the card from his stock to his waste
             return isinstance(origin, StockPile) and origin.player == player
 
-        if self.is_empty:
+        if self.is_empty or card.suit != self.top_card.suit:
             return False
-        if card.suit != self.top_card.suit:
-            return False
-        rank = self.top_card.rank
-        return card.rank in [rank - 1, rank + 1]
+
+        # Faster than card.rank in [rank - 1, rank + 1]
+        return abs(card.rank - self.top_card.rank) == 1
 
     def can_pop_card(self, player):
         return False
@@ -267,8 +266,9 @@ class CrapePile(_PlayerPile):
             or card.suit != self.top_card.suit
         ):
             return False
-        rank = self.top_card.rank
-        return card.rank in [rank - 1, rank + 1]
+
+        # Faster than card.rank in [rank - 1, rank + 1]
+        return abs(card.rank - self.top_card.rank) == 1
 
 
 class PlayerPiles(NamedTuple):
