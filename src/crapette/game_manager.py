@@ -196,7 +196,7 @@ class GameManager:
         if moves:
             Clock.schedule_once(
                 lambda _dt: self.ai_play(moves),
-                duration + 0.1 if self.app.fast else random.triangular(0.1, 0.3),
+                duration + 0.1 if self.app.fast else random.triangular(0.5, 0.9),
             )
         else:
             self.check_moves()
