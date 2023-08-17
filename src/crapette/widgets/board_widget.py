@@ -5,7 +5,9 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 
-from .card_widget import CardWidget, DEFAULT_FLIP_DURATION, DEFAULT_MOVE_DURATION
+from crapette.core.piles import Pile
+
+from .card_widget import DEFAULT_FLIP_DURATION, DEFAULT_MOVE_DURATION, CardWidget
 from .pile_widgets import PileWidget
 
 if typing.TYPE_CHECKING:
@@ -75,6 +77,12 @@ class BoardWidget(BoxLayout):
         for foundation, foundation_pile in enumerate(self.board.foundation_piles):
             self.pile_widgets.append(self.ids[f"foundation{foundation}"])
             self.ids[f"foundation{foundation}"].set_pile(foundation_pile)
+
+    def widget_from_pile(self, pile: Pile):
+        for pile_widget in self.pile_widgets:
+            if pile_widget.pile == pile:
+                return pile_widget
+        raise RuntimeError(f"Unknown pile {pile}")
 
     def setup_card_widgets(self):
         """Create and add a widget for every card.

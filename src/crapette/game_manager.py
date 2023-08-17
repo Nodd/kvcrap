@@ -178,15 +178,9 @@ class GameManager:
         print("ai_play", move, moves)
         duration = 0.1  # random.triangular(0.3, 0.7)
         if isinstance(move, Move):
-            card_widget = self.board_widget.card_widgets[move.card]
-            for pile_widget in self.board_widget.pile_widgets:
-                if pile_widget.pile == move.destination:
-                    break
-            else:
-                raise RuntimeError(f"Unknown pile {move.destination}")
             self.move_card(
-                card_widget,
-                pile_widget,
+                self.board_widget.card_widgets[move.card],
+                self.board_widget.widget_from_pile(move.destination),
                 duration=duration,
                 check_moves=False,
             )
@@ -198,7 +192,7 @@ class GameManager:
             )
         elif isinstance(move, FlipWaste):
             self.flip_waste_to_stock()
-            duration = 1
+            duration = 0.1  # 1
         if moves:
             Clock.schedule_once(
                 lambda _dt: self.ai_play(moves),
