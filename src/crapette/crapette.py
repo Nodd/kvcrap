@@ -44,7 +44,7 @@ class CrapetteApp(App):
     card_overlap: int = NumericProperty()
     wide: bool = BooleanProperty()
 
-    def __init__(self, seed: int, custom: str, mono: bool, fast: bool):
+    def __init__(self, seed: int | None, custom: str | None, mono: bool, fast: bool):
         super().__init__()
 
         self.seed = seed
