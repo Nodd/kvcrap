@@ -17,10 +17,10 @@ else:
 class Pile:
     """Defines the Pile interface and some generic methods for all piles."""
 
-    __slots__ = ["_name", "_cards"]
+    __slots__ = ["name", "_cards"]
 
     def __init__(self, name):
-        self._name = str(name)
+        self.name = str(name)
         self._cards: list[Card] = []
 
     def add_card(self, card):
@@ -32,7 +32,7 @@ class Pile:
 
         No check is done here, see `can_pop_card`.
         """
-        assert self._cards, f"No card to pop in {self._name}"
+        assert self._cards, f"No card to pop in {self.name}"
         return self._cards.pop()
 
     def can_add_card(self, card: Card, origin, player: int):
@@ -67,13 +67,8 @@ class Pile:
         raise NotImplementedError
 
     @property
-    def name(self):
-        """Name of the pile."""
-        return self._name
-
-    @property
     def is_empty(self):
-        return not len(self._cards)
+        return not bool(self._cards)
 
     @property
     def top_card(self) -> Card | None:
@@ -214,7 +209,7 @@ class _PlayerPile(Pile):
         """Doesn't check if cards face up or down."""
         return (
             isinstance(other, self.__class__)
-            and self._name == other._name
+            and self.name == other.name
             and self._cards == other._cards
         )
 

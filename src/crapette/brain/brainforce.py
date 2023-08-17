@@ -113,6 +113,14 @@ class BoardNode:
                 ):
                     continue
 
+                # Do not undo the previous move
+                if (
+                    self.moves
+                    and self.moves[-1].destination.name == pile_orig.name
+                    and self.moves[-1].origin.name == pile_dest.name
+                ):
+                    continue
+
                 # Instantiate neighbor
                 next_board = self.board.with_move(pile_orig, pile_dest, card)
                 hash(next_board)
