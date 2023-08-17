@@ -170,13 +170,14 @@ class GameManager:
                 self._brain_process.start()
 
             Clock.schedule_once(
-                lambda _dt: self.ai_play(moves), 0.2  # random.triangular(1, 3)
+                lambda _dt: self.ai_play(moves),
+                0.2 if self.app.fast else random.triangular(1, 3),
             )
 
     def ai_play(self, moves: list):
         move = moves.pop(0)
         print("ai_play", move, moves)
-        duration = 0.1  # random.triangular(0.3, 0.7)
+        duration = 0.1 if self.app.fast else random.triangular(0.3, 0.7)
         if isinstance(move, Move):
             self.move_card(
                 self.board_widget.card_widgets[move.card],
@@ -192,11 +193,11 @@ class GameManager:
             )
         elif isinstance(move, FlipWaste):
             self.flip_waste_to_stock()
-            duration = 0.1  # 1
+            duration = 0.1 if self.app.fast else 1
         if moves:
             Clock.schedule_once(
                 lambda _dt: self.ai_play(moves),
-                duration + 0.1,  # random.triangular(0.1, 0.3)
+                duration + 0.1 if self.app.fast else random.triangular(0.1, 0.3),
             )
         else:
             self.check_moves()

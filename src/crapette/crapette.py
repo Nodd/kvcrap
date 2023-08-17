@@ -44,12 +44,13 @@ class CrapetteApp(App):
     card_overlap: int = NumericProperty()
     wide: bool = BooleanProperty()
 
-    def __init__(self, seed, custom, mono):
+    def __init__(self, seed: int, custom: str, mono: bool, fast: bool):
         super().__init__()
 
         self.seed = seed
         self.custom = custom
         self.mono = mono
+        self.fast = fast
 
     def build(self):
         # Just set the property so that it's available in kv
@@ -149,10 +150,16 @@ def parse_args():
         action="store_true",
         help="Don't run the AI in a separate process. Warning, this could block the interface in case of lengthy computation.",
     )
+    parser.add_argument(
+        "-f",
+        "--fast",
+        action="store_true",
+        help="Speed up the AI animations.",
+    )
 
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    CrapetteApp(args.seed, args.custom, args.mono).run()
+    CrapetteApp(args.seed, args.custom, args.mono, args.fast).run()
