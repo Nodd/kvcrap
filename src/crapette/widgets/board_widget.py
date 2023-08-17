@@ -5,7 +5,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 
-from .card_widget import CardWidget
+from .card_widget import CardWidget, DEFAULT_FLIP_DURATION, DEFAULT_MOVE_DURATION
 from .pile_widgets import PileWidget
 
 if typing.TYPE_CHECKING:
@@ -116,7 +116,12 @@ class BoardWidget(BoxLayout):
             stock_label.text = str(len(stock_pile)) if stock_pile else ""
             crape_label.text = str(len(crape_pile)) if crape_pile else ""
 
-    def move_card(self, card_widget: CardWidget, pile_widget: PileWidget):
+    def move_card(
+        self,
+        card_widget: CardWidget,
+        pile_widget: PileWidget,
+        duration=DEFAULT_MOVE_DURATION,
+    ):
         """Low level card move."""
         self.put_on_top(card_widget)
 
@@ -125,7 +130,7 @@ class BoardWidget(BoxLayout):
 
         # Add to new pile
         pile_widget.add_card_widget(card_widget)
-        card_widget.animate_move_to_pile()
+        card_widget.animate_move_to_pile(duration)
 
         self.update_counts()
 
@@ -154,9 +159,9 @@ class BoardWidget(BoxLayout):
             transition="in_out_expo",
         ).start(background_halo)
 
-    def flip_card_up(self, card_widget: CardWidget):
+    def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card widget."""
-        card_widget.set_face_up()
+        card_widget.set_face_up(duration)
 
     def flip_pile(self, pile_widget: PileWidget):
         # Update cards

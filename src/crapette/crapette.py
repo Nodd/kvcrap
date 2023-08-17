@@ -2,10 +2,10 @@
 
 Mostly used for initialisation and use of .kv file.
 """
-
+import argparse
 import os
 import random
-import sys
+from inspect import getmodule
 from pathlib import Path
 
 import kivy
@@ -20,7 +20,10 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 
 # Load all widgets
-from . import widgets  # ruff: noqa: F401
+from . import (
+    custom_test_games,
+    widgets,  # ruff: noqa: F401
+)
 from .core.board import Board
 from .game_manager import GameManager
 from .images.card_data import CARD_IMG
@@ -40,6 +43,13 @@ class CrapetteApp(App):
     card_height: int = NumericProperty()
     card_overlap: int = NumericProperty()
     wide: bool = BooleanProperty()
+
+    def __init__(self, seed, custom, mono):
+        super().__init__()
+
+        self.seed = seed
+        self.custom = custom
+        self.mono = mono
 
     def build(self):
         # Just set the property so that it's available in kv
@@ -98,24 +108,51 @@ class CrapetteApp(App):
     def new_game(self, player0, player1):
         self.set_menu_visible(False)
 
-        custom_new_game = None
-        seed = None
+        if self.custom:
+            custom_new_game = getattr(custom_test_games, self.custom)
+            Logger.info('Custom game: "%s"', self.custom)
+        else:
+            custom_new_game = None
 
-        if len(sys.argv) >= 2:
-            arg = sys.argv[1]
-            try:
-                seed = int(arg)
-            except ValueError:
-                from crapette import custom_test_games
-
-                custom_new_game = getattr(custom_test_games, arg)
-
-        if seed is None:
-            seed = int.from_bytes(os.urandom(8), "big")
-            Logger.info("Game seed: %d", seed)
-        random.seed(seed)
+            if self.seed is None:
+                self.seed = int.from_bytes(os.urandom(8), "big")
+            Logger.info("Game seed: %d", self.seed)
+            random.seed(self.seed)
         self.game_manager.setup(player0, player1, custom_new_game)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(prog="crapette", description="Play Crapette")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-s",
+        "--seed",
+        type=int,
+        help="Seed for a game, used to replay a given game. The seed of the games are given on game startup.",
+    )
+
+    custom_choices = [
+        f
+        for f in dir(custom_test_games)
+        if not f.startswith("_")
+        and f.islower()
+        and getmodule(getattr(custom_test_games, f)) == custom_test_games
+    ]
+    group.add_argument(
+        "-c",
+        "--custom",
+        choices=custom_choices,
+        help="Name of a predetermined play, for testing purpose.",
+    )
+    parser.add_argument(
+        "--mono",
+        action="store_true",
+        help="Don't run the AI in a separate process. Warning, this could block the interface in case of lengthy computation.",
+    )
+
+    return parser.parse_args()
+
+
 def main():
-    CrapetteApp().run()
+    args = parse_args()
+    CrapetteApp(args.seed, args.custom, args.mono).run()

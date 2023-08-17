@@ -1,15 +1,18 @@
 """Manage the widgets interaction on the game board."""
 
 import multiprocessing
+import random
 import sys
 import typing
 
+from kivy.clock import Clock
 from kivy.logger import Logger
 
 from .brain.brainforce import BrainForce
 from .core.board import Board
 from .core.moves import Flip, FlipWaste, Move
 from .core.piles import WastePile
+from .widgets.card_widget import DEFAULT_FLIP_DURATION, DEFAULT_MOVE_DURATION
 from .widgets.pile_widgets import FoundationPileWidget, PlayerPileWidget
 
 if typing.TYPE_CHECKING:
@@ -31,8 +34,7 @@ class GameManager:
         assert player0 in {"player", "ai"}
         assert player1 in {"player", "remote", "ai"}
 
-        self.player0_type = player0
-        self.player1_type = player1
+        self.player_types = (player0, player1)
 
         self.board = Board()
         if custom_new_game is not None:
@@ -46,6 +48,8 @@ class GameManager:
         else:
             self.set_active_player(self.board_widget.board.compute_first_player())
 
+        self.check_moves()
+
     def set_active_player(self, player: int):
         """Change the active player and updates the GUI accordingly."""
         assert not self.crapette_mode
@@ -54,8 +58,6 @@ class GameManager:
         self.active_player = player
 
         self.board_widget.set_active_player(player)
-
-        self.check_moves()
 
     def check_end_of_turn(self, pile_widget):
         """End the player turn if conditions are met."""
@@ -79,7 +81,9 @@ class GameManager:
             return True
         return False
 
-    def move_card(self, card_widget, pile_widget):
+    def move_card(
+        self, card_widget, pile_widget, duration=DEFAULT_MOVE_DURATION, check_moves=True
+    ):
         """Move a card to another pile and register the move.
 
         It only checks the destination, not if the card was movable by the player.
@@ -95,12 +99,10 @@ class GameManager:
             card_widget.animate_move_to_pile()
             return
 
-        self.board_widget.move_card(card_widget, pile_widget)
+        self.board_widget.move_card(card_widget, pile_widget, duration=duration)
 
         if self.check_win():
             return
-
-        self.check_end_of_turn(pile_widget)
 
         if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
             pile_widget, FoundationPileWidget
@@ -109,15 +111,20 @@ class GameManager:
         else:
             self.last_move = None
 
-        self.check_moves()
+        self.check_end_of_turn(pile_widget)
+        if check_moves:
+            self.check_moves()
 
-    def flip_card_up(self, card_widget):
+    def flip_card_up(
+        self, card_widget, duration=DEFAULT_FLIP_DURATION, check_moves=True
+    ):
         """Flips up the card and register the flip as a move."""
-        self.board_widget.flip_card_up(card_widget)
+        self.board_widget.flip_card_up(card_widget, duration)
 
         self.last_move = Flip(card_widget, card_widget.pile_widget)
 
-        self.check_moves()
+        if check_moves:
+            self.check_moves()
 
     def flip_waste_to_stock(self):
         """When the stock is empty, flip the waste back to the stock."""
@@ -144,15 +151,58 @@ class GameManager:
                 )
 
     def check_moves(self):
-        brain = BrainForce(self.board, self.active_player)
-        if "--mono" in sys.argv[1:]:
-            brain.compute_states()
-        else:
-            if self._brain_process is not None:
-                if self._brain_process.is_alive():
-                    self._brain_process.kill()
-                    self._brain_process.join()
-                self._brain_process.close()
+        if self.active_player is None:
+            return  # End of game
+        if self.player_types[self.active_player] == "ai":
+            brain = BrainForce(self.board, self.active_player)
+            if self.app.mono:
+                moves = brain.compute_states()
+            else:
+                if self._brain_process is not None:
+                    if self._brain_process.is_alive():
+                        self._brain_process.kill()
+                        self._brain_process.join()
+                    self._brain_process.close()
 
-            self._brain_process = multiprocessing.Process(target=brain.compute_states)
-            self._brain_process.start()
+                self._brain_process = multiprocessing.Process(
+                    target=brain.compute_states, daemon=True
+                )
+                self._brain_process.start()
+
+            Clock.schedule_once(
+                lambda _dt: self.ai_play(moves), 0.2  # random.triangular(1, 3)
+            )
+
+    def ai_play(self, moves: list):
+        move = moves.pop(0)
+        print("ai_play", move, moves)
+        duration = 0.1  # random.triangular(0.3, 0.7)
+        if isinstance(move, Move):
+            card_widget = self.board_widget.card_widgets[move.card]
+            for pile_widget in self.board_widget.pile_widgets:
+                if pile_widget.pile == move.destination:
+                    break
+            else:
+                raise RuntimeError(f"Unknown pile {move.destination}")
+            self.move_card(
+                card_widget,
+                pile_widget,
+                duration=duration,
+                check_moves=False,
+            )
+        elif isinstance(move, Flip):
+            self.flip_card_up(
+                self.board_widget.card_widgets[move.card],
+                duration=duration,
+                check_moves=False,
+            )
+        elif isinstance(move, FlipWaste):
+            self.flip_waste_to_stock()
+            duration = 1
+        if moves:
+            Clock.schedule_once(
+                lambda _dt: self.ai_play(moves),
+                duration + 0.1,  # random.triangular(0.1, 0.3)
+            )
+        else:
+            self.check_moves()

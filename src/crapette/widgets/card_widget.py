@@ -17,6 +17,7 @@ if typing.TYPE_CHECKING:
 
 MAX_RANDOM_ANGLE = 5  # °
 DEFAULT_MOVE_DURATION = 0.1  # s
+DEFAULT_FLIP_DURATION = 0.3  # s
 
 
 class CardWidget(ScatterLayout):
@@ -40,7 +41,7 @@ class CardWidget(ScatterLayout):
     def __repr__(self):
         return f"CardWidget({self.card!r})"
 
-    def animate_move_to_pile(self):
+    def animate_move_to_pile(self, duration=DEFAULT_MOVE_DURATION):
         """Animate a card on the board to move to its pile.
 
         It also applies a random rotation error, as if the card was put manually.
@@ -50,10 +51,10 @@ class CardWidget(ScatterLayout):
         """
         animation = Animation(
             center=self.pile_widget.card_pos(),
-            duration=DEFAULT_MOVE_DURATION,
+            duration=duration,
             transition="out_quad",
         )
-        animation &= self.random_rotation_animation_factory()
+        animation &= self.random_rotation_animation_factory(duration)
         animation.start(self)
 
     def update_image(self):
@@ -81,23 +82,23 @@ class CardWidget(ScatterLayout):
             angle += 360
         return Animation(rotation=angle, duration=duration, transition="out_sine")
 
-    def set_face_up(self):
+    def set_face_up(self, duration=DEFAULT_FLIP_DURATION):
         """Flip the card so that the face is up.
 
         This changes the underlying card model accordingly.
         """
         self.card.face_up = True
-        self.flip_animation()
+        self.flip_animation(duration)
 
-    def set_face_down(self):
+    def set_face_down(self, duration=DEFAULT_FLIP_DURATION):
         """Flip the card so that the face is down.
 
         This changes the underlying card model accordingly.
         """
         self.card.face_up = False
-        self.flip_animation()
+        self.flip_animation(duration)
 
-    def flip_animation(self):
+    def flip_animation(self, duration=DEFAULT_FLIP_DURATION):
         """Animate a card flip.
 
         This is only a visual effect, this function doesn't change
@@ -108,7 +109,7 @@ class CardWidget(ScatterLayout):
         center = self.center
 
         # Fade out by reducing the height and compensing the position so that the center doesn't change
-        duration_out = 0.2
+        duration_out = duration * 2 / 3
         animation = Animation(height=0, duration=duration_out, transition="out_sine")
         animation &= Animation(
             center=center, duration=duration_out, transition="out_sine"
@@ -118,11 +119,11 @@ class CardWidget(ScatterLayout):
         animation.on_complete = lambda *args: self.update_image()
 
         # Fade in by restoring the height and the position, while adding a small rotation error
-        duration_in = 0.1
+        duration_in = duration / 3
         animation += (
             Animation(height=height, duration=duration_in, transition="in_sine")
             & Animation(center=center, duration=duration_in, transition="in_sine")
-            & self.random_rotation_animation_factory()
+            & self.random_rotation_animation_factory(DEFAULT_FLIP_DURATION)
         )
         animation.start(self)
 
