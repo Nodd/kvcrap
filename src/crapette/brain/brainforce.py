@@ -2,6 +2,7 @@
 
 import sys
 import timeit
+from operator import attrgetter
 from pprint import pprint
 
 from kivy.logger import Logger
@@ -187,7 +188,7 @@ class BrainDijkstra:
 
     def _select_next_node(self) -> BoardNode | None:
         return min(
-            self.known_nodes_unvisited.values(), default=None, key=lambda o: o.cost
+            self.known_nodes_unvisited.values(), default=None, key=attrgetter("cost")
         )
 
     def compute_search(self):
