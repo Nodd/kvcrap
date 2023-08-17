@@ -63,7 +63,7 @@ class CrapetteApp(App):
 
         self._do_resize_event = None
 
-    def on_window_resize(self, _window, width, height):
+    def on_window_resize(self, _window, width: int, height: int):
         if self._do_resize_event is not None:
             self._do_resize_event.cancel()
 
@@ -72,7 +72,7 @@ class CrapetteApp(App):
             lambda _dt: self.do_resize(width, height), layout_delay_s
         )
 
-    def do_resize(self, width, height):
+    def do_resize(self, width: int, height: int):
         """Delay the layout computing to avoid visual lag."""
         self.card_height = height / Board.NB_ROWS
         self.card_width = self.card_height * CARD_IMG.RATIO
@@ -86,7 +86,7 @@ class CrapetteApp(App):
         game_height = self.card_height * Board.NB_ROWS
         self.wide = width / height > game_width_max / game_height
 
-    def set_menu_visible(self, menu_visible):
+    def set_menu_visible(self, menu_visible: bool):
         ids = self.root.ids
 
         menu = ids["menu"]
@@ -106,7 +106,7 @@ class CrapetteApp(App):
         game_board = ids["game_board"]
         game_board.disabled = menu_visible
 
-    def new_game(self, player0, player1):
+    def new_game(self, player0: str, player1: str):
         self.set_menu_visible(False)
 
         if self.custom:
