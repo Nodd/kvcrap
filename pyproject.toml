@@ -61,6 +61,7 @@ addopts = "--cov crapette"
 testpaths = ["tests"]
 
 [tool.ruff]
+src = ["src", "tests"]
 select = [
     "F",
     "E",

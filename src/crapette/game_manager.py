@@ -2,7 +2,6 @@
 
 import multiprocessing
 import random
-import sys
 import typing
 
 from kivy.clock import Clock

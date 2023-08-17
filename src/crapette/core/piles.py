@@ -6,7 +6,6 @@ from kivy.logger import LOG_LEVELS, Logger
 
 from .cards import Card
 
-
 if Logger.isEnabledFor(LOG_LEVELS["debug"]):
     logger_debug = Logger.debug
 else:
