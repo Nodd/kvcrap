@@ -175,7 +175,7 @@ class GameManager:
 
     def ai_play(self, moves: list):
         move = moves.pop(0)
-        print("ai_play", move, moves)
+        print("ai_play", move)
         duration = 0.1 if self.app.fast else random.triangular(0.3, 0.7)
         if isinstance(move, Move):
             self.move_card(
@@ -199,4 +199,4 @@ class GameManager:
                 duration + 0.1 if self.app.fast else random.triangular(0.5, 0.9),
             )
         else:
-            self.check_moves()
+            Clock.schedule_once(lambda _dt: self.check_moves(), 0.2)
