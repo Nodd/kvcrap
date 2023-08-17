@@ -48,6 +48,7 @@ class CrapetteApp(App):
         super().__init__()
 
         self.seed = seed
+        self.current_seed = seed
         self.custom = custom
         self.mono = mono
         self.fast = fast
@@ -112,13 +113,16 @@ class CrapetteApp(App):
         if self.custom:
             custom_new_game = getattr(custom_test_games, self.custom)
             Logger.info('Custom game: "%s"', self.custom)
+            self.current_seed = self.custom
         else:
             custom_new_game = None
 
             if self.seed is None:
-                self.seed = int.from_bytes(os.urandom(8), "big")
-            Logger.info("Game seed: %d", self.seed)
-            random.seed(self.seed)
+                self.current_seed = int.from_bytes(os.urandom(8), "big")
+            else:
+                self.current_seed = self.seed
+            Logger.info("Game seed: %d", self.current_seed)
+            random.seed(self.current_seed)
         self.game_manager.setup(player0, player1, custom_new_game)
 
 
