@@ -19,8 +19,8 @@ class BoardWidget(BoxLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.pile_widgets: list[PileWidget] = None
-        self.card_widgets: dict[Card, CardWidget] = None
+        self.pile_widgets: list[PileWidget] = []
+        self.card_widgets: dict[Card, CardWidget] = {}
 
         self.game_manager = None
         self._do_layout_event = None
@@ -99,8 +99,6 @@ class BoardWidget(BoxLayout):
 
     def place_cards(self):
         """Reset the card widget positions in the piles."""
-        if not self.pile_widgets:
-            return
         for pile_widget in self.pile_widgets:
             for index, card in enumerate(pile_widget.pile):
                 card_widget = self.card_widgets[card]
