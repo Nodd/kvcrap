@@ -115,12 +115,21 @@ class BoardWidget(BoxLayout):
     def update_counts(self):
         """Update displayed card counts."""
         for player in range(self.board.NB_PLAYERS):
-            stock_pile = self.ids[f"player{player}stock"].pile
-            crape_pile = self.ids[f"player{player}crape"].pile
+            nb_stock = len(self.ids[f"player{player}stock"].pile)
+            nb_waste = len(self.ids[f"player{player}waste"].pile)
             stock_label = self.ids[f"player{player}stockcount"]
+            stock_label.text = f"{nb_stock}+{nb_waste}" if nb_stock or nb_waste else ""
+
+            crape_pile = self.ids[f"player{player}crape"].pile
             crape_label = self.ids[f"player{player}crapecount"]
-            stock_label.text = str(len(stock_pile)) if stock_pile else ""
-            crape_label.text = str(len(crape_pile)) if crape_pile else ""
+            if crape_pile:
+                cards_up = len([c for c in crape_pile if c.face_up])
+                cards_down = len(crape_pile) - cards_up
+                crape_label.text = (
+                    f"{cards_down}+{cards_up}" if cards_up else str(cards_down)
+                )
+            else:
+                crape_label.text = ""
 
     def move_card(
         self,
@@ -168,6 +177,7 @@ class BoardWidget(BoxLayout):
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card widget."""
         card_widget.set_face_up(duration)
+        self.update_counts()
 
     def flip_pile(self, pile_widget: PileWidget):
         # Update cards
@@ -176,6 +186,7 @@ class BoardWidget(BoxLayout):
             card_widget = self.card_widgets[card]
             card_widget.update_image()
             self.put_on_top(card_widget)
+        self.update_counts()
 
     def flip_waste_to_stock(self, player: int):
         """When the stock is empty, flip the waste back to the stock."""
