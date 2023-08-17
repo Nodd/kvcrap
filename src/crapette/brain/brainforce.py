@@ -2,9 +2,12 @@
 
 import sys
 import timeit
+from datetime import datetime
 from operator import attrgetter
+from pathlib import Path
 from pprint import pprint
 
+from kivy.app import App
 from kivy.logger import Logger
 
 from crapette.core.board import Board, HashBoard
@@ -203,17 +206,26 @@ class BrainDijkstra:
         max_score = BoardScore.WORSE
         best_node = None
 
+        app = App.get_running_app()
+        path = Path(__file__).parent / "log" / str(app.current_seed)
+        path.mkdir(parents=True, exist_ok=True)
+        path = path / f"log_{datetime.now()}.txt"
+
         next_node = self._select_next_node()
         nb_nodes = 0
-        while next_node is not None:
-            # print(next_node.board.to_text())
-            next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
-            if next_node.score > max_score:
-                max_score = next_node.score
-                best_node = next_node
+        with path.open("w") as f:
+            while next_node is not None:
+                # print(next_node.board.to_text())
+                f.write(f"{nb_nodes}\n")
+                f.write(next_node.board.to_text())
+                f.write("\n\n***\n\n")
+                next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
+                if next_node.score > max_score:
+                    max_score = next_node.score
+                    best_node = next_node
 
-            next_node = self._select_next_node()
-            nb_nodes += 1
+                next_node = self._select_next_node()
+                nb_nodes += 1
         return best_node, nb_nodes
 
 
