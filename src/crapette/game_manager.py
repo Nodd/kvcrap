@@ -3,6 +3,8 @@
 import multiprocessing
 import random
 import typing
+from datetime import datetime
+from pathlib import Path
 
 from kivy.clock import Clock
 from kivy.logger import Logger
@@ -32,6 +34,8 @@ class GameManager:
         self.board_widget: BoardWidget = self.ids["game_board"]
 
         self._brain_process = None
+        self.step = 0
+        self.log_path = None
 
     def setup(self, player0: str, player1: str, custom_new_game=None):
         assert player0 in {"player", "ai"}
@@ -50,6 +54,11 @@ class GameManager:
             self.set_active_player(0)
         else:
             self.set_active_player(self.board_widget.board.compute_first_player())
+
+        self.step = 0
+        self.log_path = Path(__file__).parent / "log"
+        self.log_path.mkdir(parents=True, exist_ok=True)
+        self.log_path = self.log_path / f"{self.app.current_seed}_{datetime.now()}.txt"
 
         self.check_moves()
 
@@ -108,6 +117,10 @@ class GameManager:
 
         self.board_widget.move_card(card_widget, pile_widget, duration=duration)
 
+        self.log_game_step(
+            f"move {card_widget.card.str_rank_suit} from {old_pile_widget.pile.name} to {pile_widget.pile.name}"
+        )
+
         if self.check_win():
             return
 
@@ -123,10 +136,12 @@ class GameManager:
             self.check_moves()
 
     def flip_card_up(
-        self, card_widget, duration=DEFAULT_FLIP_DURATION, check_moves=True
+        self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION, check_moves=True
     ):
         """Flips up the card and register the flip as a move."""
         self.board_widget.flip_card_up(card_widget, duration)
+
+        self.log_game_step(f"flip card up in {card_widget.pile_widget.pile.name}")
 
         self.last_move = Flip(card_widget, card_widget.pile_widget)
 
@@ -136,6 +151,8 @@ class GameManager:
     def flip_waste_to_stock(self):
         """When the stock is empty, flip the waste back to the stock."""
         self.board_widget.flip_waste_to_stock(self.active_player)
+
+        self.log_game_step("flip waste to stock")
 
         self.last_move = FlipWaste()
 
@@ -183,7 +200,7 @@ class GameManager:
 
     def ai_play(self, moves: list):
         move = moves.pop(0)
-        print("ai_play", move)
+        print("ai_play", self.step, move)
         duration = 0.1 if self.app.fast else random.triangular(0.3, 0.7)
         if isinstance(move, Move):
             self.move_card(
@@ -208,3 +225,10 @@ class GameManager:
             )
         else:
             Clock.schedule_once(lambda _dt: self.check_moves(), 0.2)
+
+    def log_game_step(self, action):
+        self.step += 1
+
+        with self.log_path.open("a") as f:
+            f.write(f"\n\n*** {self.step} ***\nPlayer {self.active_player}: {action}\n")
+            f.write(self.board.to_text())

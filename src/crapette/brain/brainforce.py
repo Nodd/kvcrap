@@ -231,9 +231,9 @@ class BrainDijkstra:
         best_node = None
 
         app = App.get_running_app()
-        path = Path(__file__).parent / "log" / str(app.current_seed)
+        path = app.game_manager.log_path.with_suffix("")
         path.mkdir(parents=True, exist_ok=True)
-        path = path / f"log_{datetime.now()}.txt"
+        path = path / f"log_{app.game_manager.step}.txt"
 
         next_node = self._select_next_node()
         nb_nodes = 0
