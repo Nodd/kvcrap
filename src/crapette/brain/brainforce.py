@@ -239,19 +239,20 @@ class BrainDijkstra:
         nb_nodes = 0
         with path.open("w") as f:
             while next_node is not None:
+                nb_nodes += 1
+                next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
+                if next_node.score > max_score:
+                    max_score = next_node.score
+                    best_node = next_node
+
                 # print(next_node.board.to_text())
                 f.write(f"{nb_nodes}\n")
                 f.write(next_node.board.to_text())
                 f.write(
                     f"\n{len(self.known_nodes)} known nodes\n{len(self.known_nodes_unvisited)} unvisited\n\n***\n\n"
                 )
-                next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
-                if next_node.score > max_score:
-                    max_score = next_node.score
-                    best_node = next_node
 
                 next_node = self._select_next_node()
-                nb_nodes += 1
         return best_node, nb_nodes
 
 
