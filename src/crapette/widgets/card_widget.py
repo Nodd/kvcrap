@@ -10,10 +10,11 @@ from kivy.logger import Logger
 from kivy.properties import StringProperty
 from kivy.uix.scatterlayout import ScatterLayout
 
+from crapette.core.cards import Card
 from crapette.images.card_data import card2img
 
 if typing.TYPE_CHECKING:
-    from .pile_widgets import Pile
+    from .pile_widgets import PileWidget
 
 MAX_RANDOM_ANGLE = 5  # °
 DEFAULT_MOVE_DURATION = 0.1  # s
@@ -25,12 +26,12 @@ class CardWidget(ScatterLayout):
 
     source = StringProperty()
 
-    def __init__(self, card, game_manager):
+    def __init__(self, card: Card, game_manager):
         self.card = card
         self.source = card2img(card)
         self.game_manager = game_manager
 
-        self.pile_widget: Pile | None = None
+        self.pile_widget: PileWidget | None = None
         self._moving = False
         self._flipping = False
         self.main_rotation = 0

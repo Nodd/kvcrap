@@ -11,8 +11,12 @@ from .brain.brainforce import BrainForce
 from .core.board import Board
 from .core.moves import Flip, FlipWaste, Move
 from .core.piles import WastePile
-from .widgets.card_widget import DEFAULT_FLIP_DURATION, DEFAULT_MOVE_DURATION
-from .widgets.pile_widgets import FoundationPileWidget, PlayerPileWidget
+from .widgets.card_widget import (
+    DEFAULT_FLIP_DURATION,
+    DEFAULT_MOVE_DURATION,
+    CardWidget,
+)
+from .widgets.pile_widgets import FoundationPileWidget, PileWidget, PlayerPileWidget
 
 if typing.TYPE_CHECKING:
     from .widgets.board_widget import BoardWidget
@@ -81,7 +85,11 @@ class GameManager:
         return False
 
     def move_card(
-        self, card_widget, pile_widget, duration=DEFAULT_MOVE_DURATION, check_moves=True
+        self,
+        card_widget: CardWidget,
+        pile_widget: PileWidget,
+        duration=DEFAULT_MOVE_DURATION,
+        check_moves=True,
     ):
         """Move a card to another pile and register the move.
 
