@@ -2,9 +2,7 @@
 
 import sys
 import timeit
-from datetime import datetime
 from operator import attrgetter
-from pathlib import Path
 from pprint import pprint
 
 from kivy.app import App
