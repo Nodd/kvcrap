@@ -147,14 +147,12 @@ class Board:
         ]
         str_lines.append("".join(line))
 
-        tableau_piles = sorted(self.tableau_piles)
-
         for tableau_row in range(self.FOUNDATIONS_PER_PLAYER):
             index_left = tableau_row + 4  # 4, 5, 6, 7
             index_right = 3 - tableau_row  # 3, 2, 1, 0
 
-            tableau_pile_left = tableau_piles[index_left]
-            tableau_pile_right = tableau_piles[index_right]
+            tableau_pile_left = self.tableau_piles[index_left]
+            tableau_pile_right = self.tableau_piles[index_right]
             foundation_pile_left = self.foundation_piles[index_left]
             foundation_pile_right = self.foundation_piles[index_right]
 
