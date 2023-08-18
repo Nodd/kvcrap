@@ -13,7 +13,7 @@ from kivy.logger import Logger
 from crapette.core.board import Board, HashBoard
 from crapette.core.cards import Card
 from crapette.core.moves import Flip, FlipWaste, Move
-from crapette.core.piles import FoundationPile, TableauPile, _PlayerPile
+from crapette.core.piles import FoundationPile, Pile, TableauPile, _PlayerPile
 
 sys.setrecursionlimit(10**5)
 
@@ -87,8 +87,8 @@ class BoardNode:
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
             return
 
-        piles_orig = self.piles_orig()
         piles_dest = self.piles_dest()
+        piles_orig = self.piles_orig(piles_dest)
 
         # Check all possible origin piles
         for pile_orig in piles_orig:
@@ -102,9 +102,11 @@ class BoardNode:
             # Check all possible destination piles for each possible origin pile
             for pile_dest in piles_dest:
                 # Check if the move is possible
-                if pile_dest is pile_orig or not pile_dest.can_add_card(
-                    card, pile_orig, self.player
-                ):
+                if not pile_dest.can_add_card(card, pile_orig, self.player):
+                    continue
+
+                # Avoid noop move
+                if pile_dest.name == pile_orig.name:
                     continue
 
                 # Avoid equivalent moves with empty piles on the tableau
@@ -124,34 +126,56 @@ class BoardNode:
                 ):
                     continue
 
-                # Instantiate neighbor
-                next_board = self.board.with_move(pile_orig, pile_dest, card)
-                hash(next_board)
+                self.register_next_board(
+                    Move(card, pile_orig, pile_dest), known_nodes, known_nodes_unvisited
+                )
 
-                # Compute the cost
-                move = Move(card, pile_orig, pile_dest)
-                cost = (*self.cost, compute_move_cost(move))
-                try:
-                    next_board_node = known_nodes[next_board]
-                except KeyError:
-                    # Add this unknown new board
-                    next_board_node = BoardNode(next_board, self.player)
-                    known_nodes[next_board] = next_board_node
-                    known_nodes_unvisited[next_board] = next_board_node
-                else:
-                    # Skip if cost is higher
-                    if next_board_node.visited or cost > next_board_node.cost:
-                        continue
-                next_board_node.cost = cost
-                next_board_node.moves = [*self.moves, move]
+    def register_next_board(self, move, known_nodes, known_nodes_unvisited):
+        # Instantiate neighbor
+        next_board = self.board.with_move(move)
+        hash(next_board)
 
-    def piles_orig(self):
+        # Compute the cost
+        cost = (*self.cost, compute_move_cost(move))
+        try:
+            next_board_node = known_nodes[next_board]
+        except KeyError:
+            # Add this unknown new board
+            next_board_node = BoardNode(next_board, self.player)
+            known_nodes[next_board] = next_board_node
+            known_nodes_unvisited[next_board] = next_board_node
+        else:
+            # Skip if cost is higher
+            if next_board_node.visited or cost > next_board_node.cost:
+                return
+        next_board_node.cost = cost
+        next_board_node.moves = [*self.moves, move]
+
+    def piles_orig(self, piles_dest: list[Pile]):
         """Piles to take cards from."""
-        player_piles = self.board.players_piles[self.player]
-        piles_orig = *self.board.tableau_piles, player_piles.crape, player_piles.stock
+        # Consider only tableau piles containing card that could go elsewhere
+        piles_dest = [p for p in piles_dest if not p.is_empty]
+        tableau_piles = (p for p in self.board.tableau_piles if not p.is_empty)
+        piles_orig = []
 
-        # Return only piles with top card available
-        return [p for p in piles_orig if not p.is_empty and p.face_up]
+        for tableau_pile in tableau_piles:
+            self._any_card_can_move(tableau_pile, piles_dest, piles_orig)
+
+        # Add only player piles with top card available
+        player_piles = self.board.players_piles[self.player]
+        if not player_piles.crape.is_empty and player_piles.crape.face_up:
+            piles_orig.append(player_piles.crape)
+        if not player_piles.stock.is_empty and player_piles.stock.face_up:
+            piles_orig.append(player_piles.stock)
+
+        return piles_orig
+
+    def _any_card_can_move(self, tableau_pile, piles_dest, piles_orig):
+        for card in tableau_pile:
+            for pile in piles_dest:
+                if pile.can_add_card(card, tableau_pile, self.player):
+                    piles_orig.append(tableau_pile)
+                    return
 
     def piles_dest(self):
         """Piles to put cards to."""

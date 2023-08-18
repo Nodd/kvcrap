@@ -1,7 +1,8 @@
 """Initialization and data for a crapette game board backend."""
 
 from .cards import Card, new_deck
-from .piles import FoundationPile, Pile, TableauPile, player_piles
+from .moves import Move
+from .piles import FoundationPile, TableauPile, player_piles
 
 
 class Board:
@@ -214,10 +215,10 @@ class HashBoard(Board):
 
         self._hash_cache = None
 
-    def with_move(self, pile_orig: Pile, pile_dest: Pile, card: Card):
+    def with_move(self, move: Move):
         new = HashBoard(self)
-        new.get_pile(pile_orig)._cards = pile_orig._cards[:-1]
-        new.get_pile(pile_dest)._cards = [*pile_dest._cards, card]
+        new.get_pile(move.origin)._cards = move.origin._cards[:-1]
+        new.get_pile(move.destination)._cards = [*move.destination._cards, move.card]
         return new
 
     def sorted_foundation_piles_indexed(self, suit_index: int):
