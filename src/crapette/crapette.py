@@ -126,7 +126,7 @@ class CrapetteApp(App):
         self.game_manager.setup(player0, player1, custom_new_game)
 
 
-def parse_args():
+def parse_args(args):
     parser = argparse.ArgumentParser(prog="crapette", description="Play Crapette")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -161,9 +161,9 @@ def parse_args():
         help="Speed up the AI animations.",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
-def main():
-    args = parse_args()
+def main(args):
+    args = parse_args(args)
     CrapetteApp(args.seed, args.custom, args.mono, args.fast).run()
