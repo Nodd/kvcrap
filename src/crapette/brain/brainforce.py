@@ -242,7 +242,9 @@ class BrainDijkstra:
                 # print(next_node.board.to_text())
                 f.write(f"{nb_nodes}\n")
                 f.write(next_node.board.to_text())
-                f.write("\n\n***\n\n")
+                f.write(
+                    f"\n{len(self.known_nodes)} known nodes\n{len(self.known_nodes_unvisited)} unvisited\n\n***\n\n"
+                )
                 next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
                 if next_node.score > max_score:
                     max_score = next_node.score
