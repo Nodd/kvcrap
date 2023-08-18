@@ -32,8 +32,7 @@ class BrainForce:
         Logger.debug("compute_states for player %s", self.player)
 
         start_time = timeit.default_timer()
-        best_node, nb_nodes = BrainDijkstra(self.board, self.player).compute_search()
-        moves = best_node.moves
+        moves, nb_nodes = BrainDijkstra(self.board, self.player).compute_search()
 
         if not moves:
             player_piles = self.board.players_piles[self.player]
@@ -253,7 +252,8 @@ class BrainDijkstra:
                 )
 
                 next_node = self._select_next_node()
-        return best_node, nb_nodes
+
+        return best_node.moves, nb_nodes
 
 
 class BoardScore:
