@@ -26,6 +26,7 @@ class BoardWidget(BoxLayout):
 
         self.game_config = None
         self._do_layout_event = None
+        self._piles_widgets_name_cache = {}
 
     def do_layout(self, *args, **kwargs):
         """Delay the layout computing to avoid visual lag."""
@@ -78,12 +79,10 @@ class BoardWidget(BoxLayout):
         for foundation, foundation_pile in enumerate(self.board.foundation_piles):
             self.pile_widgets.append(self.ids[f"foundation{foundation}"])
             self.ids[f"foundation{foundation}"].set_pile(foundation_pile)
+        self._piles_widgets_name_cache = {p.pile.name: p for p in self.pile_widgets}
 
     def widget_from_pile(self, pile: Pile):
-        for pile_widget in self.pile_widgets:
-            if pile_widget.pile.name == pile.name:
-                return pile_widget
-        raise RuntimeError(f"Unknown pile {pile}")
+        return self._piles_widgets_name_cache[pile.name]
 
     def setup_card_widgets(self):
         """Create and add a widget for every card.

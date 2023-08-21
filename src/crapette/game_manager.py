@@ -256,12 +256,12 @@ class GameManager:
             self.flip_waste_to_stock()
             duration = 0.1 if self.app.app_config.fast_animations else 1
         if moves:
-            Clock.schedule_once(
-                lambda _dt: self.ai_play(moves),
-                duration + 0.1
+            duration += (
+                0.1
                 if self.app.app_config.fast_animations
-                else random.triangular(0.5, 0.9),
+                else random.triangular(0.5, 0.9)
             )
+            Clock.schedule_once(lambda _dt: self.ai_play(moves), duration)
         else:
             Clock.schedule_once(lambda _dt: self.check_moves(), 0.2)
 
