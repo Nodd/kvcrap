@@ -161,7 +161,7 @@ class BoardNode:
     def register_next_board(self, move: Move, known_nodes, known_nodes_unvisited):
         # Instantiate neighbor
         next_board = self.board.with_move(move)
-        hash(next_board)
+        hash(next_board)  # Cache hash
 
         # Compute the cost
         cost = self.cost + (0 if isinstance(move.destination, FoundationPile) else 1)
@@ -180,7 +180,10 @@ class BoardNode:
         next_board_node.moves = [*self.moves, move]
         next_board_node.board = next_board  # Keep board synchronized with moves, to avoid conflicts between equivalenrt but different boards
 
-    def piles_orig(self, foundation_dest: list[FoundationPile], other_dest: list[Pile]):
+    @profile
+    def piles_orig(
+        self, foundation_dest: list[FoundationPile], other_dest: list[Pile]
+    ) -> list[Pile]:
         """Piles to take cards from."""
         # Look for potential interesting moves
         # Don't consider empty enemy or tableau piles as useful move
@@ -223,7 +226,7 @@ class BoardNode:
                     piles_accum.append(tableau_pile)
                     return
 
-    def piles_dest(self):
+    def piles_dest(self) -> tuple[list[Pile]]:
         """Piles to put cards to."""
         enemy_piles = self.board.players_piles[1 - self.player]
         tableau_piles = self.board.tableau_piles
