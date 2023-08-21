@@ -29,7 +29,7 @@ class Card:
         self._suit = suit
         self._player = player
         self._face_up = False
-        self._color = "red" if suit in self.RED else "black"
+        self._color = "r" if suit in self.RED else "b"
         self._hash = hash((self._rank, self._suit, self._player))
         # Like a hash, but uses only suit and rank
         self.id = ord(self._suit) * 100 + self._rank

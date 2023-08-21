@@ -210,8 +210,8 @@ class TableauPile(Pile):
         different from the card color and the rank is just below.
         """
         return not self._cards or (
-            not card.is_same_color(self.top_card)
-            and card.rank == self.top_card.rank - 1
+            card.rank == self.top_card.rank - 1
+            and not card.is_same_color(self.top_card)
         )
 
     def can_pop_card(self, player):
@@ -287,16 +287,14 @@ class CrapePile(_PlayerPile):
 
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile."""
-        if (
-            self._player == player
-            or self.is_empty
-            or not self.top_card.face_up
-            or card.suit != self.top_card.suit
-        ):
-            return False
-
-        # Faster than card.rank in [rank - 1, rank + 1]
-        return abs(card.rank - self.top_card.rank) == 1
+        return (
+            self._player != player
+            and self._cards
+            and (top_card := self.top_card).face_up
+            and card.suit == top_card.suit
+            # Faster than card.rank in [rank - 1, rank + 1]
+            and abs(card.rank - top_card.rank) == 1
+        )
 
 
 class PlayerPiles(NamedTuple):
