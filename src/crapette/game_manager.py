@@ -255,6 +255,8 @@ class GameManager:
         elif isinstance(move, FlipWaste):
             self.flip_waste_to_stock()
             duration = 0.1 if self.app.app_config.fast_animations else 1
+        else:
+            raise RuntimeError(f"Unknown move: {move}")
         if moves:
             duration += (
                 0.1
