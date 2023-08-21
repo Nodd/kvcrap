@@ -159,7 +159,9 @@ class BoardNode:
             known_nodes_unvisited[next_board] = next_board_node
         else:
             # Skip if cost is higher
-            if next_board_node.visited or cost > next_board_node.cost:
+            # It's important to skip if the boards are equals,
+            # because they are equivalent but not strictly identic
+            if next_board_node.visited or cost >= next_board_node.cost:
                 return
         next_board_node.cost = cost
         next_board_node.moves = [*self.moves, move]
