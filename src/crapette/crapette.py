@@ -3,8 +3,7 @@
 Mostly used for initialisation and use of .kv file.
 """
 import argparse
-import os
-import random
+import dataclasses
 from inspect import getmodule
 from pathlib import Path
 
@@ -24,6 +23,7 @@ from . import (
     custom_test_games,
     widgets,  # ruff: noqa: F401
 )
+from .brain.brainforce import BrainConfig
 from .core.board import Board
 from .game_manager import GameManager
 from .images.card_data import CARD_IMG
@@ -32,6 +32,15 @@ kivy.require("1.10.0")
 kivy.resources.resource_add_path(str(Path(__file__).parent))
 kivy.config.Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Logger.setLevel(LOG_LEVELS["info"])  # debug, info, warning, error, critical, trace
+
+
+@dataclasses.dataclass
+class AppConfig:
+    input_seed: int | None = None
+    custom_game: str | None = None
+    fast_animations: bool = False
+
+    ai: BrainConfig = dataclasses.field(default_factory=BrainConfig)
 
 
 # main app
@@ -44,14 +53,21 @@ class CrapetteApp(App):
     card_overlap: int = NumericProperty()
     wide: bool = BooleanProperty()
 
-    def __init__(self, seed: int | None, custom: str | None, mono: bool, fast: bool):
+    def __init__(
+        self,
+        seed: int | None,
+        custom: str | None,
+        fast: bool,
+        ai_shortcut: bool,
+        ai_mono: bool,
+    ):
         super().__init__()
 
-        self.seed = seed
-        self.current_seed = seed
-        self.custom = custom
-        self.mono = mono
-        self.fast = fast
+        self.app_config = AppConfig(
+            input_seed=seed, custom_game=custom, fast_animations=fast
+        )
+        self.app_config.ai.shortcut = ai_shortcut
+        self.app_config.ai.mono = ai_mono
 
     def build(self):
         # Just set the property so that it's available in kv
@@ -110,20 +126,9 @@ class CrapetteApp(App):
     def new_game(self, player0: str, player1: str):
         self.set_menu_visible(False)
 
-        if self.custom:
-            custom_new_game = getattr(custom_test_games, self.custom)
-            Logger.info('Custom game: "%s"', self.custom)
-            self.current_seed = self.custom
-        else:
-            custom_new_game = None
-
-            if self.seed is None:
-                self.current_seed = int.from_bytes(os.urandom(8), "big")
-            else:
-                self.current_seed = self.seed
-            Logger.info("Game seed: %d", self.current_seed)
-            random.seed(self.current_seed)
-        self.game_manager.setup(player0, player1, custom_new_game)
+        self.game_manager.setup(
+            player0, player1, self.app_config.input_seed, self.app_config.custom_game
+        )
 
 
 def parse_args(args):
@@ -150,15 +155,21 @@ def parse_args(args):
         help="Name of a predetermined play, for testing purpose.",
     )
     parser.add_argument(
-        "--mono",
-        action="store_true",
-        help="Don't run the AI in a separate process. Warning, this could block the interface in case of lengthy computation.",
-    )
-    parser.add_argument(
         "-f",
         "--fast",
         action="store_true",
-        help="Speed up the AI animations.",
+        help="Speed up the animations.",
+    )
+    ai_group = parser.add_argument_group("AI", "Options to control the AI behavior.")
+    ai_group.add_argument(
+        "--shortcut",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
+    ai_group.add_argument(
+        "--mono",
+        action=argparse.BooleanOptionalAction,
+        default=True,
     )
 
     return parser.parse_args(args)
@@ -166,4 +177,4 @@ def parse_args(args):
 
 def main(args):
     args = parse_args(args)
-    CrapetteApp(args.seed, args.custom, args.mono, args.fast).run()
+    CrapetteApp(args.seed, args.custom, args.fast, args.shortcut, args.mono).run()

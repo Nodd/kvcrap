@@ -1,9 +1,11 @@
 """IA for playing the crapette."""
 
+import dataclasses
 import sys
 import timeit
 from operator import attrgetter
 from pprint import pprint
+from typing import TYPE_CHECKING
 
 from kivy.app import App
 from kivy.logger import Logger
@@ -13,6 +15,9 @@ from crapette.core.cards import Card
 from crapette.core.moves import Flip, FlipWaste, Move
 from crapette.core.piles import FoundationPile, Pile, TableauPile, _PlayerPile
 
+if TYPE_CHECKING:
+    from crapette.game_manager import GameConfig
+
 sys.setrecursionlimit(10**5)
 
 # if os.name == "nt":
@@ -20,20 +25,30 @@ sys.setrecursionlimit(10**5)
 #     sys.stdout = open(1, "w", encoding="utf-8", closefd=False)  # fd 1 is stdout
 
 
+@dataclasses.dataclass
+class BrainConfig:
+    shortcut: bool = True
+    mono: bool = True
+
+
+MAX_COST = float("inf")
+
+
 class BrainForce:
-    def __init__(self, board: Board, player: int):
-        self.board = board
-        self.player = player
+    def __init__(self, game_config: "GameConfig"):
+        self.game_config = game_config
 
     def compute_states(self):
         Logger.debug("*" * 50)
-        Logger.debug("compute_states for player %s", self.player)
+        Logger.debug("compute_states for player %s", self.game_config.active_player)
 
         start_time = timeit.default_timer()
-        moves, nb_nodes = BrainDijkstra(self.board, self.player).compute_search()
+        moves, nb_nodes = BrainDijkstra(self.game_config).compute_search()
 
         if not moves:
-            player_piles = self.board.players_piles[self.player]
+            player_piles = self.game_config.board.players_piles[
+                self.game_config.active_player
+            ]
             crape = player_piles.crape
             stock = player_piles.stock
             if crape and not crape.top_card.face_up:
@@ -46,16 +61,16 @@ class BrainForce:
                 moves = [Move(stock.top_card, stock, player_piles.waste)]
             # TODO: manage the case of an empty stock and non-empty crape
 
-        elapsed = timeit.default_timer() - start_time
-        Logger.info(
-            "AI time: %gs for %d possibilities (%.3fms each on avearge)",
-            elapsed,
-            nb_nodes,
-            elapsed / nb_nodes * 1000,
-        )
-        print("Conclusion :")
-        pprint(moves)
-        print(flush=True)
+        # elapsed = timeit.default_timer() - start_time
+        # Logger.info(
+        #     "AI time: %gs for %d possibilities (%.3fms each on avearge)",
+        #     elapsed,
+        #     nb_nodes,
+        #     elapsed / nb_nodes * 1000,
+        # )
+        # print("Conclusion :")
+        # pprint(moves)
+        # print(flush=True)
         return moves
 
 
@@ -66,7 +81,7 @@ class BoardNode:
         self.board = board
         self.player = player
 
-        self.cost: tuple = MAX_COST
+        self.cost = MAX_COST
         self.score = BoardScore(self.board, self.player).score
         self.visited: bool = False
         self.moves: list = []
@@ -84,8 +99,9 @@ class BoardNode:
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
             return
 
-        piles_dest = self.piles_dest()
-        piles_orig = self.piles_orig(piles_dest)
+        foundation_dest, other_dest = self.piles_dest()
+        piles_dest = foundation_dest + other_dest
+        piles_orig = self.piles_orig(foundation_dest, other_dest)
 
         # Check all possible origin piles
         for pile_orig in piles_orig:
@@ -127,13 +143,13 @@ class BoardNode:
                     Move(card, pile_orig, pile_dest), known_nodes, known_nodes_unvisited
                 )
 
-    def register_next_board(self, move, known_nodes, known_nodes_unvisited):
+    def register_next_board(self, move: Move, known_nodes, known_nodes_unvisited):
         # Instantiate neighbor
         next_board = self.board.with_move(move)
         hash(next_board)
 
         # Compute the cost
-        cost = (*self.cost, compute_move_cost(move))
+        cost = self.cost + (0 if isinstance(move.destination, FoundationPile) else 1)
         try:
             next_board_node = known_nodes[next_board]
         except KeyError:
@@ -148,30 +164,46 @@ class BoardNode:
         next_board_node.cost = cost
         next_board_node.moves = [*self.moves, move]
 
-    def piles_orig(self, piles_dest: list[Pile]):
+    def piles_orig(self, foundation_dest: list[FoundationPile], other_dest: list[Pile]):
         """Piles to take cards from."""
-        # Consider only tableau piles containing card that could go elsewhere
-        piles_dest = [p for p in piles_dest if not p.is_empty]
-        tableau_piles = (p for p in self.board.tableau_piles if not p.is_empty)
-        piles_orig = []
+        # Don't consider empty piles as useful move
+        other_dest = [p for p in other_dest if not p.is_empty]
+        piles_dest = foundation_dest + other_dest
+        tableau_piles = [p for p in self.board.tableau_piles if not p.is_empty]
 
+        # Keeps only tableau piles containing card that could go elsewhere
+        piles_accum = []
         for tableau_pile in tableau_piles:
-            self._any_card_can_move(tableau_pile, piles_dest, piles_orig)
+            self._any_card_can_move(tableau_pile, piles_dest, piles_accum)
+
+        # Consider first the piles where the card can go on the foundation,
+        # then the smallest piles
+        piles_accum.sort(
+            key=lambda pile: (
+                any(
+                    not p.can_add_card(pile.top_card, pile, self.player)
+                    for p in foundation_dest
+                ),
+                len(pile),
+            ),
+        )
 
         # Add only player piles with top card available
         player_piles = self.board.players_piles[self.player]
         if not player_piles.crape.is_empty and player_piles.crape.face_up:
-            piles_orig.append(player_piles.crape)
+            piles_accum.append(player_piles.crape)
         if not player_piles.stock.is_empty and player_piles.stock.face_up:
-            piles_orig.append(player_piles.stock)
+            piles_accum.append(player_piles.stock)
 
-        return piles_orig
+        return piles_accum
 
-    def _any_card_can_move(self, tableau_pile, piles_dest, piles_orig):
+    def _any_card_can_move(
+        self, tableau_pile: TableauPile, piles_dest: list[Pile], piles_accum: list[Pile]
+    ):
         for card in tableau_pile:
             for pile in piles_dest:
                 if pile.can_add_card(card, tableau_pile, self.player):
-                    piles_orig.append(tableau_pile)
+                    piles_accum.append(tableau_pile)
                     return
 
     def piles_dest(self):
@@ -179,15 +211,16 @@ class BoardNode:
         enemy_piles = self.board.players_piles[1 - self.player]
         tableau_piles = self.board.tableau_piles
 
-        # Check only one empty pile in tableau since all empty piles are equivalent
+        # Check only unique piles in tableau
+        # An important case is multiple empty piles
         tableau_piles_filtered = []
-        has_empty = False
         for p in tableau_piles:
-            if p.is_empty:
-                if has_empty:
-                    continue
-                has_empty = True
-            tableau_piles_filtered.append(p)
+            for p2 in tableau_piles_filtered:
+                if p._cards == p2._cards:
+                    break
+            else:
+                tableau_piles_filtered.append(p)
+        tableau_piles_filtered.sort(key=len, reverse=True)  # Try big piles first
 
         # If both fondations are the same, keep only one
         foundation_piles_filtered = self.board.foundation_piles[: Card.NB_SUITS]
@@ -199,8 +232,7 @@ class BoardNode:
             if p1 != p2:
                 foundation_piles_filtered.append(p1)
 
-        return [
-            *foundation_piles_filtered,
+        return foundation_piles_filtered, [
             *tableau_piles_filtered,
             enemy_piles.crape,
             enemy_piles.waste,
@@ -208,29 +240,32 @@ class BoardNode:
 
 
 class BrainDijkstra:
-    def __init__(self, board: Board, player: int) -> None:
-        hash_board = HashBoard(board)
+    def __init__(self, game_config: "GameConfig") -> None:
+        self.game_config = game_config
+        hash_board = HashBoard(self.game_config.board)
 
         # Initialize
-        first_node = BoardNode(hash_board, player)
-        first_node.cost = ()
+        first_node = BoardNode(hash_board, self.game_config.active_player)
+        first_node.cost = 0
         first_node.moves = []
         self.known_nodes = {hash_board: first_node}
         self.known_nodes_unvisited = {hash_board: first_node}
 
     def _select_next_node(self) -> BoardNode | None:
         return min(
-            self.known_nodes_unvisited.values(), default=None, key=attrgetter("cost")
+            self.known_nodes_unvisited.values(),
+            default=None,
+            key=attrgetter("cost", "score"),
         )
 
     def compute_search(self):
+        app_config = App.get_running_app().app_config
         max_score = BoardScore.WORSE
         best_node = None
 
-        app = App.get_running_app()
-        path = app.game_manager.log_path.with_suffix("")
+        path = self.game_config.log_path.with_suffix("")
         path.mkdir(parents=True, exist_ok=True)
-        path = path / f"log_{app.game_manager.step}.txt"
+        path = path / f"log_{self.game_config.step}.txt"
 
         next_node = self._select_next_node()
         nb_nodes = 0
@@ -249,13 +284,51 @@ class BrainDijkstra:
                     f"\n{len(self.known_nodes)} known nodes\n{len(self.known_nodes_unvisited)} unvisited\n\n***\n\n"
                 )
 
+                print(
+                    f"{len(self.known_nodes)} known nodes, {len(self.known_nodes_unvisited)} unvisited",
+                    end="\r",
+                    flush=True,
+                )
+
+                if app_config.ai.shortcut:
+                    for board_node in self.known_nodes_unvisited.values():
+                        if (
+                            not best_node.moves
+                            or board_node.moves[0] != best_node.moves[0]
+                        ):
+                            break
+                    else:
+                        break
+
                 next_node = self._select_next_node()
+
+            print(" " * 40, end="\r")
+
+            # Shortcut from app_config.ai.shortcut
+            if self.known_nodes_unvisited:
+                moves = [best_node.moves[0]]
+                for index, move in enumerate(best_node.moves[1:]):
+                    index += 1  # noqa: PLW2901
+                    if all(
+                        len(board_node.moves) > index
+                        and board_node.moves[index] == move
+                        for board_node in self.known_nodes_unvisited.values()
+                    ):
+                        moves.append(move)
+                print("shortcut:", len(moves))
+                f.write(f"shortcut: {len(moves)}\n")
+            else:
+                moves = best_node.moves
+
+            f.write("\n")
+            f.write("\n".join(str(move) for move in moves))
+            f.write("\n\n")
 
         return best_node.moves, nb_nodes
 
 
 class BoardScore:
-    WORSE = (-float("inf"),) * 11
+    WORSE = (-float("inf"),) * 12
     __slots__ = ["board", "player"]
 
     def __init__(self, board: Board, player: int):
@@ -291,14 +364,3 @@ class BoardScore:
     @property
     def clean_tableau_score(self):
         return sorted((len(pile) for pile in self.board.tableau_piles), reverse=True)
-
-
-MAX_COST = (float("inf"),)
-
-
-def compute_move_cost(move: Move):
-    return 0 if isinstance(move.destination, FoundationPile) else 1
-
-
-def compute_moves_cost(moves):
-    return tuple(compute_move_cost(m) for m in moves)

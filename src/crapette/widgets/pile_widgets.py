@@ -97,7 +97,7 @@ class PlayerPileWidget(PileWidget):
             return False
 
         game_manager = App.get_running_app().game_manager
-        player = game_manager.active_player
+        player = game_manager.game_config.active_player
         if player != self.pile.player:
             return False
 

@@ -24,7 +24,7 @@ class BoardWidget(BoxLayout):
         self.pile_widgets: list[PileWidget] = []
         self.card_widgets: dict[Card, CardWidget] = {}
 
-        self.game_manager = None
+        self.game_config = None
         self._do_layout_event = None
 
     def do_layout(self, *args, **kwargs):
@@ -38,9 +38,9 @@ class BoardWidget(BoxLayout):
             super_do_layout(*args, **kwargs)
 
             self.place_cards()
-            if self.game_manager:
+            if self.game_config:
                 # with contextlib.suppress(KeyError):  # KeyError on window initialization
-                self.place_background_halo(self.game_manager.active_player)
+                self.place_background_halo(self.game_config.active_player)
 
         layout_delay_s = 0.2  # s
         self._do_layout_event = Clock.schedule_once(real_do_layout, layout_delay_s)
@@ -50,8 +50,9 @@ class BoardWidget(BoxLayout):
         self.app = App.get_running_app()
         self.ids = self.app.root.ids
         self.game_manager = game_manager
+        self.game_config = game_manager.game_config
 
-        self.board = self.game_manager.board
+        self.board = self.game_config.board
         self.setup_piles()
         self.setup_card_widgets()
         self.place_cards()
@@ -80,7 +81,7 @@ class BoardWidget(BoxLayout):
 
     def widget_from_pile(self, pile: Pile):
         for pile_widget in self.pile_widgets:
-            if pile_widget.pile == pile:
+            if pile_widget.pile.name == pile.name:
                 return pile_widget
         raise RuntimeError(f"Unknown pile {pile}")
 

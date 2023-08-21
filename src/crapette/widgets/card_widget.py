@@ -30,6 +30,7 @@ class CardWidget(ScatterLayout):
         self.card = card
         self.source = card2img(card)
         self.game_manager = game_manager
+        self.game_config = game_manager.game_config
 
         self.pile_widget: PileWidget | None = None
         self._moving = False
@@ -152,14 +153,14 @@ class CardWidget(ScatterLayout):
             return False
 
         # Stop the event if this is the end of the game.
-        if self.game_manager.active_player is None:
+        if self.game_config.active_player is None:
             Logger.debug("End of game")
             return True
 
         # Check if the card can be moved by the player
-        # TODO: avoid using self.pile_widget and self.game_manager, how ?
+        # TODO: avoid using self.pile_widget, how ?
         Logger.debug("TOUCH DOWN %s", self.card)
-        can_pop = self.pile_widget.pile.can_pop_card(self.game_manager.active_player)
+        can_pop = self.pile_widget.pile.can_pop_card(self.game_config.active_player)
         assert can_pop in (True, False), can_pop
         if not can_pop:
             return True
@@ -175,7 +176,7 @@ class CardWidget(ScatterLayout):
     def on_touch_up(self, touch):
         super().on_touch_up(touch)
 
-        if self.game_manager.active_player is None:
+        if self.game_config.active_player is None:
             Logger.debug("End of game")
             return True
 
