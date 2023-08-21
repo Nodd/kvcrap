@@ -60,6 +60,7 @@ class CrapetteApp(App):
         fast: bool,
         ai_shortcut: bool,
         ai_mono: bool,
+        ai_progress: bool,
     ):
         super().__init__()
 
@@ -68,6 +69,7 @@ class CrapetteApp(App):
         )
         self.app_config.ai.shortcut = ai_shortcut
         self.app_config.ai.mono = ai_mono
+        self.app_config.ai.print_progress = ai_progress
 
     def build(self):
         # Just set the property so that it's available in kv
@@ -171,10 +173,17 @@ def parse_args(args):
         action=argparse.BooleanOptionalAction,
         default=True,
     )
+    ai_group.add_argument(
+        "--progress",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+    )
 
     return parser.parse_args(args)
 
 
 def main(args):
     args = parse_args(args)
-    CrapetteApp(args.seed, args.custom, args.fast, args.shortcut, args.mono).run()
+    CrapetteApp(
+        args.seed, args.custom, args.fast, args.shortcut, args.mono, args.progress
+    ).run()

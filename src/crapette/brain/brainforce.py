@@ -33,6 +33,7 @@ class AIError(RuntimeError):
 class BrainConfig:
     shortcut: bool = True
     mono: bool = True
+    print_progress: bool = False
 
 
 MAX_COST = float("inf")
@@ -301,11 +302,12 @@ class BrainDijkstra:
                     f"\n{len(self.known_nodes)} known nodes\n{len(self.known_nodes_unvisited)} unvisited\n\n***\n\n"
                 )
 
-                print(
-                    f"#{nb_nodes}: {len(self.known_nodes)} known nodes, {len(self.known_nodes_unvisited)} unvisited, {len(next_node.moves)} moves (best: #{best_node.index}, {len(best_node.moves)} moves)",
-                    end="\r",
-                    flush=True,
-                )
+                if app_config.ai.print_progress:
+                    print(
+                        f"#{nb_nodes}: {len(self.known_nodes)} known nodes, {len(self.known_nodes_unvisited)} unvisited, {len(next_node.moves)} moves (best: #{best_node.index}, {len(best_node.moves)} moves)",
+                        end="\r",
+                        flush=True,
+                    )
 
                 if app_config.ai.shortcut:
                     for board_node in self.known_nodes_unvisited.values():
@@ -319,7 +321,8 @@ class BrainDijkstra:
 
                 next_node = self._select_next_node()
 
-            print(" " * 80, end="\r")
+            if app_config.ai.print_progress:
+                print(" " * 80, end="\r")
 
             # Shortcut from app_config.ai.shortcut
             if self.known_nodes_unvisited:
