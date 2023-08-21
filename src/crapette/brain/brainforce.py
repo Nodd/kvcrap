@@ -4,7 +4,6 @@ import dataclasses
 import heapq
 import sys
 import timeit
-from operator import attrgetter
 from pprint import pprint
 from typing import TYPE_CHECKING
 
