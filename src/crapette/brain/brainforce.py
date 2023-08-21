@@ -1,6 +1,7 @@
 """IA for playing the crapette."""
 
 import dataclasses
+import heapq
 import sys
 import timeit
 from operator import attrgetter
@@ -102,15 +103,22 @@ class BoardNode:
         self.visited: bool = False
         self.moves: list[Move] = []
 
+    def __lt__(self, other):
+        """Compute the node cost.
+
+        This is used in heapq to find the next node with a minimum distance.
+        """
+        return self.cost, self.score_min
+
     @profile
     def search_neighbors(
         self,
         known_nodes: dict[HashBoard, "BoardNode"],
-        known_nodes_unvisited: dict[HashBoard, "BoardNode"],
+        known_nodes_unvisited: list["BoardNode"],  # Actually a heapq
     ):
         # This one was searched
+        # Note: already popped from known_nodes_unvisited
         self.visited = True
-        del known_nodes_unvisited[self.board]
 
         # If last move was from a player pile, stop here
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
@@ -174,7 +182,7 @@ class BoardNode:
             # Add this unknown new board
             next_board_node = BoardNode(next_board, self.player)
             known_nodes[next_board] = next_board_node
-            known_nodes_unvisited[next_board] = next_board_node
+            heapq.heappush(known_nodes_unvisited, next_board_node)
         else:
             # Skip if cost is higher or equal (best moves are tried first)
             if next_board_node.visited or cost >= next_board_node.cost:
@@ -268,14 +276,14 @@ class BrainDijkstra:
         first_node.cost = 0
         first_node.moves = []
         self.known_nodes = {hash_board: first_node}
-        self.known_nodes_unvisited = {hash_board: first_node}
+        self.known_nodes_unvisited = [first_node]
+        heapq.heapify(self.known_nodes_unvisited)
 
     def _select_next_node(self) -> BoardNode | None:
-        return min(
-            self.known_nodes_unvisited.values(),
-            default=None,
-            key=attrgetter("cost", "score_min"),
-        )
+        try:
+            return heapq.heappop(self.known_nodes_unvisited)
+        except IndexError:
+            return None
 
     @profile
     def compute_search(self):
@@ -313,7 +321,7 @@ class BrainDijkstra:
                     )
 
                 if app_config.ai.shortcut:
-                    for board_node in self.known_nodes_unvisited.values():
+                    for board_node in known_nodes_unvisited:
                         if (
                             not best_node.moves
                             or board_node.moves[0] != best_node.moves[0]
@@ -335,7 +343,7 @@ class BrainDijkstra:
                     if all(
                         len(board_node.moves) > index
                         and board_node.moves[index] == move
-                        for board_node in self.known_nodes_unvisited.values()
+                        for board_node in self.known_nodes_unvisited
                     ):
                         moves.append(move)
                 print("shortcut:", len(moves))
