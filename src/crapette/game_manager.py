@@ -12,7 +12,7 @@ from kivy.clock import Clock
 from kivy.logger import Logger
 
 from . import custom_test_games
-from .brain.brainforce import BrainForce
+from .brain.brainforce import AIError, BrainForce
 from .core.board import Board
 from .core.moves import Flip, FlipWaste, Move
 from .core.piles import WastePile
@@ -54,6 +54,10 @@ class GameConfig:
         log_parent_dir = Path(__file__).parent / "log"
         log_parent_dir.mkdir(parents=True, exist_ok=True)
         self.log_path = log_parent_dir / f"{self.seed}_{self.start_time}.txt"
+
+    @property
+    def is_ai(self):
+        return self.player_types[self.active_player] == "ai"
 
 
 class GameManager:
@@ -128,7 +132,6 @@ class GameManager:
         card_widget: CardWidget,
         pile_widget: PileWidget,
         duration=DEFAULT_MOVE_DURATION,
-        check_moves=True,
     ):
         """Move a card to another pile and register the move.
 
@@ -142,6 +145,10 @@ class GameManager:
         assert can_add in (True, False), can_add
         if not can_add:
             Logger.debug("Dropped on an incompatible pile")
+            if self.game_config.is_ai:
+                raise AIError(
+                    f"Tried to move {card_widget.card} from {old_pile_widget.pile} to incompatible pile {pile_widget.pile}"
+                )
             card_widget.animate_move_to_pile()
             return
 
@@ -162,12 +169,10 @@ class GameManager:
             self.game_config.last_move = None
 
         self.check_end_of_turn(pile_widget)
-        if check_moves:
+        if not self.game_config.is_ai:
             self.check_moves()
 
-    def flip_card_up(
-        self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION, check_moves=True
-    ):
+    def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card and register the flip as a move."""
         self.board_widget.flip_card_up(card_widget, duration)
 
@@ -175,7 +180,7 @@ class GameManager:
 
         self.game_config.last_move = Flip(card_widget, card_widget.pile_widget)
 
-        if check_moves:
+        if not self.game_config.is_ai:
             self.check_moves()
 
     def flip_waste_to_stock(self):
@@ -210,9 +215,10 @@ class GameManager:
                 )
 
     def check_moves(self):
+        # print("Checking moves...")
         if self.game_config.active_player is None:
             return  # End of game
-        if self.game_config.player_types[self.game_config.active_player] == "ai":
+        if self.game_config.is_ai:
             brain = BrainForce(self.game_config)
             if self.app.app_config.ai.mono:
                 moves = brain.compute_states()
@@ -244,19 +250,17 @@ class GameManager:
                 self.board_widget.card_widgets[move.card],
                 self.board_widget.widget_from_pile(move.destination),
                 duration=duration,
-                check_moves=False,
             )
         elif isinstance(move, Flip):
             self.flip_card_up(
                 self.board_widget.card_widgets[move.card],
                 duration=duration,
-                check_moves=False,
             )
         elif isinstance(move, FlipWaste):
             self.flip_waste_to_stock()
             duration = 0.1 if self.app.app_config.fast_animations else 1
         else:
-            raise RuntimeError(f"Unknown move: {move}")
+            raise AIError(f"Unknown move: {move}")
         if moves:
             duration += (
                 0.1

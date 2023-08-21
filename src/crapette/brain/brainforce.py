@@ -25,6 +25,10 @@ sys.setrecursionlimit(10**5)
 #     sys.stdout = open(1, "w", encoding="utf-8", closefd=False)  # fd 1 is stdout
 
 
+class AIError(RuntimeError):
+    pass
+
+
 @dataclasses.dataclass
 class BrainConfig:
     shortcut: bool = True
