@@ -172,13 +172,14 @@ class BoardNode:
             known_nodes[next_board] = next_board_node
             known_nodes_unvisited[next_board] = next_board_node
         else:
-            # Skip if cost is higher
+            # Skip if cost is higher or equal (best moves shoul be done first)
             # It's important to skip if the boards are equals,
             # because they are equivalent but not strictly identic
             if next_board_node.visited or cost >= next_board_node.cost:
                 return
         next_board_node.cost = cost
         next_board_node.moves = [*self.moves, move]
+        next_board_node.board = next_board  # Keep board synchronized with moves, to avoid conflicts between equivalenrt but different boards
 
     def piles_orig(self, foundation_dest: list[FoundationPile], other_dest: list[Pile]):
         """Piles to take cards from."""
