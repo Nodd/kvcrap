@@ -30,7 +30,6 @@ class Board:
             for i, s in enumerate(self.FOUNDATION_SUITES)
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
-        self._pile_by_names_cache = {p.name: p for p in self.piles}
 
     @property
     def piles(self):
@@ -40,10 +39,6 @@ class Board:
             + self.foundation_piles
             + self.tableau_piles
         )
-
-    def get_pile(self, pile):
-        """Return the board's pile with the same name as `pile`."""
-        return self._pile_by_names_cache[pile.name]
 
     def __repr__(self):
         return f"Board:{id(self)}"
@@ -215,8 +210,14 @@ class HashBoard(Board):
 
     def with_move(self, move: Move):
         new = HashBoard(self)
-        new.get_pile(move.origin)._cards = move.origin._cards[:-1]
-        new.get_pile(move.destination)._cards = [*move.destination._cards, move.card]
+
+        piles_by_name = {p.name: p for p in new.piles}
+        pile_origin = piles_by_name[move.origin.name]
+        pile_dest = piles_by_name[move.destination.name]
+
+        # Important : do not modify _cards content (it's shared), but replace it with a copy
+        pile_origin._cards = pile_origin._cards[:-1]
+        pile_dest._cards = [*pile_dest._cards, move.card]
         return new
 
     def sorted_foundation_piles_indexed(self, suit_index: int):
