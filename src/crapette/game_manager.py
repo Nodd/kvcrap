@@ -241,7 +241,8 @@ class GameManager:
 
     def ai_play(self, moves: list):
         move = moves.pop(0)
-        print("ai_play", self.game_config.step + 1, move)
+        if self.app.app_config.ai.print_progress:
+            print("ai_play", self.game_config.step + 1, move)
         duration = (
             0.1 if self.app.app_config.fast_animations else random.triangular(0.3, 0.7)
         )

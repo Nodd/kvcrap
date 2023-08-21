@@ -49,7 +49,7 @@ class BrainForce:
         Logger.debug("compute_states for player %s", self.game_config.active_player)
 
         start_time = timeit.default_timer()
-        moves, nb_nodes = BrainDijkstra(self.game_config).compute_search()
+        moves, nb_nodes_visited = BrainDijkstra(self.game_config).compute_search()
 
         if not moves:
             player_piles = self.game_config.board.players_piles[
@@ -67,16 +67,17 @@ class BrainForce:
                 moves = [Move(stock.top_card, stock, player_piles.waste)]
             # TODO: manage the case of an empty stock and non-empty crape
 
-        # elapsed = timeit.default_timer() - start_time
-        # Logger.info(
-        #     "AI time: %gs for %d possibilities (%.3fms each on avearge)",
-        #     elapsed,
-        #     nb_nodes,
-        #     elapsed / nb_nodes * 1000,
-        # )
+        elapsed = timeit.default_timer() - start_time
+        Logger.info(
+            "AI time #%d: %gs for %d possibilities (%.3fms each on avearge)",
+            self.game_config.step,
+            elapsed,
+            nb_nodes_visited,
+            elapsed / nb_nodes_visited * 1000,
+        )
         # print("Conclusion :")
         # pprint(moves)
-        # print(flush=True)
+        print(flush=True)
         return moves
 
 
@@ -294,40 +295,45 @@ class BrainDijkstra:
         path.mkdir(parents=True, exist_ok=True)
         path = path / f"log_{self.game_config.step:04d}.txt"
 
+        # Optimize using local vars out of `while`
+        do_shortcut = app_config.ai.shortcut
+        known_nodes = self.known_nodes
+        known_nodes_unvisited = self.known_nodes_unvisited
+
         next_node = self._select_next_node()
-        nb_nodes = 0
+        nb_nodes_visited = 0
         with path.open("w") as f:
             while next_node is not None:
-                nb_nodes += 1
-                next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
-                next_node.index = nb_nodes
+                nb_nodes_visited += 1
+                next_node.search_neighbors(known_nodes, known_nodes_unvisited)
+                next_node.index = nb_nodes_visited
                 if next_node.score > max_score:
                     max_score = next_node.score
                     best_node = next_node
 
-                # print(next_node.board.to_text())
-                f.write(f"{nb_nodes}\n")
-                f.write(next_node.board.to_text())
-                f.write(
-                    f"\n{len(self.known_nodes)} known nodes\n{len(self.known_nodes_unvisited)} unvisited\n\n***\n\n"
-                )
-
                 if app_config.ai.print_progress:
+                    # print(next_node.board.to_text())
+                    f.write(f"{nb_nodes_visited}\n")
+                    f.write(next_node.board.to_text())
+                    f.write(
+                        f"\n{len(known_nodes)} known nodes\n{len(known_nodes_unvisited)} unvisited\n\n***\n\n"
+                    )
+
                     print(
-                        f"#{nb_nodes}: {len(self.known_nodes)} known nodes, {len(self.known_nodes_unvisited)} unvisited, {len(next_node.moves)} moves (best: #{best_node.index}, {len(best_node.moves)} moves)",
+                        f"#{nb_nodes_visited}: {len(known_nodes)} known nodes, {len(known_nodes_unvisited)} unvisited, {len(next_node.moves)} moves (best: #{best_node.index}, {len(best_node.moves)} moves)",
                         end="\r",
                         flush=True,
                     )
 
-                if app_config.ai.shortcut:
+                if do_shortcut:
                     for board_node in known_nodes_unvisited:
                         if (
                             not best_node.moves
                             or board_node.moves[0] != best_node.moves[0]
                         ):
-                            break
+                            break  # Break out of shortcut check loop
                     else:
-                        break
+                        break  # Break out of main loop if shortcut found
 
                 next_node = self._select_next_node()
 
@@ -354,7 +360,7 @@ class BrainDijkstra:
             f.write("\n".join(str(move) for move in moves))
             f.write("\n\n")
 
-        return best_node.moves, nb_nodes
+        return best_node.moves, nb_nodes_visited
 
 
 class BoardScore:
