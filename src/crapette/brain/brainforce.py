@@ -265,7 +265,7 @@ class BrainDijkstra:
 
         path = self.game_config.log_path.with_suffix("")
         path.mkdir(parents=True, exist_ok=True)
-        path = path / f"log_{self.game_config.step}.txt"
+        path = path / f"log_{self.game_config.step:04d}.txt"
 
         next_node = self._select_next_node()
         nb_nodes = 0
