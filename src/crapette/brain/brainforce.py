@@ -233,14 +233,8 @@ class BoardNode:
 
         # Check only unique piles in tableau
         # An important case is multiple empty piles
-        tableau_piles_filtered = []
-        for p in tableau_piles:
-            for p2 in tableau_piles_filtered:
-                if p._cards == p2._cards:
-                    break
-            else:
-                tableau_piles_filtered.append(p)
-        tableau_piles_filtered.sort(key=len, reverse=True)  # Try big piles first
+        # Try big piles first
+        tableau_piles = sorted(set(tableau_piles), reverse=True)
 
         # If both fondations are the same, keep only one
         foundation_piles_filtered = self.board.foundation_piles[: Card.NB_SUITS]
@@ -253,7 +247,7 @@ class BoardNode:
                 foundation_piles_filtered.append(p1)
 
         return foundation_piles_filtered, [
-            *tableau_piles_filtered,
+            *tableau_piles,
             enemy_piles.crape,
             enemy_piles.waste,
         ]

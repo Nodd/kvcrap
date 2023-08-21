@@ -18,7 +18,6 @@ class Board:
         "players_piles",
         "foundation_piles",
         "tableau_piles",
-        "_pile_by_names_cache",
     ]
 
     def __init__(self):
@@ -205,6 +204,7 @@ class HashBoard(Board):
         # They should not be modified, except in `HashBoard.with_move()`
         for pile, board_pile in zip(self.piles, board.piles, strict=True):
             pile._cards = board_pile._cards
+            pile.freeze()
 
         self._hash_cache = None
 
@@ -216,8 +216,8 @@ class HashBoard(Board):
         pile_dest = piles_by_name[move.destination.name]
 
         # Important : do not modify _cards content (it's shared), but replace it with a copy
-        pile_origin._cards = pile_origin._cards[:-1]
-        pile_dest._cards = [*pile_dest._cards, move.card]
+        pile_origin.set_cards(pile_origin._cards[:-1], override_frozen=True)
+        pile_dest.set_cards([*pile_dest._cards, move.card], override_frozen=True)
         return new
 
     def sorted_foundation_piles_indexed(self, suit_index: int):

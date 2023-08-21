@@ -14,17 +14,29 @@ else:
         pass
 
 
+class NotFrozenError(ValueError):
+    pass
+
+
+class FrozenError(ValueError):
+    pass
+
+
 class Pile:
     """Defines the Pile interface and some generic methods for all piles."""
 
-    __slots__ = ["name", "_cards"]
+    __slots__ = ["name", "_cards", "_frozen", "_hash_cache"]
 
     def __init__(self, name):
         self.name = str(name)
         self._cards: list[Card] = []
+        self._frozen = False
+        self._hash_cache = None
 
     def add_card(self, card):
         """Add a card to the pile."""
+        if self._frozen:
+            raise FrozenError(f"Can not add card to frozen {self}.")
         self._cards.append(card)
 
     def pop_card(self):
@@ -32,6 +44,8 @@ class Pile:
 
         No check is done here, see `can_pop_card`.
         """
+        if self._frozen:
+            raise FrozenError(f"Can not pop card from frozen {self}.")
         assert self._cards, f"No card to pop in {self.name}"
         return self._cards.pop()
 
@@ -61,10 +75,22 @@ class Pile:
 
     def __lt__(self, other):
         assert type(self) == type(other)
-        return self._cards < other._cards
+        if len(self) == len(other):
+            return self._cards < other._cards
+        return len(self) < len(other)
 
     def __eq__(self, other):
-        raise NotImplementedError
+        return type(self) == type(other) and self._cards == other._cards
+
+    def freeze(self):
+        self._frozen = True
+
+    def __hash__(self):
+        if not self._frozen:
+            raise NotFrozenError(f"{self} is not hashable (not frozen)")
+        if not self._hash_cache:
+            self._hash_cache = hash(tuple(self._cards))
+        return self._hash_cache
 
     @property
     def is_empty(self):
@@ -103,12 +129,14 @@ class Pile:
         """Setter of the state of the topmost card of the pile."""
         self._cards[-1].face_up = is_face_up
 
-    def set_cards(self, cards):
+    def set_cards(self, cards, override_frozen=False):
         """Replace the cards in the pile.
 
         Warning, nothing is checked !
         """
         # TODO: Checks for each pile type
+        if not override_frozen and self._frozen:
+            raise FrozenError(f"Can not pop card from frozen {self}.")
         self._cards = cards
 
     def clear(self):
@@ -158,6 +186,13 @@ class FoundationPile(Pile):
             and len(self._cards) == len(other._cards)
         )
 
+    def __hash__(self):
+        if not self._frozen:
+            raise NotFrozenError(f"{self} is not hashable (not frozen)")
+        if not self._hash_cache:
+            self._hash_cache = hash((self.foundation_suit, len(self._cards)))
+        return self._hash_cache
+
 
 class TableauPile(Pile):
     """Side piles where cards go from King to Ace with alternate colors."""
@@ -182,9 +217,6 @@ class TableauPile(Pile):
     def can_pop_card(self, player):
         return True
 
-    def __eq__(self, other):
-        return isinstance(other, TableauPile) and self._cards == other._cards
-
 
 class _PlayerPile(Pile):
     """Piles specific to the player."""
@@ -207,11 +239,7 @@ class _PlayerPile(Pile):
 
     def __eq__(self, other):
         """Doesn't check if cards face up or down."""
-        return (
-            isinstance(other, self.__class__)
-            and self.name == other.name
-            and self._cards == other._cards
-        )
+        return super().__eq__(other) and self.name == other.name
 
 
 class StockPile(_PlayerPile):

@@ -111,6 +111,10 @@ class Card:
         )
 
     def __lt__(self, other):
+        if self._rank == other._rank:
+            if self._suit == other._suit:
+                return self._player < other._player
+            return self._suit < other._suit
         return self._rank < other._rank
 
     def __hash__(self):
