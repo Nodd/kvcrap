@@ -75,7 +75,16 @@ class BrainForce:
 
 
 class BoardNode:
-    __slots__ = ["board", "player", "cost", "score", "visited", "moves"]
+    __slots__ = [
+        "board",
+        "player",
+        "cost",
+        "score",
+        "score_min",
+        "visited",
+        "moves",
+        "index",
+    ]
 
     def __init__(self, board: HashBoard, player: int) -> None:
         self.board = board
@@ -83,8 +92,9 @@ class BoardNode:
 
         self.cost = MAX_COST
         self.score = BoardScore(self.board, self.player).score
+        self.score_min = tuple(-s for s in self.score)
         self.visited: bool = False
-        self.moves: list = []
+        self.moves: list[Move] = []
 
     def search_neighbors(
         self,
@@ -168,7 +178,8 @@ class BoardNode:
 
     def piles_orig(self, foundation_dest: list[FoundationPile], other_dest: list[Pile]):
         """Piles to take cards from."""
-        # Don't consider empty piles as useful move
+        # Look for potential interesting moves
+        # Don't consider empty enemy or tableau piles as useful move
         other_dest = [p for p in other_dest if not p.is_empty]
         piles_dest = foundation_dest + other_dest
         tableau_piles = [p for p in self.board.tableau_piles if not p.is_empty]
@@ -257,7 +268,7 @@ class BrainDijkstra:
         return min(
             self.known_nodes_unvisited.values(),
             default=None,
-            key=attrgetter("cost", "score"),
+            key=attrgetter("cost", "score_min"),
         )
 
     def compute_search(self):
