@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 from kivy.app import App
 from kivy.logger import Logger
+from line_profiler import profile
 
 from crapette.core.board import Board, HashBoard
 from crapette.core.cards import Card
@@ -101,6 +102,7 @@ class BoardNode:
         self.visited: bool = False
         self.moves: list[Move] = []
 
+    @profile
     def search_neighbors(
         self,
         known_nodes: dict[HashBoard, "BoardNode"],
@@ -158,6 +160,7 @@ class BoardNode:
                     Move(card, pile_orig, pile_dest), known_nodes, known_nodes_unvisited
                 )
 
+    @profile
     def register_next_board(self, move: Move, known_nodes, known_nodes_unvisited):
         # Instantiate neighbor
         next_board = self.board.with_move(move)
@@ -217,6 +220,7 @@ class BoardNode:
 
         return piles_accum
 
+    @profile
     def _any_card_can_move(
         self, tableau_pile: TableauPile, piles_dest: list[Pile], piles_accum: list[Pile]
     ):
@@ -226,6 +230,7 @@ class BoardNode:
                     piles_accum.append(tableau_pile)
                     return
 
+    @profile
     def piles_dest(self) -> tuple[list[Pile]]:
         """Piles to put cards to."""
         enemy_piles = self.board.players_piles[1 - self.player]
@@ -272,6 +277,7 @@ class BrainDijkstra:
             key=attrgetter("cost", "score_min"),
         )
 
+    @profile
     def compute_search(self):
         app_config = App.get_running_app().app_config
         max_score = BoardScore.WORSE

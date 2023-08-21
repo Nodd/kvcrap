@@ -12,7 +12,7 @@ classifiers = [
 ]
 keywords = ["game", "cards", "crapette"]
 requires-python = ">=3.10"
-dependencies = ["kivy>=1.10"]
+dependencies = ["kivy>=1.10", "line-profiler>=4.0"]
 dynamic = ["version"]
 
 [[project.authors]]
