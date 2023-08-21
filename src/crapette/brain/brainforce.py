@@ -172,9 +172,7 @@ class BoardNode:
             known_nodes[next_board] = next_board_node
             known_nodes_unvisited[next_board] = next_board_node
         else:
-            # Skip if cost is higher or equal (best moves shoul be done first)
-            # It's important to skip if the boards are equals,
-            # because they are equivalent but not strictly identic
+            # Skip if cost is higher or equal (best moves are tried first)
             if next_board_node.visited or cost >= next_board_node.cost:
                 return
         next_board_node.cost = cost
