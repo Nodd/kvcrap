@@ -273,6 +273,7 @@ class BrainDijkstra:
             while next_node is not None:
                 nb_nodes += 1
                 next_node.search_neighbors(self.known_nodes, self.known_nodes_unvisited)
+                next_node.index = nb_nodes
                 if next_node.score > max_score:
                     max_score = next_node.score
                     best_node = next_node
@@ -285,7 +286,7 @@ class BrainDijkstra:
                 )
 
                 print(
-                    f"{len(self.known_nodes)} known nodes, {len(self.known_nodes_unvisited)} unvisited",
+                    f"#{nb_nodes}: {len(self.known_nodes)} known nodes, {len(self.known_nodes_unvisited)} unvisited, {len(next_node.moves)} moves (best: #{best_node.index}, {len(best_node.moves)} moves)",
                     end="\r",
                     flush=True,
                 )
@@ -302,7 +303,7 @@ class BrainDijkstra:
 
                 next_node = self._select_next_node()
 
-            print(" " * 40, end="\r")
+            print(" " * 80, end="\r")
 
             # Shortcut from app_config.ai.shortcut
             if self.known_nodes_unvisited:
