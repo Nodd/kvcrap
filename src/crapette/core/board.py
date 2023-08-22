@@ -199,28 +199,25 @@ class HashBoard(Board):
 
     __slots__ = ["_hash_cache"]
 
-    def __init__(self, board: Board):
+    @profile
+    def __init__(self, board: Board, move: Move | None = None):
         super().__init__()
+
+        origin_name = move.origin.name if move else None
+        destination_name = move.destination.name if move else None
 
         # Pass pile content by reference
         # They should not be modified, except in `HashBoard.with_move()`
         for pile, board_pile in zip(self.piles, board.piles, strict=True):
-            pile._cards = board_pile._cards
+            if pile.name == origin_name:
+                pile._cards = board_pile._cards[:-1]
+            elif pile.name == destination_name:
+                pile._cards = [*board_pile._cards, move.card]
+            else:
+                pile._cards = board_pile._cards
             pile.freeze()
 
-        self._hash_cache = None
-
-    def with_move(self, move: Move):
-        new = HashBoard(self)
-
-        piles_by_name = {p.name: p for p in new.piles}
-        pile_origin = piles_by_name[move.origin.name]
-        pile_dest = piles_by_name[move.destination.name]
-
-        # Important : do not modify _cards content (it's shared), but replace it with a copy
-        pile_origin.set_cards(pile_origin._cards[:-1], override_frozen=True)
-        pile_dest.set_cards([*pile_dest._cards, move.card], override_frozen=True)
-        return new
+        self._hash_cache = self._compute_hash()
 
     def sorted_foundation_piles_indexed(self, suit_index: int):
         return sorted(
@@ -230,6 +227,10 @@ class HashBoard(Board):
             )
         )
 
+    def __hash__(self):
+        return self._hash_cache
+
+    @profile
     def __eq__(self, other: "HashBoard"):
         """Compute equivalence (not strict equality) between HashBoard instances."""
         # Check player piles equality for both players
@@ -253,19 +254,18 @@ class HashBoard(Board):
         return self_tableau == other_tableau
 
     @profile
-    def __hash__(self):
-        """Compute a hash for the board.
+    def _compute_hash(self):
+        """Compute and cache a hash for the board.
 
-        Doesn't differ if cards face up or down
+        Doesn't differ if cards face up or down.
         """
-        if self._hash_cache is None:
-            # Player piles
-            piles = list(self.players_piles[0]) + list(self.players_piles[1])
+        # Player piles
+        piles = list(self.players_piles[0]) + list(self.players_piles[1])
+        piles = [*self.players_piles[0], *self.players_piles[1]]
 
-            # Foundation, inversion between same suit piles doesn't matter
-            for i_suit in range(Card.NB_SUITS):
-                piles += self.sorted_foundation_piles_indexed(i_suit)
-            piles += sorted(self.tableau_piles, reverse=True)
+        # Foundation, inversion between same suit piles doesn't matter
+        for i_suit in range(Card.NB_SUITS):
+            piles += self.sorted_foundation_piles_indexed(i_suit)
+        piles += sorted(self.tableau_piles, reverse=True)
 
-            self._hash_cache = hash(tuple(p.cards_ids() for p in piles))
-        return self._hash_cache
+        return hash(tuple(piles))

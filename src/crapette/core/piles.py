@@ -84,12 +84,14 @@ class Pile:
 
     def freeze(self):
         self._frozen = True
+        self._hash_cache = self._compute_hash()
+
+    def _compute_hash(self):
+        return hash(tuple(self._cards))
 
     def __hash__(self):
         if not self._frozen:
             raise NotFrozenError(f"{self} is not hashable (not frozen)")
-        if not self._hash_cache:
-            self._hash_cache = hash(tuple(self._cards))
         return self._hash_cache
 
     @property
@@ -129,13 +131,13 @@ class Pile:
         """Setter of the state of the topmost card of the pile."""
         self._cards[-1].face_up = is_face_up
 
-    def set_cards(self, cards, override_frozen=False):
+    def set_cards(self, cards):
         """Replace the cards in the pile.
 
         Warning, nothing is checked !
         """
         # TODO: Checks for each pile type
-        if not override_frozen and self._frozen:
+        if self._frozen:
             raise FrozenError(f"Can not pop card from frozen {self}.")
         self._cards = cards
 
@@ -143,20 +145,15 @@ class Pile:
         """Empty the pile."""
         self._cards = []
 
-    def cards_ids(self):
-        # It's a bit faster to create an intermediate list comprehension than a generator
-        return tuple(c.id for c in self._cards)
-
 
 class FoundationPile(Pile):
     """Pile in the center where the suites are build from Ace to King."""
 
-    __slots__ = ["_foundation_id", "foundation_suit"]
+    __slots__ = ["foundation_suit"]
 
     def __init__(self, suit, foundation_id):
         assert suit in Card.SUITS
         super().__init__(f"Foundation{foundation_id}{suit}")
-        self._foundation_id = foundation_id
         self.foundation_suit = suit
 
     def can_add_card(self, card, origin, player):
@@ -186,22 +183,20 @@ class FoundationPile(Pile):
             and len(self._cards) == len(other._cards)
         )
 
-    def __hash__(self):
-        if not self._frozen:
-            raise NotFrozenError(f"{self} is not hashable (not frozen)")
-        if not self._hash_cache:
-            self._hash_cache = hash((self.foundation_suit, len(self._cards)))
-        return self._hash_cache
+    # __eq__ is redefined, need to redefine __hash__ too
+    __hash__ = Pile.__hash__
+
+    def _compute_hash(self):
+        return hash((self.foundation_suit, len(self._cards)))
 
 
 class TableauPile(Pile):
     """Side piles where cards go from King to Ace with alternate colors."""
 
-    __slots__ = ["_id"]
+    __slots__ = []
 
     def __init__(self, tableau_id):
         super().__init__(f"Tableau{tableau_id}")
-        self._id = tableau_id
 
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile.
@@ -240,6 +235,9 @@ class _PlayerPile(Pile):
     def __eq__(self, other):
         """Doesn't check if cards face up or down."""
         return super().__eq__(other) and self.name == other.name
+
+    # __eq__ is redefined, need to redefine __hash__ too
+    __hash__ = Pile.__hash__
 
 
 class StockPile(_PlayerPile):

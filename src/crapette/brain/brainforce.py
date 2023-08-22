@@ -174,8 +174,7 @@ class BoardNode:
     @profile
     def register_next_board(self, move: Move, known_nodes, known_nodes_unvisited):
         # Instantiate neighbor
-        next_board = self.board.with_move(move)
-        hash(next_board)  # Cache hash
+        next_board = HashBoard(self.board, move)
 
         # Compute the cost
         cost = self.cost + (0 if isinstance(move.destination, FoundationPile) else 1)
