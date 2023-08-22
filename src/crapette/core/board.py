@@ -246,9 +246,7 @@ class HashBoard(Board):
             return False
 
         # Check tableau piles, order doesn't matter
-        self_tableau = sorted(self.tableau_piles, reverse=True)
-        other_tableau = sorted(other.tableau_piles, reverse=True)
-        return self_tableau == other_tableau
+        return set(self.tableau_piles) == set(other.tableau_piles)
 
     @profile
     def _compute_hash(self):
