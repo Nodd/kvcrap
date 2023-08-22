@@ -211,6 +211,8 @@ class HashBoard(Board):
         "_players_piles_hash",
         "_foundation_piles_hash",
         "_tableau_piles_hash",
+        "parent",
+        "sorted_foundation_piles_indexed",
     ]
 
     @profile
@@ -241,12 +243,20 @@ class HashBoard(Board):
             else:
                 self.players_piles = board.players_piles
                 self._players_piles_hash = board._players_piles_hash
+
             if isinstance(new_destination, FoundationPile):
                 self.foundation_piles = [*map(replace, board.foundation_piles)]
                 self._foundation_piles_hash = None
+                self.sorted_foundation_piles_indexed = (
+                    self.compute_sorted_foundation_piles_indexed()
+                )
             else:
                 self.foundation_piles = board.foundation_piles
                 self._foundation_piles_hash = board._foundation_piles_hash
+                self.sorted_foundation_piles_indexed = (
+                    board.sorted_foundation_piles_indexed
+                )
+
             if isinstance(new_origin, TableauPile) or isinstance(
                 new_destination, TableauPile
             ):
@@ -270,16 +280,24 @@ class HashBoard(Board):
 
             for pile in self.piles:
                 pile.freeze()
+            self.sorted_foundation_piles_indexed = (
+                self.compute_sorted_foundation_piles_indexed()
+            )
 
         self._hash_cache = self._compute_hash()
 
-    def sorted_foundation_piles_indexed(self, suit_index: int):
-        pile_a = self.foundation_piles[suit_index]
-        pile_b = self.foundation_piles[2 * Card.NB_SUITS - suit_index - 1]
-        return (pile_a, pile_b) if len(pile_a) < len(pile_b) else (pile_b, pile_a)
-
     def __hash__(self):
         return self._hash_cache
+
+    def compute_sorted_foundation_piles_indexed(self):
+        sorted_foundation_piles_indexed = []
+        for suit_index in range(Card.NB_SUITS):
+            pile_a = self.foundation_piles[suit_index]
+            pile_b = self.foundation_piles[2 * Card.NB_SUITS - suit_index - 1]
+            sorted_foundation_piles_indexed.append(
+                (pile_a, pile_b) if len(pile_a) < len(pile_b) else (pile_b, pile_a)
+            )
+        return sorted_foundation_piles_indexed
 
     @profile
     def __eq__(self, other: "HashBoard"):
@@ -292,10 +310,9 @@ class HashBoard(Board):
 
         # Check foundation
         # Inversion between same suit piles doesn't matter
-        if any(
-            self.sorted_foundation_piles_indexed(i_suit)
-            != other.sorted_foundation_piles_indexed(i_suit)
-            for i_suit in range(Card.NB_SUITS)
+        if (
+            self.sorted_foundation_piles_indexed
+            != other.sorted_foundation_piles_indexed
         ):
             return False
 
@@ -315,9 +332,7 @@ class HashBoard(Board):
         if self._foundation_piles_hash is None:
             self._foundation_piles_hash = hash(
                 tuple(
-                    itertools.chain.from_iterable(
-                        map(self.sorted_foundation_piles_indexed, range(Card.NB_SUITS))
-                    )
+                    itertools.chain.from_iterable(self.sorted_foundation_piles_indexed)
                 )
             )
         if self._tableau_piles_hash is None:

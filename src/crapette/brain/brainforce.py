@@ -14,7 +14,15 @@ from line_profiler import profile
 from crapette.core.board import Board, HashBoard
 from crapette.core.cards import Card
 from crapette.core.moves import Flip, FlipWaste, Move
-from crapette.core.piles import FoundationPile, Pile, TableauPile, _PlayerPile
+from crapette.core.piles import (
+    CrapePile,
+    FoundationPile,
+    Pile,
+    StockPile,
+    TableauPile,
+    WastePile,
+    _PlayerPile,
+)
 
 if TYPE_CHECKING:
     from crapette.game_manager import GameConfig
@@ -34,11 +42,10 @@ class AIError(RuntimeError):
 class BrainConfig:
     shortcut: bool = True
     filter_piles_orig: bool = False
+    sort_piles_orig: bool = False
     mono: bool = True
     print_progress: bool = False
-
-
-MAX_COST = float("inf")
+    reproducible: bool = True
 
 
 class BrainForce:
@@ -100,7 +107,7 @@ class BoardNode:
         self.player = player
         self.ai_config = ai_config
 
-        self.cost = MAX_COST
+        self.cost: list[int] = []
         self.score = BoardScore(self.board, self.player).score
         self.score_min = tuple(-s for s in self.score)
         self.visited: bool = False
@@ -111,7 +118,11 @@ class BoardNode:
 
         This is used in heapq to find the next node with a minimum distance.
         """
-        return self.cost, self.score_min
+        return (
+            self.score_min < other.score_min
+            if self.cost == other.cost
+            else self.cost < other.cost
+        )
 
     @profile
     def search_neighbors(
@@ -177,21 +188,45 @@ class BoardNode:
         next_board = HashBoard(self.board, move)
 
         # Compute the cost
-        cost = self.cost + (0 if isinstance(move.destination, FoundationPile) else 1)
+        cost_destination_dict = {
+            FoundationPile: 0,
+            CrapePile: 1,
+            WastePile: 2,
+            TableauPile: 3,
+        }
+        cost_origin_dict = {
+            TableauPile: 0,
+            CrapePile: 1,
+            StockPile: 2,
+        }
+
+        cost = [
+            *self.cost,
+            (
+                len(self.moves),
+                cost_destination_dict[type(move.destination)],
+                cost_origin_dict[type(move.origin)],
+            ),
+        ]
         try:
             next_board_node = known_nodes[next_board]
         except KeyError:
-            # Add this unknown new board
-            next_board_node = BoardNode(next_board, self.player, self.ai_config)
-            known_nodes[next_board] = next_board_node
-            heapq.heappush(known_nodes_unvisited, next_board_node)
+            pass
         else:
-            # Skip if cost is higher or equal (best moves are tried first)
+            # Known board, check if a lower cost was found
+            # Skip if cost is higher or equal
             if next_board_node.visited or cost >= next_board_node.cost:
                 return
-        next_board_node.cost = cost
+
+            # Mark old BoardNode as visited instead of removing it from the heap, which is slow
+            next_board_node.visited = True
+
+        # Unknown board or new one in replacement
+        next_board_node = BoardNode(next_board, self.player, self.ai_config)
         next_board_node.moves = [*self.moves, move]
-        next_board_node.board = next_board  # Keep board synchronized with moves, to avoid conflicts between equivalenrt but different boards
+        next_board_node.cost = cost
+        known_nodes[next_board] = next_board_node
+        heapq.heappush(known_nodes_unvisited, next_board_node)
 
     @profile
     def piles_orig(
@@ -215,15 +250,17 @@ class BoardNode:
 
         # Consider first the piles where the card can go on the foundation,
         # then the smallest piles
-        piles_accum.sort(
-            key=lambda pile: (
-                any(
-                    not p.can_add_card(pile.top_card, pile, self.player)
-                    for p in foundation_dest
+        if self.ai_config.sort_piles_orig:
+            piles_accum.sort(
+                key=lambda pile: (
+                    not any(
+                        p.can_add_card(pile.top_card, pile, self.player)
+                        for p in foundation_dest
+                    ),
+                    len(pile),
+                    pile.top_card,
                 ),
-                len(pile),
-            ),
-        )
+            )
 
         # Add only player piles with top card available
         player_piles = self.board.players_piles[self.player]
@@ -252,8 +289,9 @@ class BoardNode:
 
         # Check only unique piles in tableau
         # An important case is multiple empty piles
-        # Try big piles first
-        tableau_piles = sorted(set(tableau_piles), reverse=True)
+        tableau_piles = set(tableau_piles)
+        if self.ai_config.reproducible:
+            tableau_piles = sorted(tableau_piles)
 
         # If both fondations are the same, keep only one
         foundation_piles_filtered = self.board.foundation_piles[: Card.NB_SUITS]
@@ -262,7 +300,7 @@ class BoardNode:
             self.board.foundation_piles[Card.NB_SUITS - 1 :: -1],
             strict=True,
         ):
-            if p1 != p2:
+            if len(p1) != len(p2):
                 foundation_piles_filtered.append(p1)
 
         return foundation_piles_filtered, [
@@ -282,17 +320,18 @@ class BrainDijkstra:
         first_node = BoardNode(
             hash_board, self.game_config.active_player, self.app_config.ai
         )
-        first_node.cost = 0
-        first_node.moves = []
         self.known_nodes = {hash_board: first_node}
-        self.known_nodes_unvisited = [first_node]
-        heapq.heapify(self.known_nodes_unvisited)
+        self.known_nodes_unvisited = []
+        heapq.heappush(self.known_nodes_unvisited, first_node)
 
     def _select_next_node(self) -> BoardNode | None:
         try:
-            return heapq.heappop(self.known_nodes_unvisited)
+            while (board_node := heapq.heappop(self.known_nodes_unvisited)).visited:
+                pass
         except IndexError:
             return None
+        else:
+            return board_node
 
     @profile
     def compute_search(self):
@@ -336,9 +375,9 @@ class BrainDijkstra:
 
                 if do_shortcut:
                     for board_node in known_nodes_unvisited:
-                        if (
-                            not best_node.moves
-                            or board_node.moves[0] != best_node.moves[0]
+                        if not best_node.moves or (
+                            not board_node.visited
+                            and board_node.moves[0] != best_node.moves[0]
                         ):
                             break  # Break out of shortcut check loop
                     else:
