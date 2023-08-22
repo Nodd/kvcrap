@@ -1,5 +1,7 @@
 """Initialization and data for a crapette game board backend."""
 
+from line_profiler import profile
+
 from .cards import Card, new_deck
 from .moves import Move
 from .piles import FoundationPile, TableauPile, player_piles
@@ -250,6 +252,7 @@ class HashBoard(Board):
         other_tableau = sorted(other.tableau_piles, reverse=True)
         return self_tableau == other_tableau
 
+    @profile
     def __hash__(self):
         """Compute a hash for the board.
 
