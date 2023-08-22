@@ -6,6 +6,7 @@ import argparse
 import dataclasses
 from inspect import getmodule
 from pathlib import Path
+from pprint import pprint
 
 import kivy
 import kivy.config
@@ -53,23 +54,10 @@ class CrapetteApp(App):
     card_overlap: int = NumericProperty()
     wide: bool = BooleanProperty()
 
-    def __init__(
-        self,
-        seed: int | None,
-        custom: str | None,
-        fast: bool,
-        ai_shortcut: bool,
-        ai_mono: bool,
-        ai_progress: bool,
-    ):
+    def __init__(self, app_config: AppConfig):
         super().__init__()
-
-        self.app_config = AppConfig(
-            input_seed=seed, custom_game=custom, fast_animations=fast
-        )
-        self.app_config.ai.shortcut = ai_shortcut
-        self.app_config.ai.mono = ai_mono
-        self.app_config.ai.print_progress = ai_progress
+        self.app_config = app_config
+        pprint(app_config)
 
     def build(self):
         # Just set the property so that it's available in kv
@@ -133,7 +121,7 @@ class CrapetteApp(App):
         )
 
 
-def parse_args(args):
+def parse_args(argv):
     parser = argparse.ArgumentParser(prog="crapette", description="Play Crapette")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -163,27 +151,27 @@ def parse_args(args):
         help="Speed up the animations.",
     )
     ai_group = parser.add_argument_group("AI", "Options to control the AI behavior.")
-    ai_group.add_argument(
-        "--shortcut",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-    )
-    ai_group.add_argument(
-        "--mono",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-    )
-    ai_group.add_argument(
-        "--progress",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-    )
+    for field in dataclasses.fields(BrainConfig):
+        name_cli = field.name.replace("_", "-")
+        if field.type == bool:
+            ai_group.add_argument(
+                f"--{name_cli}",
+                action=argparse.BooleanOptionalAction,
+                default=field.default,
+                help=name_cli,
+            )
+        else:
+            raise ValueError("Unknown field type {field.type} for {field.name}")
 
-    return parser.parse_args(args)
+    args = parser.parse_args(argv)
+    app_config = AppConfig(
+        input_seed=args.seed, custom_game=args.custom, fast_animations=args.fast
+    )
+    for field in dataclasses.fields(BrainConfig):
+        setattr(app_config.ai, field.name, getattr(args, field.name))
+    return app_config
 
 
-def main(args):
-    args = parse_args(args)
-    CrapetteApp(
-        args.seed, args.custom, args.fast, args.shortcut, args.mono, args.progress
-    ).run()
+def main(argv):
+    app_config = parse_args(argv)
+    CrapetteApp(app_config).run()
