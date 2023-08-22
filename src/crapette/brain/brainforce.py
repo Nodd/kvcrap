@@ -33,6 +33,7 @@ class AIError(RuntimeError):
 @dataclasses.dataclass
 class BrainConfig:
     shortcut: bool = True
+    filter_piles_orig: bool = True
     mono: bool = True
     print_progress: bool = False
 
@@ -85,6 +86,7 @@ class BoardNode:
     __slots__ = [
         "board",
         "player",
+        "ai_config",
         "cost",
         "score",
         "score_min",
@@ -93,9 +95,10 @@ class BoardNode:
         "index",
     ]
 
-    def __init__(self, board: HashBoard, player: int) -> None:
+    def __init__(self, board: HashBoard, player: int, ai_config) -> None:
         self.board = board
         self.player = player
+        self.ai_config = ai_config
 
         self.cost = MAX_COST
         self.score = BoardScore(self.board, self.player).score
@@ -180,7 +183,7 @@ class BoardNode:
             next_board_node = known_nodes[next_board]
         except KeyError:
             # Add this unknown new board
-            next_board_node = BoardNode(next_board, self.player)
+            next_board_node = BoardNode(next_board, self.player, self.ai_config)
             known_nodes[next_board] = next_board_node
             heapq.heappush(known_nodes_unvisited, next_board_node)
         else:
@@ -196,16 +199,20 @@ class BoardNode:
         self, foundation_dest: list[FoundationPile], other_dest: list[Pile]
     ) -> list[Pile]:
         """Piles to take cards from."""
-        # Look for potential interesting moves
-        # Don't consider empty enemy or tableau piles as useful move
-        other_dest = [p for p in other_dest if not p.is_empty]
-        piles_dest = foundation_dest + other_dest
         tableau_piles = [p for p in self.board.tableau_piles if not p.is_empty]
 
-        # Keeps only tableau piles containing card that could go elsewhere
-        piles_accum = []
-        for tableau_pile in tableau_piles:
-            self._any_card_can_move(tableau_pile, piles_dest, piles_accum)
+        if self.ai_config.filter_piles_orig:
+            # Look for potential interesting moves
+            # Don't consider empty enemy or tableau piles as useful move
+            other_dest = [p for p in other_dest if not p.is_empty]
+            piles_dest = foundation_dest + other_dest
+
+            # Keeps only tableau piles containing card that could go elsewhere
+            piles_accum = []
+            for tableau_pile in tableau_piles:
+                self._any_card_can_move(tableau_pile, piles_dest, piles_accum)
+        else:
+            piles_accum = tableau_piles
 
         # Consider first the piles where the card can go on the foundation,
         # then the smallest piles
@@ -269,10 +276,13 @@ class BoardNode:
 class BrainDijkstra:
     def __init__(self, game_config: "GameConfig") -> None:
         self.game_config = game_config
+        self.app_config = App.get_running_app().app_config
         hash_board = HashBoard(self.game_config.board)
 
         # Initialize
-        first_node = BoardNode(hash_board, self.game_config.active_player)
+        first_node = BoardNode(
+            hash_board, self.game_config.active_player, self.app_config.ai
+        )
         first_node.cost = 0
         first_node.moves = []
         self.known_nodes = {hash_board: first_node}
@@ -287,7 +297,6 @@ class BrainDijkstra:
 
     @profile
     def compute_search(self):
-        app_config = App.get_running_app().app_config
         max_score = BoardScore.WORSE
         best_node = None
 
@@ -296,7 +305,8 @@ class BrainDijkstra:
         path = path / f"log_{self.game_config.step:04d}.txt"
 
         # Optimize using local vars out of `while`
-        do_shortcut = app_config.ai.shortcut
+        do_shortcut = self.app_config.ai.shortcut
+        print_progress = self.app_config.ai.print_progress
         known_nodes = self.known_nodes
         known_nodes_unvisited = self.known_nodes_unvisited
 
@@ -311,7 +321,7 @@ class BrainDijkstra:
                     max_score = next_node.score
                     best_node = next_node
 
-                if app_config.ai.print_progress:
+                if print_progress:
                     # print(next_node.board.to_text())
                     f.write(f"{nb_nodes_visited}\n")
                     f.write(next_node.board.to_text())
@@ -337,7 +347,7 @@ class BrainDijkstra:
 
                 next_node = self._select_next_node()
 
-            if app_config.ai.print_progress:
+            if print_progress:
                 print(" " * 80, end="\r")
 
             # Shortcut from app_config.ai.shortcut
