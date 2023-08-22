@@ -220,12 +220,9 @@ class HashBoard(Board):
         self._hash_cache = self._compute_hash()
 
     def sorted_foundation_piles_indexed(self, suit_index: int):
-        return sorted(
-            (
-                self.foundation_piles[suit_index],
-                self.foundation_piles[2 * Card.NB_SUITS - suit_index - 1],
-            )
-        )
+        pile_a = self.foundation_piles[suit_index]
+        pile_b = self.foundation_piles[2 * Card.NB_SUITS - suit_index - 1]
+        return (pile_a, pile_b) if len(pile_a) < len(pile_b) else (pile_b, pile_a)
 
     def __hash__(self):
         return self._hash_cache
