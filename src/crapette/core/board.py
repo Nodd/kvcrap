@@ -34,12 +34,12 @@ class Board:
 
     @property
     def piles(self):
-        return (
-            list(self.players_piles[0])
-            + list(self.players_piles[1])
-            + self.foundation_piles
-            + self.tableau_piles
-        )
+        return [
+            *self.players_piles[0],
+            *self.players_piles[1],
+            *self.foundation_piles,
+            *self.tableau_piles,
+        ]
 
     def __repr__(self):
         return f"Board:{id(self)}"
