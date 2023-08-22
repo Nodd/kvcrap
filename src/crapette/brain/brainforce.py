@@ -33,7 +33,7 @@ class AIError(RuntimeError):
 @dataclasses.dataclass
 class BrainConfig:
     shortcut: bool = True
-    filter_piles_orig: bool = True
+    filter_piles_orig: bool = False
     mono: bool = True
     print_progress: bool = False
 
