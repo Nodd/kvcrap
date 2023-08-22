@@ -12,6 +12,7 @@ build/
 
 # Profiling
 *.lprof
+profile_output*.txt
 
 # Test
 .pytest_cache/
