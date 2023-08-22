@@ -350,16 +350,18 @@ class BrainDijkstra:
                 print(" " * 80, end="\r")
 
             # Shortcut from app_config.ai.shortcut
-            if self.known_nodes_unvisited:
+            if known_nodes_unvisited:
                 moves = [best_node.moves[0]]
                 for index, move in enumerate(best_node.moves[1:]):
                     index += 1  # noqa: PLW2901
                     if all(
                         len(board_node.moves) > index
                         and board_node.moves[index] == move
-                        for board_node in self.known_nodes_unvisited
+                        for board_node in known_nodes_unvisited
                     ):
                         moves.append(move)
+                    else:
+                        break
                 print("shortcut:", len(moves))
                 f.write(f"shortcut: {len(moves)}\n")
             else:
@@ -369,7 +371,7 @@ class BrainDijkstra:
             f.write("\n".join(str(move) for move in moves))
             f.write("\n\n")
 
-        return best_node.moves, nb_nodes_visited
+        return moves, nb_nodes_visited
 
 
 class BoardScore:
