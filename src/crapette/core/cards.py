@@ -19,60 +19,34 @@ class Card:
     RANK_SYMBOL = {1: "A", 10: "0", 11: "J", 12: "Q", 13: "K"}
     RANK_NAME = {1: "Ace", 11: "Jack", 12: "Queen", 13: "King"}
 
-    __slots__ = ["_rank", "_suit", "_player", "_face_up", "_color", "_hash_cache"]
+    __slots__ = [
+        "rank",
+        "suit",
+        "player",
+        "_face_up",
+        "_color",
+        "_hash_cache",
+        "suit_symbol",
+        "rank_symbol",
+        "rank_name",
+        "str_rank_suit",
+    ]
 
     def __init__(self, rank, suit, player):
         assert rank in self.RANKS
         assert suit in self.SUITS
         assert player in self.PLAYERS
-        self._rank = rank
-        self._suit = suit
-        self._player = player
+        self.rank = rank
+        self.suit = suit
+        self.player = player
         self._face_up = False
         self._color = "r" if suit in self.RED else "b"
-        self._hash_cache = hash((self._rank, self._suit))
+        self._hash_cache = hash((self.rank, self.suit))
 
-    @property
-    def rank(self):
-        """Rank of the card, between MIN_RANK (1) and MAX_RANK (13)."""
-        return self._rank
-
-    @property
-    def suit(self):
-        """Caracter representing the suit of the card.
-
-        - c: Clubs
-        - d: Diamonds
-        - h: Hearts
-        - s: Spades
-        """
-        return self._suit
-
-    @property
-    def suit_symbol(self):
-        return self.SUIT_SYMBOL[self._suit]
-
-    @property
-    def rank_symbol(self):
-        try:
-            return self.RANK_SYMBOL[self._rank]
-        except KeyError:
-            return str(self._rank)
-
-    @property
-    def rank_name(self):
-        try:
-            return self.RANK_NAME[self._rank]
-        except KeyError:
-            return str(self._rank)
-
-    @property
-    def player(self):
-        """Original player for the card.
-
-        Useful to get the decoration on the back of the card.
-        """
-        return self._player
+        self.suit_symbol = self.SUIT_SYMBOL[self.suit]
+        self.rank_symbol = self.RANK_SYMBOL.get(self.rank, self.rank)
+        self.rank_name = self.RANK_NAME.get(self.rank, str(self.rank))
+        self.str_rank_suit = f"{self.rank_symbol}{self.suit_symbol}"
 
     @property
     def face_up(self):
@@ -92,11 +66,6 @@ class Card:
         """Represent the card as a string."""
         return f"{self.rank_symbol}{self.suit_symbol}{'^' if self._face_up else 'v'}"
 
-    @property
-    def str_rank_suit(self):
-        """Represent the card as a string with only symbol and suit."""
-        return f"{self.rank_symbol}{self.suit_symbol}"
-
     def __repr__(self):
         # return f"Card(rank={self.rank}, suit={self.suit}, player={self.player}, face_up={self.face_up})"
         return self.__str__()
@@ -106,17 +75,17 @@ class Card:
 
     def __eq__(self, other):
         return (
-            self._rank == other._rank
-            and self._suit == other._suit
-            and self._player == other._player
+            self.rank == other.rank
+            and self.suit == other.suit
+            and self.player == other.player
         )
 
     def __lt__(self, other):
-        if self._rank == other._rank:
-            if self._suit == other._suit:
-                return self._player < other._player
-            return self._suit < other._suit
-        return self._rank < other._rank
+        if self.rank == other.rank:
+            if self.suit == other.suit:
+                return self.player < other.player
+            return self.suit < other.suit
+        return self.rank < other.rank
 
 
 def new_deck(player, shuffle=True):
