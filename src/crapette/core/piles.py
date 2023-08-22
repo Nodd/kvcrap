@@ -33,6 +33,19 @@ class Pile:
         self._frozen = False
         self._hash_cache = None
 
+    def _new(self):
+        raise NotImplementedError
+
+    def copy(self, cards: list[Card] | None = None) -> "Pile":
+        """Return a copy of the pile, with a new list of cards if given."""
+        new = self._new()
+        if cards is None:
+            cards = [*self._cards]
+        new._cards = cards
+        if self._frozen:
+            new.freeze()
+        return new
+
     def add_card(self, card):
         """Add a card to the pile."""
         if self._frozen:
@@ -149,12 +162,22 @@ class Pile:
 class FoundationPile(Pile):
     """Pile in the center where the suites are build from Ace to King."""
 
-    __slots__ = ["foundation_suit"]
+    __slots__ = ["foundation_id", "foundation_suit"]
 
     def __init__(self, suit, foundation_id):
         assert suit in Card.SUITS
         super().__init__(f"Foundation{foundation_id}{suit}")
+        self.foundation_id = foundation_id
         self.foundation_suit = suit
+
+    def _new(self):
+        return FoundationPile(self.foundation_suit, self.foundation_id)
+
+    def copy(self, cards: list[Card] | None = None) -> "FoundationPile":
+        """Return a copy of the pile, with a new set of cards."""
+        new = super().copy(cards)
+        new.foundation_suit = self.foundation_suit
+        return new
 
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile.
@@ -193,10 +216,14 @@ class FoundationPile(Pile):
 class TableauPile(Pile):
     """Side piles where cards go from King to Ace with alternate colors."""
 
-    __slots__ = []
+    __slots__ = ["tableau_id"]
 
     def __init__(self, tableau_id):
         super().__init__(f"Tableau{tableau_id}")
+        self.tableau_id = tableau_id
+
+    def _new(self):
+        return TableauPile(self.tableau_id)
 
     def can_add_card(self, card, origin, player):
         """Check if the card can be added to the pile.
@@ -224,6 +251,15 @@ class _PlayerPile(Pile):
         assert player in {0, 1}
         super().__init__(self._name_tpl.format(player=player))
         self._player = player
+
+    def _new(self):
+        return self.__class__(self._player)
+
+    def copy(self, cards: list[Card] | None = None) -> "_PlayerPile":
+        """Return a copy of the pile, with a new set of cards."""
+        new = super().copy(cards)
+        new._player = self._player
+        return new
 
     def can_pop_card(self, player):
         return player == self._player

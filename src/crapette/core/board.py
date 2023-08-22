@@ -1,10 +1,19 @@
 """Initialization and data for a crapette game board backend."""
 
+import itertools
+
 from line_profiler import profile
 
 from .cards import Card, new_deck
 from .moves import Move
-from .piles import FoundationPile, TableauPile, player_piles
+from .piles import (
+    FoundationPile,
+    Pile,
+    PlayerPiles,
+    TableauPile,
+    _PlayerPile,
+    player_piles,
+)
 
 
 class Board:
@@ -197,25 +206,70 @@ class HashBoard(Board):
     This is only used in AI computations where boards are "frozen".
     """
 
-    __slots__ = ["_hash_cache"]
+    __slots__ = [
+        "_hash_cache",
+        "_players_piles_hash",
+        "_foundation_piles_hash",
+        "_tableau_piles_hash",
+    ]
 
     @profile
     def __init__(self, board: Board, move: Move | None = None):
-        super().__init__()
+        # No call to __init__, everything is redone here by copying the Piles
+        if move:
+            new_origin = move.origin.copy(move.origin._cards[:-1])
+            new_destination = move.destination.copy(
+                [*move.destination._cards, move.card]
+            )
 
-        origin_name = move.origin.name if move else None
-        destination_name = move.destination.name if move else None
+            def replace(pile: Pile):
+                if pile.name == new_origin.name:
+                    return new_origin
+                if pile.name == new_destination.name:
+                    return new_destination
+                return pile
 
-        # Pass pile content by reference
-        # They should not be modified, except in `HashBoard.with_move()`
-        for pile, board_pile in zip(self.piles, board.piles, strict=True):
-            if pile.name == origin_name:
-                pile._cards = board_pile._cards[:-1]
-            elif pile.name == destination_name:
-                pile._cards = [*board_pile._cards, move.card]
+            # Copy the piles from the reference board, replacing the piles that have changed
+            if isinstance(new_origin, _PlayerPile) or isinstance(
+                new_destination, _PlayerPile
+            ):
+                self.players_piles = [
+                    PlayerPiles(*map(replace, board.players_piles[0])),
+                    PlayerPiles(*map(replace, board.players_piles[1])),
+                ]
+                self._players_piles_hash = None
             else:
-                pile._cards = board_pile._cards
-            pile.freeze()
+                self.players_piles = board.players_piles
+                self._players_piles_hash = board._players_piles_hash
+            if isinstance(new_destination, FoundationPile):
+                self.foundation_piles = [*map(replace, board.foundation_piles)]
+                self._foundation_piles_hash = None
+            else:
+                self.foundation_piles = board.foundation_piles
+                self._foundation_piles_hash = board._foundation_piles_hash
+            if isinstance(new_origin, TableauPile) or isinstance(
+                new_destination, TableauPile
+            ):
+                self.tableau_piles = [*map(replace, board.tableau_piles)]
+                self._tableau_piles_hash = None
+            else:
+                self.tableau_piles = board.tableau_piles
+                self._tableau_piles_hash = board._tableau_piles_hash
+
+        else:
+            self.players_piles = [
+                PlayerPiles(*(p.copy() for p in board.players_piles[0])),
+                PlayerPiles(*(p.copy() for p in board.players_piles[1])),
+            ]
+            self.foundation_piles = [p.copy() for p in board.foundation_piles]
+            self.tableau_piles = [p.copy() for p in board.tableau_piles]
+
+            self._players_piles_hash = None
+            self._foundation_piles_hash = None
+            self._tableau_piles_hash = None
+
+            for pile in self.piles:
+                pile.freeze()
 
         self._hash_cache = self._compute_hash()
 
@@ -254,13 +308,24 @@ class HashBoard(Board):
 
         Doesn't differ if cards face up or down.
         """
-        # Player piles
-        piles = list(self.players_piles[0]) + list(self.players_piles[1])
-        piles = [*self.players_piles[0], *self.players_piles[1]]
-
-        # Foundation, inversion between same suit piles doesn't matter
-        for i_suit in range(Card.NB_SUITS):
-            piles += self.sorted_foundation_piles_indexed(i_suit)
-        piles += sorted(self.tableau_piles, reverse=True)
-
-        return hash(tuple(piles))
+        if self._players_piles_hash is None:
+            self._players_piles_hash = hash(
+                (*self.players_piles[0], *self.players_piles[1])
+            )
+        if self._foundation_piles_hash is None:
+            self._foundation_piles_hash = hash(
+                tuple(
+                    itertools.chain.from_iterable(
+                        map(self.sorted_foundation_piles_indexed, range(Card.NB_SUITS))
+                    )
+                )
+            )
+        if self._tableau_piles_hash is None:
+            self._tableau_piles_hash = hash(tuple(sorted(self.tableau_piles)))
+        return hash(
+            (
+                self._players_piles_hash,
+                self._foundation_piles_hash,
+                self._tableau_piles_hash,
+            )
+        )
