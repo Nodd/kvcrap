@@ -91,10 +91,11 @@ class BoardWidget(BoxLayout):
 
         The cards are not placed on the board, see `place_cards`.
         """
+        cards_layer = self.ids["cards_layer"]
         # Remove previous card widgets
         if self.card_widgets:
             for card_widget in self.card_widgets.values():
-                self.app.root.remove_widget(card_widget)
+                cards_layer.remove_widget(card_widget)
 
         # Add all card widgets
         self.card_widgets = {}
@@ -103,7 +104,7 @@ class BoardWidget(BoxLayout):
                 card_widget = CardWidget(card, self.game_manager)
                 card_widget.pile_widget = pile_widget
                 self.card_widgets[card] = card_widget
-                self.app.root.add_widget(card_widget)
+                cards_layer.add_widget(card_widget)
 
     def place_cards(self):
         """Reset the card widget positions in the piles."""
@@ -209,8 +210,9 @@ class BoardWidget(BoxLayout):
 
     def put_on_top(self, card_widget: CardWidget):
         """Put a card widget above the other cards on the board widget."""
-        self.app.root.remove_widget(card_widget)
-        self.app.root.add_widget(card_widget)
+        cards_layer = self.ids["cards_layer"]
+        cards_layer.remove_widget(card_widget)
+        cards_layer.add_widget(card_widget)
 
     def set_crapette_mode(self, crapette_mode, player: int):
         """Toggle the crapette mode."""
