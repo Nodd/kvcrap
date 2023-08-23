@@ -42,8 +42,9 @@ class AIError(RuntimeError):
 class BrainConfig:
     shortcut: bool = True
     filter_piles_orig: bool = True
+    filter_piles_orig_aggressive: bool = True
     mono: bool = True
-    print_progress: bool = True
+    print_progress: bool = False
     reproducible: bool = True
 
 
@@ -137,9 +138,9 @@ class BoardNode:
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
             return
 
-        foundation_dest, other_dest = self.piles_dest()
-        piles_dest = foundation_dest + other_dest
-        piles_orig = self.piles_orig(foundation_dest, other_dest)
+        foundation_dest, tableau_dest, enemy_dest = self.piles_dest()
+        piles_dest = foundation_dest + tableau_dest + enemy_dest
+        piles_orig = self.piles_orig(foundation_dest, tableau_dest, enemy_dest)
 
         # Check all possible origin piles
         for pile_orig in piles_orig:
@@ -234,21 +235,42 @@ class BoardNode:
 
     @profile
     def piles_orig(
-        self, foundation_dest: list[FoundationPile], other_dest: list[Pile]
+        self,
+        foundation_dest: list[FoundationPile],
+        tableau_dest: list[TableauPile],
+        enemy_dest: list[_PlayerPile],
     ) -> list[Pile]:
         """Piles to take cards from."""
         tableau_piles = [p for p in self.board.tableau_piles if not p.is_empty]
 
-        if self.ai_config.filter_piles_orig:
+        if (
+            self.ai_config.filter_piles_orig
+            or self.ai_config.filter_piles_orig_aggressive
+        ):
             # Look for potential interesting moves
             # Don't consider empty enemy or tableau piles as useful move
-            other_dest = [p for p in other_dest if not p.is_empty]
-            piles_dest = foundation_dest + other_dest
+            tableau_dest = [p for p in tableau_dest if not p.is_empty]
 
             # Keeps only tableau piles containing card that could go elsewhere
             piles_accum = []
-            for tableau_pile in tableau_piles:
-                self._any_card_can_move(tableau_pile, piles_dest, piles_accum)
+            if self.ai_config.filter_piles_orig_aggressive:
+                non_tableau_dest = foundation_dest + enemy_dest
+                for tableau_pile in tableau_piles:
+                    for other_tableau_pile in tableau_dest:
+                        if other_tableau_pile.can_add_card(
+                            tableau_pile[0], tableau_pile, self.player
+                        ):
+                            piles_accum.append(tableau_pile)
+                            break
+                    else:
+                        self._any_card_can_move(
+                            tableau_pile, non_tableau_dest, piles_accum
+                        )
+            else:
+                piles_dest = foundation_dest + enemy_dest + tableau_piles
+                for tableau_pile in tableau_piles:
+                    self._any_card_can_move(tableau_pile, piles_dest, piles_accum)
+
         else:
             piles_accum = tableau_piles
 
@@ -263,10 +285,13 @@ class BoardNode:
 
     @profile
     def _any_card_can_move(
-        self, tableau_pile: TableauPile, piles_dest: list[Pile], piles_accum: list[Pile]
+        self,
+        tableau_pile: TableauPile,
+        non_tableau_dest: list[Pile],
+        piles_accum: list[Pile],
     ):
         for card in tableau_pile:
-            for pile in piles_dest:
+            for pile in non_tableau_dest:
                 if pile.can_add_card(card, tableau_pile, self.player):
                     piles_accum.append(tableau_pile)
                     return
@@ -282,6 +307,8 @@ class BoardNode:
         tableau_piles = set(tableau_piles)
         if self.ai_config.reproducible:
             tableau_piles = sorted(tableau_piles)
+        else:
+            tableau_piles = [*tableau_piles]
 
         # If both fondations are the same, keep only one
         foundation_piles_filtered = self.board.foundation_piles[: Card.NB_SUITS]
@@ -293,11 +320,17 @@ class BoardNode:
             if len(p1) != len(p2):
                 foundation_piles_filtered.append(p1)
 
-        return foundation_piles_filtered, [
-            *tableau_piles,
+        enemy_piles = [
             enemy_piles.crape,
             enemy_piles.waste,
         ]
+        enemy_piles = [p for p in enemy_piles if not p.is_empty]
+
+        return (
+            foundation_piles_filtered,
+            tableau_piles,
+            enemy_piles,
+        )
 
 
 class BrainDijkstra:
