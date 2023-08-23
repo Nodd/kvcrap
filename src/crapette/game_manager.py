@@ -56,8 +56,12 @@ class GameConfig:
         self.log_path = log_parent_dir / f"{self.seed}_{self.start_time}.txt"
 
     @property
-    def is_ai(self):
+    def is_player_ai(self):
         return self.player_types[self.active_player] == "ai"
+
+    @property
+    def is_enemy_ai(self):
+        return self.player_types[1 - self.active_player] == "ai"
 
 
 class GameManager:
@@ -105,7 +109,7 @@ class GameManager:
 
         self.board_widget.set_active_player(player)
 
-    def check_end_of_turn(self, pile_widget):
+    def check_end_of_turn(self, pile_widget: PileWidget):
         """End the player turn if conditions are met."""
         assert not self.game_config.crapette_mode
 
@@ -114,6 +118,8 @@ class GameManager:
             and pile_widget.pile.player == self.game_config.active_player
         ):
             self.set_active_player(1 - self.game_config.active_player)
+            return True
+        return False
 
     def check_win(self):
         """End the game if the player has won."""
@@ -145,7 +151,7 @@ class GameManager:
         assert can_add in (True, False), can_add
         if not can_add:
             Logger.debug("Dropped on an incompatible pile")
-            if self.game_config.is_ai:
+            if self.game_config.is_player_ai:
                 raise AIError(
                     f"Tried to move {card_widget.card} from {old_pile_widget.pile} to incompatible pile {pile_widget.pile}"
                 )
@@ -168,8 +174,8 @@ class GameManager:
         else:
             self.game_config.last_move = None
 
-        self.check_end_of_turn(pile_widget)
-        if not self.game_config.is_ai:
+        end = self.check_end_of_turn(pile_widget)
+        if end and self.game_config.is_player_ai and not self.game_config.is_enemy_ai:
             self.check_moves()
 
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
@@ -180,7 +186,7 @@ class GameManager:
 
         self.game_config.last_move = Flip(card_widget, card_widget.pile_widget)
 
-        if not self.game_config.is_ai:
+        if not self.game_config.is_player_ai:
             self.check_moves()
 
     def flip_waste_to_stock(self):
@@ -218,7 +224,7 @@ class GameManager:
         # print("Checking moves...")
         if self.game_config.active_player is None:
             return  # End of game
-        if self.game_config.is_ai:
+        if self.game_config.is_player_ai:
             brain = BrainForce(self.game_config)
             if self.app.app_config.ai.mono:
                 moves = brain.compute_states()
