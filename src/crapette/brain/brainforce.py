@@ -42,7 +42,6 @@ class AIError(RuntimeError):
 class BrainConfig:
     shortcut: bool = True
     filter_piles_orig: bool = True
-    sort_piles_orig: bool = False
     mono: bool = True
     print_progress: bool = True
     reproducible: bool = True
@@ -252,20 +251,6 @@ class BoardNode:
                 self._any_card_can_move(tableau_pile, piles_dest, piles_accum)
         else:
             piles_accum = tableau_piles
-
-        # Consider first the piles where the card can go on the foundation,
-        # then the smallest piles
-        if self.ai_config.sort_piles_orig:
-            piles_accum.sort(
-                key=lambda pile: (
-                    not any(
-                        p.can_add_card(pile.top_card, pile, self.player)
-                        for p in foundation_dest
-                    ),
-                    len(pile),
-                    pile.top_card,
-                ),
-            )
 
         # Add only player piles with top card available
         player_piles = self.board.players_piles[self.player]
