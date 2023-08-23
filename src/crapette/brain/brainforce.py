@@ -107,7 +107,7 @@ class BoardNode:
         self.player = player
         self.ai_config = ai_config
 
-        self.cost: list[int] = []
+        self.cost: list[int] = [0, []]
         self.score = BoardScore(self.board, self.player).score
         self.score_min = tuple(-s for s in self.score)
         self.visited: bool = False
@@ -187,27 +187,7 @@ class BoardNode:
         # Instantiate neighbor
         next_board = HashBoard(self.board, move)
 
-        # Compute the cost
-        cost_destination_dict = {
-            FoundationPile: 0,
-            CrapePile: 1,
-            WastePile: 2,
-            TableauPile: 3,
-        }
-        cost_origin_dict = {
-            TableauPile: 0,
-            CrapePile: 1,
-            StockPile: 2,
-        }
-
-        cost = [
-            *self.cost,
-            (
-                len(self.moves),
-                cost_destination_dict[type(move.destination)],
-                cost_origin_dict[type(move.origin)],
-            ),
-        ]
+        cost = self.move_cost(move)
         try:
             next_board_node = known_nodes[next_board]
         except KeyError:
@@ -227,6 +207,31 @@ class BoardNode:
         next_board_node.cost = cost
         known_nodes[next_board] = next_board_node
         heapq.heappush(known_nodes_unvisited, next_board_node)
+
+    cost_destination_dict = {
+        FoundationPile: 0,
+        CrapePile: 1,
+        WastePile: 2,
+        TableauPile: 3,
+    }
+    cost_origin_dict = {
+        TableauPile: 0,
+        CrapePile: 1,
+        StockPile: 2,
+    }
+
+    def move_cost(self, move):
+        return [
+            # The lowest the number of moves, the better
+            len(self.moves),
+            # Cost of previous moves, minus the number of moves
+            *self.cost[1:],
+            # Cost of this move
+            (
+                self.cost_destination_dict[type(move.destination)],
+                self.cost_origin_dict[type(move.origin)],
+            ),
+        ]
 
     @profile
     def piles_orig(
