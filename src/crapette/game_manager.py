@@ -72,7 +72,13 @@ class GameManager:
 
         self._brain_process = None
 
-    def setup(self, player0: str, player1: str, seed=None, custom_game=None):
+    def setup(
+        self,
+        player0: str,
+        player1: str,
+        seed: int | None = None,
+        custom_game: str | None = None,
+    ):
         self.game_config = GameConfig(
             player_types=(player0, player1), seed=seed, custom_game=custom_game
         )
