@@ -217,6 +217,10 @@ class GameManager:
 
     def flip_waste_to_stock(self):
         """When the stock is empty, flip the waste back to the stock."""
+        if self.game_config.crapette_mode:
+            if self.game_config.is_player_ai:
+                raise AIError("AI tried to flip waste to stock in crapette mode")
+            return
         self.board_widget.flip_waste_to_stock()
 
         self.log_game_step("flip waste to stock")
