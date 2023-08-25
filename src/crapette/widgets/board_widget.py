@@ -41,7 +41,7 @@ class BoardWidget(BoxLayout):
             self.place_cards()
             if self.game_config:
                 # with contextlib.suppress(KeyError):  # KeyError on window initialization
-                self.place_background_halo(self.game_config.active_player)
+                self.place_background_halo()
 
         layout_delay_s = 0.2  # s
         self._do_layout_event = Clock.schedule_once(real_do_layout, layout_delay_s)
