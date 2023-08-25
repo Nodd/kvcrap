@@ -138,9 +138,9 @@ class BoardNode:
         if self.moves and isinstance(self.moves[-1].origin, _PlayerPile):
             return
 
-        foundation_dest, tableau_dest, enemy_dest = self.piles_dest()
-        piles_dest = foundation_dest + tableau_dest + enemy_dest
-        piles_orig = self.piles_orig(foundation_dest, tableau_dest, enemy_dest)
+        foundation_dest, tableau_dest, opponent_dest = self.piles_dest()
+        piles_dest = foundation_dest + tableau_dest + opponent_dest
+        piles_orig = self.piles_orig(foundation_dest, tableau_dest, opponent_dest)
 
         # Check all possible origin piles
         for pile_orig in piles_orig:
@@ -238,7 +238,7 @@ class BoardNode:
         self,
         foundation_dest: list[FoundationPile],
         tableau_dest: list[TableauPile],
-        enemy_dest: list[_PlayerPile],
+        opponent_dest: list[_PlayerPile],
     ) -> list[Pile]:
         """Piles to take cards from."""
         tableau_piles = [p for p in self.board.tableau_piles if not p.is_empty]
@@ -248,13 +248,13 @@ class BoardNode:
             or self.ai_config.filter_piles_orig_aggressive
         ):
             # Look for potential interesting moves
-            # Don't consider empty enemy or tableau piles as useful move
+            # Don't consider empty opponent or tableau piles as useful move
             tableau_dest = [p for p in tableau_dest if not p.is_empty]
 
             # Keeps only tableau piles containing card that could go elsewhere
             piles_accum = []
             if self.ai_config.filter_piles_orig_aggressive:
-                non_tableau_dest = foundation_dest + enemy_dest
+                non_tableau_dest = foundation_dest + opponent_dest
                 for tableau_pile in tableau_piles:
                     for other_tableau_pile in tableau_dest:
                         if other_tableau_pile.can_add_card(
@@ -267,7 +267,7 @@ class BoardNode:
                             tableau_pile, non_tableau_dest, piles_accum
                         )
             else:
-                piles_dest = foundation_dest + enemy_dest + tableau_piles
+                piles_dest = foundation_dest + opponent_dest + tableau_piles
                 for tableau_pile in tableau_piles:
                     self._any_card_can_move(tableau_pile, piles_dest, piles_accum)
 
@@ -299,7 +299,7 @@ class BoardNode:
     @profile
     def piles_dest(self) -> tuple[list[Pile]]:
         """Piles to put cards to."""
-        enemy_piles = self.board.players_piles[1 - self.player]
+        opponent_piles = self.board.players_piles[1 - self.player]
         tableau_piles = self.board.tableau_piles
 
         # Check only unique piles in tableau
@@ -323,16 +323,16 @@ class BoardNode:
             if len(p1) != len(p2) and not p1.is_full:
                 foundation_piles_filtered.append(p1)
 
-        enemy_piles = [
-            enemy_piles.crape,
-            enemy_piles.waste,
+        opponent_piles = [
+            opponent_piles.crape,
+            opponent_piles.waste,
         ]
-        enemy_piles = [p for p in enemy_piles if not p.is_empty]
+        opponent_piles = [p for p in opponent_piles if not p.is_empty]
 
         return (
             foundation_piles_filtered,
             tableau_piles,
-            enemy_piles,
+            opponent_piles,
         )
 
 

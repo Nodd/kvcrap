@@ -152,7 +152,7 @@ class BoardWidget(BoxLayout):
 
     def set_active_player(self):
         """Change the active player and updates the GUI accordingly."""
-        if not self.game_config.is_enemy_ai:
+        if not self.game_config.is_opponent_ai:
             player = self.game_config.active_player
 
             next_player_btn = self.ids[f"player{player}crapebutton"]

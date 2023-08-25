@@ -62,7 +62,7 @@ class GameConfig:
         return self.player_types[self.active_player] == "ai"
 
     @property
-    def is_enemy_ai(self):
+    def is_opponent_ai(self):
         return self.player_types[1 - self.active_player] == "ai"
 
 
@@ -186,7 +186,11 @@ class GameManager:
             self.game_config.last_move = None
 
         end = self.check_end_of_turn(pile_widget)
-        if end and self.game_config.is_player_ai and not self.game_config.is_enemy_ai:
+        if (
+            end
+            and self.game_config.is_player_ai
+            and not self.game_config.is_opponent_ai
+        ):
             self.check_moves()
 
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
