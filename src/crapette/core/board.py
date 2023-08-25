@@ -204,7 +204,8 @@ class Board:
         ]
         str_lines.append("".join(line))
 
-        str_lines = ["⌄" * 88, *str_lines, "⌃" * 88]
+        delim = "⌃" * 88 if self.game_config.active_player == 0 else "⌄" * 88
+        str_lines = [delim, *str_lines, delim]
         return "\n".join(str_lines)
 
 
