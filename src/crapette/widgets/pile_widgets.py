@@ -39,7 +39,7 @@ class PileWidget(RelativeLayout):
         """
         self.pile = pile
 
-    def card_pos(self, index: int = None) -> tuple[float, float]:
+    def card_pos(self, index: int = -1) -> tuple[float, float]:
         """Position of the center of the index-th card.
 
         If no index is given, the position for the top card is returned.
@@ -124,9 +124,9 @@ class TableauPileWidget(PileWidget):
         app: crapette.CrapetteApp = App.get_running_app()
         return app.card_overlap / (1 + 12 * app.card_overlap)
 
-    def position_offset(self, index: int | None) -> float:
-        if index is None:
-            index = len(self.pile) - 1
+    def position_offset(self, index: int) -> float:
+        if index < 0:
+            index += len(self.pile)
         assert index >= 0
 
         app: crapette.CrapetteApp = App.get_running_app()
@@ -137,7 +137,7 @@ class TableauLeftPileWidget(TableauPileWidget):
     def pos_anchor(self, i_card: int) -> float:
         return 1 - (self.pos_offset_factor * i_card)
 
-    def card_pos(self, index: int = None):
+    def card_pos(self, index: int = -1) -> tuple[float, float]:
         """Position of the center of the index-th card.
 
         If no index is given, the position for the top card is returned.
@@ -149,7 +149,7 @@ class TableauRightPileWidget(TableauPileWidget):
     def pos_anchor(self, i_card: int) -> float:
         return self.pos_offset_factor * i_card
 
-    def card_pos(self, index: int = None) -> tuple[float, float]:
+    def card_pos(self, index: int = -1) -> tuple[float, float]:
         """Position of the center of the index-th card.
 
         If no index is given, the position for the top card is returned.
