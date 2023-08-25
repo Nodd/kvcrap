@@ -152,18 +152,20 @@ class BoardWidget(BoxLayout):
 
     def set_active_player(self):
         """Change the active player and updates the GUI accordingly."""
-        player = self.game_config.active_player
-        next_player_btn = self.ids[f"player{player}crapebutton"]
-        next_player_btn.disabled = False
-        Animation(
-            opacity=1, duration=TRANSITION_DURATION, transition="out_cubic"
-        ).start(next_player_btn)
+        if not self.game_config.is_enemy_ai:
+            player = self.game_config.active_player
 
-        prev_player_btn = self.ids[f"player{1 - player}crapebutton"]
-        prev_player_btn.disabled = True
-        Animation(
-            opacity=0, duration=TRANSITION_DURATION, transition="out_cubic"
-        ).start(prev_player_btn)
+            next_player_btn = self.ids[f"player{player}crapebutton"]
+            next_player_btn.disabled = False
+            Animation(
+                opacity=1, duration=TRANSITION_DURATION, transition="out_cubic"
+            ).start(next_player_btn)
+
+            prev_player_btn = self.ids[f"player{1 - player}crapebutton"]
+            prev_player_btn.disabled = True
+            Animation(
+                opacity=0, duration=TRANSITION_DURATION, transition="out_cubic"
+            ).start(prev_player_btn)
 
         self.place_background_halo()
 
