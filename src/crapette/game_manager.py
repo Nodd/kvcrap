@@ -36,7 +36,7 @@ class GameConfig:
     step: int = 0
     last_move: None | Move | FlipWaste = None
     crapette_mode: bool = False
-    start_time: datetime | None = None
+    start_time: str | None = None
     log_path: Path = Path(__file__).parent / "log"
     board: Board = dataclasses.field(default_factory=Board)
 
@@ -50,9 +50,11 @@ class GameConfig:
     def register(self):
         if self.seed is None:
             raise RuntimeError("No seed configured")
-        self.start_time = datetime.now()
+        self.start_time = str(datetime.now())
         log_parent_dir = Path(__file__).parent / "log"
         log_parent_dir.mkdir(parents=True, exist_ok=True)
+        if os.name == "nt":
+            self.start_time = self.start_time.replace(":", "-")
         self.log_path = log_parent_dir / f"{self.seed}_{self.start_time}.txt"
 
     @property
@@ -287,7 +289,7 @@ class GameManager:
     def log_game_step(self, action):
         self.game_config.step += 1
 
-        with self.game_config.log_path.open("a") as f:
+        with self.game_config.log_path.open("a", encoding="utf8") as f:
             f.write(
                 f"\n\n*** {self.game_config.step} ***\nPlayer {self.game_config.active_player}: {action}\n"
             )

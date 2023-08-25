@@ -373,7 +373,7 @@ class BrainDijkstra:
 
         next_node = self._select_next_node()
         nb_nodes_visited = 0
-        with path.open("w") as f:
+        with path.open("w", encoding="utf8") as f:
             while next_node is not None:
                 nb_nodes_visited += 1
                 next_node.search_neighbors(known_nodes, known_nodes_unvisited)
