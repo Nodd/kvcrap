@@ -179,7 +179,7 @@ class GameManager:
             return
 
         if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
-            pile_widget, FoundationPileWidget
+            pile_widget, PlayerPileWidget
         ):
             self.game_config.last_move = Move(card_widget, old_pile_widget, pile_widget)
         else:
