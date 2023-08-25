@@ -15,7 +15,7 @@ from . import custom_test_games
 from .brain.brainforce import AIError, BrainForce
 from .core.board import Board
 from .core.moves import Flip, FlipWaste, Move
-from .core.piles import WastePile
+from .core.piles import CrapePile, FoundationPile, StockPile, TableauPile, WastePile
 from .widgets.card_widget import (
     DEFAULT_FLIP_DURATION,
     DEFAULT_MOVE_DURATION,
@@ -182,13 +182,12 @@ class GameManager:
         if self.check_win():
             return
 
+        move = Move(card_widget, old_pile_widget, pile_widget)
         if not self.game_config.crapette_mode:
             if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
                 pile_widget, PlayerPileWidget
             ):
-                self.set_crapette_last_move(
-                    Move(card_widget, old_pile_widget, pile_widget)
-                )
+                self.set_crapette_last_move(move)
             else:
                 self.set_crapette_last_move(None)
 
@@ -199,6 +198,9 @@ class GameManager:
                 and not self.game_config.is_opponent_ai
             ):
                 self.check_moves()
+        else:
+            valid = self.check_crapette_valid(move)
+            print(valid)
 
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card and register the flip as a move."""
@@ -250,6 +252,26 @@ class GameManager:
                     self.game_config.last_move.card,
                     self.game_config.last_move.destination,
                 )
+
+    def check_crapette_valid(self, move: Move):
+        if isinstance(move.destination.pile, FoundationPile) and isinstance(
+            move.origin.pile, TableauPile
+        ):
+            return True
+        last_move = self.game_config.last_move
+        if (
+            isinstance(last_move, Flip)
+            and isinstance(last_move.pile.pile, StockPile)
+            and isinstance(move.origin.pile, CrapePile)
+        ):
+            return True
+        if (
+            isinstance(last_move, Move)
+            and isinstance(last_move.origin.pile, StockPile)
+            and isinstance(move.origin.pile, CrapePile)
+        ):
+            return True
+        return False
 
     def check_moves(self):
         # print("Checking moves...")
