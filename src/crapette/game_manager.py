@@ -202,6 +202,10 @@ class GameManager:
 
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card and register the flip as a move."""
+        if self.game_config.crapette_mode:
+            if self.game_config.is_player_ai:
+                raise AIError("AI tried to flip a pile in crapette mode")
+            return
         self.board_widget.flip_card_up(card_widget, duration)
 
         self.log_game_step(f"flip card up in {card_widget.pile_widget.pile.name}")
