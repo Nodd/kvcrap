@@ -28,9 +28,9 @@ class PileWidget(RelativeLayout):
 
     def __repr__(self):
         try:
-            return f"PileWidget({self.pile!r})"
+            return f"{self.__class__.__name__}({self.pile!r})"
         except AttributeError:
-            return "PileWidget()"
+            return f"{self.__class__.__name__}()"
 
     def set_pile(self, pile: Pile):
         """Set the underlying Pile backend.
