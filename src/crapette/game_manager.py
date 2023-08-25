@@ -115,7 +115,7 @@ class GameManager:
         self.game_config.last_move = None
         self.game_config.active_player = player
 
-        self.board_widget.set_active_player(player)
+        self.board_widget.set_active_player()
 
     def check_end_of_turn(self, pile_widget: PileWidget):
         """End the player turn if conditions are met."""
@@ -199,7 +199,7 @@ class GameManager:
 
     def flip_waste_to_stock(self):
         """When the stock is empty, flip the waste back to the stock."""
-        self.board_widget.flip_waste_to_stock(self.game_config.active_player)
+        self.board_widget.flip_waste_to_stock()
 
         self.log_game_step("flip waste to stock")
 
@@ -208,9 +208,7 @@ class GameManager:
     def toggle_crapette_mode(self):
         self.game_config.crapette_mode = not self.game_config.crapette_mode
 
-        self.board_widget.set_crapette_mode(
-            self.game_config.crapette_mode, self.game_config.active_player
-        )
+        self.board_widget.set_crapette_mode()
 
         if self.game_config.crapette_mode:
             for card_widget in self.board_widget.card_widgets.values():

@@ -150,8 +150,9 @@ class BoardWidget(BoxLayout):
 
         self.update_counts()
 
-    def set_active_player(self, player: int):
+    def set_active_player(self):
         """Change the active player and updates the GUI accordingly."""
+        player = self.game_config.active_player
         next_player_btn = self.ids[f"player{player}crapebutton"]
         next_player_btn.disabled = False
         Animation(
@@ -164,13 +165,13 @@ class BoardWidget(BoxLayout):
             opacity=0, duration=TRANSITION_DURATION, transition="out_cubic"
         ).start(prev_player_btn)
 
-        self.place_background_halo(player)
+        self.place_background_halo()
 
-    def place_background_halo(self, player):
-        """Place the background ahlo indicating that it's the player's turn."""
+    def place_background_halo(self):
+        """Place the background halo indicating that it's the player's turn."""
         background_halo = self.ids["background_halo"]
         Animation(
-            y=0 if player == 0 else self.app.root.height,
+            y=0 if self.game_config.active_player == 0 else self.app.root.height,
             duration=TRANSITION_DURATION,
             transition="in_out_expo",
         ).start(background_halo)
@@ -189,8 +190,9 @@ class BoardWidget(BoxLayout):
             self.put_on_top(card_widget)
         self.update_counts()
 
-    def flip_waste_to_stock(self, player: int):
+    def flip_waste_to_stock(self):
         """When the stock is empty, flip the waste back to the stock."""
+        player = self.game_config.active_player
         stock_widget = self.ids[f"player{player}stock"]
         waste_widget = self.ids[f"player{player}waste"]
 
@@ -214,11 +216,15 @@ class BoardWidget(BoxLayout):
         cards_layer.remove_widget(card_widget)
         cards_layer.add_widget(card_widget)
 
-    def set_crapette_mode(self, crapette_mode, player: int):
+    def set_crapette_mode(self):
         """Toggle the crapette mode."""
         ids = self.app.root.ids
-        crapette_button = ids[f"player{player}crapebutton"]
+        crapette_button = ids[f"player{self.game_config.active_player}crapebutton"]
 
         background_crapette = self.ids["background_crapette"]
-        background_crapette.opacity = 1 if crapette_mode else 0
-        crapette_button.text = "Cancel ! (Sorry...)" if crapette_mode else "Crapette !"
+        if self.game_config.crapette_mode:
+            background_crapette.opacity = 1
+            crapette_button.text = "Cancel ! (Sorry...)"
+        else:
+            background_crapette.opacity = 0
+            crapette_button.text = "Crapette !"
