@@ -33,21 +33,16 @@ CARD_IMG = types.SimpleNamespace(
 
 def card2img(card):
     if card is None:
-        img_path = CARD_IMG.PATH / "card-base.png"
+        img = "card-base.png"
     elif not card.face_up:
-        if card.player == 0:
-            img_path = CARD_IMG.PATH / "back-navy.png"
-        else:
-            img_path = CARD_IMG.PATH / "back-red.png"
+        img = "back-navy.png" if card.player == 0 else "back-red.png"
     else:
-        img_path = (
-            CARD_IMG.PATH
-            / f"{CARD_IMG.SUIT_NAME[card.suit]}_{CARD_IMG.RANK_NAME[card.rank]}.png"
-        )
-    return str(img_path)
+        img =f"{CARD_IMG.SUIT_NAME[card.suit]}_{CARD_IMG.RANK_NAME[card.rank]}.png"
+    print(img)
+    return str(CARD_IMG.PATH / img)
 
 
-CARD_IMG.SIZE = CoreImage(str(card2img(None))).size
+CARD_IMG.SIZE = CoreImage(card2img(None)).size
 CARD_IMG.WIDTH, CARD_IMG.HEIGHT = CARD_IMG.SIZE
 CARD_IMG.RATIO = CARD_IMG.WIDTH / CARD_IMG.HEIGHT
 CARD_IMG.OFFSET_FACTOR = 0.2  # %
