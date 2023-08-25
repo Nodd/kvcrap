@@ -115,7 +115,7 @@ class GameManager:
         """Change the active player and updates the GUI accordingly."""
         assert not self.game_config.crapette_mode
 
-        self.game_config.last_move = None
+        self.set_crapette_last_move(None)
         self.game_config.active_player = player
 
         self.board_widget.set_active_player()
@@ -143,6 +143,10 @@ class GameManager:
                 card_widget.do_translation = False
             return True
         return False
+
+    def set_crapette_last_move(self, move: Move | Flip | FlipWaste | None):
+        self.game_config.last_move = move
+        self.board_widget.update_crapette_button_status()
 
     def move_card(
         self,
@@ -181,9 +185,9 @@ class GameManager:
         if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
             pile_widget, PlayerPileWidget
         ):
-            self.game_config.last_move = Move(card_widget, old_pile_widget, pile_widget)
+            self.set_crapette_last_move(Move(card_widget, old_pile_widget, pile_widget))
         else:
-            self.game_config.last_move = None
+            self.set_crapette_last_move(None)
 
         end = self.check_end_of_turn(pile_widget)
         if (
@@ -199,7 +203,7 @@ class GameManager:
 
         self.log_game_step(f"flip card up in {card_widget.pile_widget.pile.name}")
 
-        self.game_config.last_move = Flip(card_widget, card_widget.pile_widget)
+        self.set_crapette_last_move(Flip(card_widget, card_widget.pile_widget))
 
         if not self.game_config.is_player_ai:
             self.check_moves()
@@ -210,9 +214,11 @@ class GameManager:
 
         self.log_game_step("flip waste to stock")
 
-        self.game_config.last_move = FlipWaste()
+        self.set_crapette_last_move(FlipWaste())
 
     def toggle_crapette_mode(self):
+        if not self.game_config.last_move:
+            return
         self.game_config.crapette_mode = not self.game_config.crapette_mode
 
         self.board_widget.set_crapette_mode()
