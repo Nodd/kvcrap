@@ -99,7 +99,7 @@ class GameManager:
         if custom_game:
             custom_new_game(self.game_config.board)
         else:
-            self.game_config.board.new_game()
+            self.game_config.board.new_game(self.game_config)
         self.board_widget.setup(self)
 
         self.set_active_player(
@@ -182,20 +182,23 @@ class GameManager:
         if self.check_win():
             return
 
-        if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
-            pile_widget, PlayerPileWidget
-        ):
-            self.set_crapette_last_move(Move(card_widget, old_pile_widget, pile_widget))
-        else:
-            self.set_crapette_last_move(None)
+        if not self.game_config.crapette_mode:
+            if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
+                pile_widget, PlayerPileWidget
+            ):
+                self.set_crapette_last_move(
+                    Move(card_widget, old_pile_widget, pile_widget)
+                )
+            else:
+                self.set_crapette_last_move(None)
 
-        end = self.check_end_of_turn(pile_widget)
-        if (
-            end
-            and self.game_config.is_player_ai
-            and not self.game_config.is_opponent_ai
-        ):
-            self.check_moves()
+            end = self.check_end_of_turn(pile_widget)
+            if (
+                end
+                and self.game_config.is_player_ai
+                and not self.game_config.is_opponent_ai
+            ):
+                self.check_moves()
 
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card and register the flip as a move."""

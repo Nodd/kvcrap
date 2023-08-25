@@ -293,13 +293,17 @@ class WastePile(_PlayerPile):
 
     _name_tpl = "WastePlayer{player}"
 
-    __slots__ = []
+    __slots__ = ["game_config"]
 
     def can_add_card(self, card: Card, origin, player):
         """Check if the card can be added to the pile."""
         if self._player == player:
             # Last move of the turn, the player puts the card from his stock to his waste
-            return isinstance(origin, StockPile) and origin.player == player
+            return (
+                not self.game_config.crapette_mode
+                and isinstance(origin, StockPile)
+                and origin.player == player
+            )
 
         if self.is_empty or card.suit != self.top_card.suit:
             return False
@@ -309,6 +313,10 @@ class WastePile(_PlayerPile):
 
     def can_pop_card(self, player):
         return False
+
+    def set_game_config(self, game_config):
+        """Set GameConfig, needed for can_add_card()."""
+        self.game_config = game_config
 
 
 class CrapePile(_PlayerPile):

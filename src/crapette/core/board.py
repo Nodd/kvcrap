@@ -1,6 +1,7 @@
 """Initialization and data for a crapette game board backend."""
 
 import itertools
+import typing
 
 from line_profiler import profile
 
@@ -14,6 +15,9 @@ from .piles import (
     _PlayerPile,
     player_piles,
 )
+
+if typing.TYPE_CHECKING:
+    from crapette.game_manager import GameConfig
 
 
 class Board:
@@ -29,17 +33,20 @@ class Board:
         "players_piles",
         "foundation_piles",
         "tableau_piles",
+        "game_config",
     ]
 
     def __init__(self):
         # Setup the piles on the board
-        self.players_piles = [player_piles(0), player_piles(1)]
+        self.players_piles: list[PlayerPiles] = [player_piles(0), player_piles(1)]
         self.foundation_piles = [
             # Diamonds, Clubs, Hearts, Spades and reverse
             FoundationPile(s, i)
             for i, s in enumerate(self.FOUNDATION_SUITES)
         ]
         self.tableau_piles = [TableauPile(i) for i in range(self.NB_PILES)]
+
+        self.game_config = None
 
     @property
     def piles(self):
@@ -56,8 +63,9 @@ class Board:
     def __str__(self):
         return self.__repr__()
 
-    def new_game(self):
+    def new_game(self, game_config: "GameConfig"):
         """Reset the board and distribute the cards for a new game."""
+        self.game_config = game_config
         for player, player_piles_ in enumerate(self.players_piles):
             # Create deck
             deck = new_deck(player)
@@ -84,6 +92,7 @@ class Board:
 
             # Empty waste
             player_piles_.waste.clear()
+            player_piles_.waste.set_game_config(game_config)
 
             # Check number of cards
             assert len(player_piles_.crape) == 13
