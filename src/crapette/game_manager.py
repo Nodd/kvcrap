@@ -106,7 +106,10 @@ class GameManager:
             self.board_widget.board.compute_first_player() if custom_game is None else 0
         )
 
-        self.check_moves()
+        Clock.schedule_once(
+            lambda _dt: self.check_moves(),
+            0,
+        )
 
     def set_active_player(self, player: int):
         """Change the active player and updates the GUI accordingly."""
