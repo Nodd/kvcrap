@@ -312,12 +312,13 @@ class BoardNode:
 
         # If both fondations are the same, keep only one
         foundation_piles_filtered = self.board.foundation_piles[: Card.NB_SUITS]
+        foundation_piles_filtered = [pile for pile in foundation_piles_filtered if not pile.is_full]
         for p1, p2 in zip(
             self.board.foundation_piles[Card.NB_SUITS :],
             self.board.foundation_piles[Card.NB_SUITS - 1 :: -1],
             strict=True,
         ):
-            if len(p1) != len(p2):
+            if len(p1) != len(p2) and not p1.is_full:
                 foundation_piles_filtered.append(p1)
 
         enemy_piles = [
