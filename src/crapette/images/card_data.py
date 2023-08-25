@@ -37,7 +37,7 @@ def card2img(card):
     elif not card.face_up:
         img = "back-navy.png" if card.player == 0 else "back-red.png"
     else:
-        img =f"{CARD_IMG.SUIT_NAME[card.suit]}_{CARD_IMG.RANK_NAME[card.rank]}.png"
+        img = f"{CARD_IMG.SUIT_NAME[card.suit]}_{CARD_IMG.RANK_NAME[card.rank]}.png"
     return str(CARD_IMG.PATH / img)
 
 
