@@ -116,14 +116,19 @@ select = [
     "RUF",
 ]
 ignore = [
-    "E501",    # Line too long
-    "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
-    "S101",    # Use of `assert` detected
-    "COM812",  # Trailing comma missing
     "ARG002",  # Unused method argument
     "ARG005",  # Unused lambda argument
-    "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
+    "COM812",  # Trailing comma missing
     "D1",      # Missing docstring
     "D203",    # one-blank-line-before-class incompatible with no-blank-line-before-class
     "D213",    # multi-line-summary-second-line incompatible with multi-line-summary-first-line
+    "DTZ005",  # The use of `datetime.datetime.now()` without `tz` argument is not allowed
+    "E501",    # Line too long
+    "EM101",   # Exception must not use a string literal, assign to variable first
+    "EM102",   # Exception must not use an f-string literal, assign to variable first
+    "PLR2004", # Magic value used in comparison, consider replacing with a constant variable
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+    "S101",    # Use of `assert` detected
+    "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+    "TRY003",  # Avoid specifying long messages outside the exception class
 ]

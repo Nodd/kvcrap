@@ -4,7 +4,6 @@ import dataclasses
 import heapq
 import sys
 import timeit
-from pprint import pprint
 from typing import TYPE_CHECKING
 
 from kivy.app import App
@@ -83,8 +82,6 @@ class BrainForce:
             nb_nodes_visited,
             elapsed / nb_nodes_visited * 1000,
         )
-        # print("Conclusion :")
-        # pprint(moves)
         print(flush=True)
         return moves
 

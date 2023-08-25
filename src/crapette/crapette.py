@@ -16,13 +16,11 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.logger import LOG_LEVELS, Logger
 from kivy.properties import BooleanProperty, NumericProperty
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.image import Image
 
 # Load all widgets
 from . import (
     custom_test_games,
-    widgets,  # ruff: noqa: F401
+    widgets,  # noqa: F401
 )
 from .brain.brainforce import BrainConfig
 from .core.board import Board

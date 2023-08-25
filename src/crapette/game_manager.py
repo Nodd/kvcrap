@@ -21,7 +21,7 @@ from .widgets.card_widget import (
     DEFAULT_MOVE_DURATION,
     CardWidget,
 )
-from .widgets.pile_widgets import FoundationPileWidget, PileWidget, PlayerPileWidget
+from .widgets.pile_widgets import PileWidget, PlayerPileWidget
 
 if typing.TYPE_CHECKING:
     from .widgets.board_widget import BoardWidget
