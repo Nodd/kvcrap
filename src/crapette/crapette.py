@@ -70,6 +70,11 @@ class CrapetteApp(App):
 
         self._do_resize_event = None
 
+        # Force a windows refresh on startup
+        Clock.schedule_once(
+            lambda _dt: self.do_resize(self.root.width, self.root.height), 0
+        )
+
     def on_window_resize(self, _window, width: int, height: int):
         if self._do_resize_event is not None:
             self._do_resize_event.cancel()
