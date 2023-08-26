@@ -146,6 +146,8 @@ class GameManager:
         return False
 
     def set_crapette_last_move(self, move: Move | Flip | FlipWaste | None):
+        if self.game_config.crapette_mode:
+            return
         self.game_config.last_move = move
         self.board_widget.update_crapette_button_status()
 
@@ -205,15 +207,32 @@ class GameManager:
 
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card and register the flip as a move."""
-        if self.game_config.crapette_mode:
+        last_move = self.game_config.last_move
+        pile_widget = card_widget.pile_widget
+        if self.game_config.crapette_mode and not (
+            (
+                isinstance(pile_widget.pile, CrapePile)
+                and isinstance(last_move, Flip)
+                and isinstance(last_move.pile.pile, StockPile)
+            )
+            or (
+                isinstance(pile_widget.pile, CrapePile)
+                and isinstance(last_move, Move)
+                and isinstance(last_move.origin.pile, StockPile)
+            )
+        ):
             if self.game_config.is_player_ai:
-                raise AIError("AI tried to flip a pile in crapette mode")
+                raise AIError("AI tried to flip opponent stock pile in crapette mode")
             return
         self.board_widget.flip_card_up(card_widget, duration)
 
-        self.log_game_step(f"flip card up in {card_widget.pile_widget.pile.name}")
+        self.log_game_step(f"flip card up in {pile_widget.pile.name}")
 
-        self.set_crapette_last_move(Flip(card_widget, card_widget.pile_widget))
+        if self.game_config.crapette_mode:
+            if self.check_crapette_valid(Flip(card_widget, pile_widget)):
+                self.capette_mode_end(valid=True)
+        else:
+            self.set_crapette_last_move(Flip(card_widget, pile_widget))
 
         if not self.game_config.is_player_ai:
             self.check_moves()
@@ -257,25 +276,35 @@ class GameManager:
         else:
             self.capette_mode_end(valid=False)
 
-    def check_crapette_valid(self, move: Move):
-        if isinstance(move.destination.pile, FoundationPile) and isinstance(
-            move.origin.pile, TableauPile
-        ):
-            return True
+    def check_crapette_valid(self, move: Move | Flip):
         last_move = self.game_config.last_move
-        if (
-            isinstance(last_move, Flip)
-            and isinstance(last_move.pile.pile, StockPile)
-            and isinstance(move.origin.pile, CrapePile)
-        ):
-            return True
-        if (
-            isinstance(last_move, Move)
-            and isinstance(last_move.origin.pile, StockPile)
-            and isinstance(move.origin.pile, CrapePile)
-        ):
-            return True
-        return False
+        if isinstance(move, Move):
+            if isinstance(move.destination.pile, FoundationPile) and isinstance(
+                move.origin.pile, TableauPile
+            ):
+                return True
+            if isinstance(move.pile.pile, CrapePile):
+                if isinstance(last_move, Flip) and isinstance(
+                    last_move.pile.pile, StockPile
+                ):
+                    return True
+                if isinstance(last_move, Move) and isinstance(
+                    last_move.origin.pile, StockPile
+                ):
+                    return True
+            return False
+        if isinstance(move, Flip):
+            if isinstance(move.pile.pile, CrapePile):
+                if isinstance(last_move, Flip) and isinstance(
+                    last_move.pile.pile, StockPile
+                ):
+                    return True
+                if isinstance(last_move, Move) and isinstance(
+                    last_move.origin.pile, StockPile
+                ):
+                    return True
+            return False
+        raise TypeError("Should not happen")
 
     def capette_mode_end(self, valid: bool):
         self.game_config.crapette_mode = False
