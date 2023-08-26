@@ -185,9 +185,7 @@ class GameManager:
 
         move = Move(card_widget, old_pile_widget, pile_widget)
         if not self.game_config.crapette_mode:
-            if isinstance(old_pile_widget, PlayerPileWidget) or isinstance(
-                pile_widget, PlayerPileWidget
-            ):
+            if isinstance(old_pile_widget, PlayerPileWidget):
                 self.set_crapette_last_move(move)
             else:
                 self.set_crapette_last_move(None)
