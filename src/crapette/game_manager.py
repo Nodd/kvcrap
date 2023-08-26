@@ -286,9 +286,11 @@ class GameManager:
             self.crapette_moves = []
         else:
             player = self.game_config.active_player
-            if (pile := self.board_widget.crape_widgets[player].pile) and not pile.face_up:
+            pile = self.board_widget.crape_widgets[player].pile
+            if pile and not pile.face_up:
                 self.flip_card_up(self.board_widget.card_widgets[pile.top_card])
-            if (pile := self.board_widget.stock_widgets[player].pile) and pile.face_up:
+            pile = self.board_widget.stock_widgets[player].pile
+            if pile and pile.face_up:
                 self.move_card(
                     self.board_widget.card_widgets[pile.top_card],
                     self.board_widget.waste_widgets[player],
