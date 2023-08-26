@@ -232,7 +232,7 @@ class BoardWidget(BoxLayout):
 
     def update_crapette_mode(self):
         """Toggle the crapette mode."""
-        crapette_button = self.crape_widgets[self.game_config.active_player]
+        crapette_button = self.ids[f"player{self.game_config.active_player}crapebutton"]
 
         background_crapette = self.ids["background_crapette"]
         if self.game_config.crapette_mode:
