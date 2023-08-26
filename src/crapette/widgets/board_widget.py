@@ -3,6 +3,7 @@ import typing
 from kivy.animation import Animation
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 
 from crapette.core.piles import Pile
@@ -61,6 +62,7 @@ class BoardWidget(BoxLayout):
         self.setup_card_widgets()
         self.place_cards()
         self.update_counts()
+        self.init_keyboard()
 
     def setup_piles(self):
         """Configure the piles.
@@ -111,6 +113,15 @@ class BoardWidget(BoxLayout):
                 card_widget.pile_widget = pile_widget
                 self.card_widgets[card] = card_widget
                 cards_layer.add_widget(card_widget)
+
+    def init_keyboard(self):
+        self._keyboard = Window.request_keyboard(
+            callback=self._keyboard_closed,
+            target=self,
+            input_type="text",
+            keyboard_suggestions=False,
+        )
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     def place_cards(self):
         """Reset the card widget positions in the piles."""
@@ -229,6 +240,20 @@ class BoardWidget(BoxLayout):
         cards_layer = self.ids["cards_layer"]
         cards_layer.remove_widget(card_widget)
         cards_layer.add_widget(card_widget)
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        # Keycode is composed of an integer + a string
+        if keycode[1] == "spacebar":
+            # Return True to accept the key. Otherwise, it will be used by
+            # the system.
+            self.game_manager.toggle_crapette_mode()
+            return True
+        # TODO: on game end: keyboard.release()
+        return False
 
     def update_crapette_mode(self):
         """Toggle the crapette mode."""
