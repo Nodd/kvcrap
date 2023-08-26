@@ -73,6 +73,7 @@ class GameManager:
         self.board_widget: BoardWidget = self.ids["game_board"]
 
         self._brain_process = None
+        self.crapette_moves = []
 
     def setup(
         self,
@@ -199,8 +200,10 @@ class GameManager:
             ):
                 self.check_moves()
         else:
-            valid = self.check_crapette_valid(move)
-            print(valid)
+            self.crapette_moves.append(move)
+            self.check_crapette_valid(move)
+            if self.check_crapette_valid(move):
+                self.capette_mode_end(valid=True)
 
     def flip_card_up(self, card_widget: CardWidget, duration=DEFAULT_FLIP_DURATION):
         """Flips up the card and register the flip as a move."""
@@ -235,7 +238,7 @@ class GameManager:
             return
         self.game_config.crapette_mode = not self.game_config.crapette_mode
 
-        self.board_widget.set_crapette_mode()
+        self.board_widget.update_crapette_mode()
 
         if self.game_config.crapette_mode:
             for card_widget in self.board_widget.card_widgets.values():
@@ -244,14 +247,17 @@ class GameManager:
                 self.board_widget.move_card(
                     self.game_config.last_move.card, self.game_config.last_move.origin
                 )
+                self.crapette_moves = [
+                    Move(
+                        self.game_config.last_move.card,
+                        self.game_config.last_move.destination,
+                        self.game_config.last_move.origin,
+                    )
+                ]
+            else:
+                self.crapette_moves = []
         else:
-            # If crapette mode cancelled, reset
-            # TODO: Cancel all actions done while in crapette mode
-            if isinstance(self.game_config.last_move, Move):
-                self.board_widget.move_card(
-                    self.game_config.last_move.card,
-                    self.game_config.last_move.destination,
-                )
+            self.capette_mode_end(valid=False)
 
     def check_crapette_valid(self, move: Move):
         if isinstance(move.destination.pile, FoundationPile) and isinstance(
@@ -272,6 +278,21 @@ class GameManager:
         ):
             return True
         return False
+
+    def capette_mode_end(self, valid: bool):
+        self.game_config.crapette_mode = False
+        self.board_widget.update_crapette_mode()
+        if not valid:
+            for move in self.crapette_moves[::-1]:
+                self.board_widget.move_card(move.card, move.origin)
+            self.crapette_moves = []
+        else:
+            player = self.game_config.active_player
+            if not (pile:=self.board_widget.crape_widgets[player].pile).face_up:
+                self.flip_card_up(self.board_widget.card_widgets[pile.top_card])
+            if (pile:=self.board_widget.stock_widgets[player].pile).face_up:
+                self.move_card(self.board_widget.card_widgets[pile.top_card], self.board_widget.waste_widgets[player])
+            self.set_active_player(1 - player)
 
     def check_moves(self):
         # print("Checking moves...")

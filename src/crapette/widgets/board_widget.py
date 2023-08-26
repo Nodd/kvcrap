@@ -27,6 +27,9 @@ class BoardWidget(BoxLayout):
         self.game_config = None
         self._do_layout_event = None
         self._piles_widgets_name_cache = {}
+        self.stock_widgets = []
+        self.crape_widgets = []
+        self.waste_widgets = []
 
     def do_layout(self, *args, **kwargs):
         """Delay the layout computing to avoid visual lag."""
@@ -73,6 +76,9 @@ class BoardWidget(BoxLayout):
             self.ids[f"player{player}stock"].set_pile(player_piles.stock)
             self.ids[f"player{player}waste"].set_pile(player_piles.waste)
             self.ids[f"player{player}crape"].set_pile(player_piles.crape)
+        self.stock_widgets = [self.ids["player0stock"], self.ids["player1stock"]]
+        self.crape_widgets = [self.ids["player0crape"], self.ids["player1crape"]]
+        self.waste_widgets = [self.ids["player0waste"], self.ids["player1waste"]]
         for tableau, tableau_pile in enumerate(self.board.tableau_piles):
             self.pile_widgets.append(self.ids[f"tableau{tableau}"])
             self.ids[f"tableau{tableau}"].set_pile(tableau_pile)
@@ -116,12 +122,12 @@ class BoardWidget(BoxLayout):
     def update_counts(self):
         """Update displayed card counts."""
         for player in range(self.board.NB_PLAYERS):
-            nb_stock = len(self.ids[f"player{player}stock"].pile)
-            nb_waste = len(self.ids[f"player{player}waste"].pile)
+            nb_stock = len(self.stock_widgets[player].pile)
+            nb_waste = len(self.waste_widgets[player].pile)
             stock_label = self.ids[f"player{player}stockcount"]
             stock_label.text = f"{nb_stock}+{nb_waste}" if nb_stock or nb_waste else ""
 
-            crape_pile = self.ids[f"player{player}crape"].pile
+            crape_pile = self.crape_widgets[player].pile
             crape_label = self.ids[f"player{player}crapecount"]
             if crape_pile:
                 cards_up = len([c for c in crape_pile if c.face_up])
@@ -201,8 +207,8 @@ class BoardWidget(BoxLayout):
     def flip_waste_to_stock(self):
         """When the stock is empty, flip the waste back to the stock."""
         player = self.game_config.active_player
-        stock_widget = self.ids[f"player{player}stock"]
-        waste_widget = self.ids[f"player{player}waste"]
+        stock_widget = self.stock_widgets[player]
+        waste_widget = self.waste_widgets[player]
 
         # Update model
         stock_widget.pile.set_cards(waste_widget.pile[::-1])
@@ -224,10 +230,9 @@ class BoardWidget(BoxLayout):
         cards_layer.remove_widget(card_widget)
         cards_layer.add_widget(card_widget)
 
-    def set_crapette_mode(self):
+    def update_crapette_mode(self):
         """Toggle the crapette mode."""
-        ids = self.app.root.ids
-        crapette_button = ids[f"player{self.game_config.active_player}crapebutton"]
+        crapette_button = self.crape_widgets[self.game_config.active_player]
 
         background_crapette = self.ids["background_crapette"]
         if self.game_config.crapette_mode:
