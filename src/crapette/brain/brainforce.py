@@ -371,10 +371,9 @@ class BrainDijkstra:
         known_nodes = self.known_nodes
         known_nodes_unvisited = self.known_nodes_unvisited
 
-        next_node = self._select_next_node()
         nb_nodes_visited = 0
         with path.open("w", encoding="utf8") as f:
-            while next_node is not None:
+            while (next_node := self._select_next_node()) is not None:
                 nb_nodes_visited += 1
                 next_node.search_neighbors(known_nodes, known_nodes_unvisited)
                 next_node.index = nb_nodes_visited
@@ -405,8 +404,6 @@ class BrainDijkstra:
                             break  # Break out of shortcut check loop
                     else:
                         break  # Break out of main loop if shortcut found
-
-                next_node = self._select_next_node()
 
             if print_progress:
                 print(" " * 80, end="\r")
