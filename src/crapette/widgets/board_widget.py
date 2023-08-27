@@ -187,10 +187,18 @@ class BoardWidget(BoxLayout):
         self.place_background_halo()
 
     def update_crapette_button_status(self):
-        crape_btn = self.ids[f"player{self.game_config.active_player}crapebutton"]
-        crape_btn.disabled = (
-            not self.game_config.crapette_mode and not self.game_config.last_move
-        )
+        if self.game_config.active_player is None:
+            for player in range(2):
+                crape_btn = self.ids[f"player{player}crapebutton"]
+                crape_btn.disabled = True
+                Animation(
+                    opacity=0, duration=TRANSITION_DURATION, transition="out_cubic"
+                ).start(crape_btn)
+        else:
+            crape_btn = self.ids[f"player{self.game_config.active_player}crapebutton"]
+            crape_btn.disabled = (
+                not self.game_config.crapette_mode and not self.game_config.last_move
+            )
 
     def place_background_halo(self):
         """Place the background halo indicating that it's the player's turn."""

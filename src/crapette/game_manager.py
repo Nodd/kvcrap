@@ -142,6 +142,7 @@ class GameManager:
             self.game_config.active_player = None
             for card_widget in self.board_widget.card_widgets.values():
                 card_widget.do_translation = False
+            self.board_widget.update_crapette_button_status()
             return True
         return False
 
