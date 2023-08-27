@@ -45,17 +45,17 @@ class GameConfig:
 
     @property
     def current_seed(self) -> int | str | None:
+        if self.seed and self.custom_game is None:
+            raise RuntimeError("No seed nor custom game configured")
         return self.custom_game or self.seed
 
     def register(self):
-        if self.seed is None:
-            raise RuntimeError("No seed configured")
         self.start_time = str(datetime.now())
         log_parent_dir = Path(__file__).parent / "log"
         log_parent_dir.mkdir(parents=True, exist_ok=True)
         if os.name == "nt":
             self.start_time = self.start_time.replace(":", "-")
-        self.log_path = log_parent_dir / f"{self.seed}_{self.start_time}.txt"
+        self.log_path = log_parent_dir / f"{self.custom_game}_{self.start_time}.txt"
 
     @property
     def is_player_ai(self):
@@ -96,8 +96,8 @@ class GameManager:
         self.game_config.board = Board()
         self.game_config.register()
 
-        self.game_config.board = Board()
         if custom_game:
+            self.game_config.board.game_config = self.game_config
             custom_new_game(self.game_config.board)
         else:
             self.game_config.board.new_game(self.game_config)
