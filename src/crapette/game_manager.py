@@ -283,27 +283,27 @@ class GameManager:
                 move.origin.pile, TableauPile
             ):
                 return True
-            if isinstance(move.pile.pile, CrapePile):
-                if isinstance(last_move, Flip) and isinstance(
-                    last_move.pile.pile, StockPile
-                ):
-                    return True
-                if isinstance(last_move, Move) and isinstance(
-                    last_move.origin.pile, StockPile
-                ):
-                    return True
-            return False
+            return isinstance(move.pile.pile, CrapePile) and (
+                (
+                    isinstance(last_move, Flip)
+                    and isinstance(last_move.pile.pile, StockPile)
+                )
+                or (
+                    isinstance(last_move, Move)
+                    and isinstance(last_move.origin.pile, StockPile)
+                )
+            )
         if isinstance(move, Flip):
-            if isinstance(move.pile.pile, CrapePile):
-                if isinstance(last_move, Flip) and isinstance(
-                    last_move.pile.pile, StockPile
-                ):
-                    return True
-                if isinstance(last_move, Move) and isinstance(
-                    last_move.origin.pile, StockPile
-                ):
-                    return True
-            return False
+            return isinstance(move.pile.pile, CrapePile) and (
+                (
+                    isinstance(last_move, Flip)
+                    and isinstance(last_move.pile.pile, StockPile)
+                )
+                or (
+                    isinstance(last_move, Move)
+                    and isinstance(last_move.origin.pile, StockPile)
+                )
+            )
         raise TypeError("Should not happen")
 
     def capette_mode_end(self, valid: bool):
