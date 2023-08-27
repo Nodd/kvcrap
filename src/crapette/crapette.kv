@@ -33,6 +33,7 @@ FloatLayout:
         id: game_board
 
         BoxLayout:
+            id: player1piles
             CrapetteButton:
                 id: player0crapebutton
             CardCount:
@@ -101,6 +102,7 @@ FloatLayout:
                 id: tableau0
             Spacer:
         BoxLayout:
+            id: player0piles
             Spacer:
             CardCount:
                 id: player0stockcount
@@ -119,6 +121,20 @@ FloatLayout:
 
     FloatLayout:
         id: cards_layer
+
+    
+    WinText:
+        id: player0winlabel
+        pos: player0piles.pos
+        size: player0piles.size
+        text_size: player0piles.size
+    
+    WinText:
+        id: player1winlabel
+        pos: player1piles.pos
+        size: player1piles.size
+        text_size: player1piles.size
+
 
     Button:
         id: menu_button
@@ -301,6 +317,12 @@ FloatLayout:
     size: app.card_width / 2, app.card_height
     text_size: app.card_width / 2, app.card_height
     valign: 'middle'
+
+<WinText@Label>:
+    size_hint: None, None
+    valign: 'middle'
+    halign: 'center'
+    font_size: app.card_height / 2
 
 <CrapetteButton@Button>:
     text: 'Crapette !'

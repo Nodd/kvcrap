@@ -64,6 +64,9 @@ class BoardWidget(BoxLayout):
         self.update_counts()
         self.init_keyboard()
 
+        for player in range(2):
+            self.ids[f"player{player}winlabel"].text = ""
+
     def setup_piles(self):
         """Configure the piles.
 

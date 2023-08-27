@@ -137,6 +137,8 @@ class GameManager:
         """End the game if the player has won."""
         if self.game_config.board.check_win(self.game_config.active_player):
             print(f"Player {self.game_config.active_player} wins !!!")
+            label = self.ids[f"player{self.game_config.active_player}winlabel"]
+            label.text = f"Player {self.game_config.active_player} wins !!!"
 
             # Freeze board
             self.game_config.active_player = None
