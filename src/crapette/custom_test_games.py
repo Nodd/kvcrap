@@ -18,6 +18,16 @@ def foundation_to_fill(board: Board):
 def empty_stock(board: Board):
     """Set the game to check for empty stock and waste."""
     deck = new_deck(player=0, shuffle=False)
+    for card in deck:
+        card.face_up = True
+
+    # Fill waste with Dimamonds
+    board.players_piles[0].waste.set_cards(deck[:13])
+
+
+def empty_stock_and_waste(board: Board):
+    """Set the game to check for empty stock and waste."""
+    deck = new_deck(player=0, shuffle=False)
     for card in deck[: board.NB_PILES + 2]:
         card.face_up = True
 
