@@ -98,6 +98,10 @@ class GameManager:
 
         if custom_game:
             self.game_config.board.game_config = self.game_config
+            for player in range(2):
+                self.game_config.board.players_piles[player].waste.set_game_config(
+                    self.game_config
+                )
             custom_new_game(self.game_config.board)
         else:
             self.game_config.board.new_game(self.game_config)
