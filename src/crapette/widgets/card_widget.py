@@ -11,10 +11,12 @@ from kivy.properties import StringProperty
 from kivy.uix.scatterlayout import ScatterLayout
 
 from crapette.core.cards import Card
+from crapette.core.piles import WastePile
 from crapette.images.card_data import card2img
 
 if typing.TYPE_CHECKING:
     from .pile_widgets import PileWidget
+    from crapette.game_manager import GameManager
 
 MAX_RANDOM_ANGLE = 5  # °
 DEFAULT_MOVE_DURATION = 0.1  # s
@@ -26,7 +28,7 @@ class CardWidget(ScatterLayout):
 
     source = StringProperty()
 
-    def __init__(self, card: Card, game_manager):
+    def __init__(self, card: Card, game_manager: "GameManager"):
         self.card = card
         self.source = card2img(card)
         self.game_manager = game_manager
@@ -155,6 +157,17 @@ class CardWidget(ScatterLayout):
         # Stop the event if this is the end of the game.
         if self.game_config.active_player is None:
             Logger.debug("End of game")
+            return True
+
+        # Flip waste to stock if this is the top card of the waste
+        # and the stock is empty
+        # Otherwise nothing to do so swallow the event
+        if isinstance(self.pile_widget.pile, WastePile):
+            stock_widget = self.game_manager.board_widget.stock_widgets[
+                self.game_config.active_player
+            ]
+            if stock_widget.pile.is_empty:
+                self.game_manager.flip_waste_to_stock()
             return True
 
         # Check if the card can be moved by the player
