@@ -290,7 +290,7 @@ class GameManager:
                 move.origin.pile, TableauPile
             ):
                 return True
-            return isinstance(move.pile.pile, CrapePile) and (
+            return isinstance(move.origin.pile, CrapePile) and (
                 (
                     isinstance(last_move, Flip)
                     and isinstance(last_move.pile.pile, StockPile)
