@@ -164,7 +164,7 @@ def parse_args(argv):
                 help=name_cli,
             )
         else:
-            raise ValueError("Unknown field type {field.type} for {field.name}")
+            raise ValueError(f"Unknown field type {field.type} for {field.name}")
 
     args = parser.parse_args(argv)
     app_config = AppConfig(
