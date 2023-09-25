@@ -170,9 +170,12 @@ mod tests {
     fn test_new_game() {
         let mut board = Board::new();
         board.new_game();
-        assert_eq!(board.crape[0].cards.nb_cards(), 13);
-        assert_eq!(board.stock[0].cards.nb_cards(), 52 - 13 - 4);
-        assert_eq!(board.waste[0].cards.nb_cards(), 0);
+        for p in 0..=1 {
+            assert_eq!(board.stock[p].cards.nb_cards(), 52 - 13 - 4);
+            assert_eq!(board.waste[p].cards.nb_cards(), 0);
+            assert_eq!(board.crape[p].cards.nb_cards(), 13);
+            assert_eq!(board.crape[p].cards.top_card().face_up, true);
+        }
         for tp in board.tableau_piles.iter() {
             assert_eq!(tp.cards.nb_cards(), 1);
         }
@@ -186,9 +189,11 @@ mod tests {
         let mut board = Board::new();
         board.new_game();
         board.new_game();
-        assert_eq!(board.crape[0].cards.nb_cards(), 13);
-        assert_eq!(board.stock[0].cards.nb_cards(), 52 - 13 - 4);
-        assert_eq!(board.waste[0].cards.nb_cards(), 0);
+        for p in 0..=1 {
+            assert_eq!(board.crape[p].cards.nb_cards(), 13);
+            assert_eq!(board.stock[p].cards.nb_cards(), 52 - 13 - 4);
+            assert_eq!(board.waste[p].cards.nb_cards(), 0);
+        }
         for tp in board.tableau_piles.iter() {
             assert_eq!(tp.cards.nb_cards(), 1);
         }
