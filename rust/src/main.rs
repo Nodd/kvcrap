@@ -1,3 +1,6 @@
+// Disable all warnings about ununsed code
+#![allow(dead_code)]
+
 mod core;
 
 fn main() {
