@@ -4,7 +4,7 @@ use crate::core::players::*;
 use crate::core::ranks::*;
 use crate::core::suits::*;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Card {
     rank: Rank,
     suit: Suit,
@@ -43,7 +43,7 @@ impl Card {
         &self.player
     }
 
-    pub fn set_face_up(mut self) {
+    pub fn set_face_up(&mut self) {
         self.face_up = true;
     }
 
@@ -66,9 +66,16 @@ impl Card {
         self.suit.color() == other.suit.color()
     }
 
-    /// Returns the color of the card
     pub fn str_rank_suit(&self) -> String {
         format!("{}{}", self.rank.symbol(), self.suit.symbol())
+    }
+
+    pub fn str_display(&self) -> String {
+        if self.face_up {
+            format!("{}{}", self.rank.symbol(), self.suit.symbol())
+        } else {
+            "##".to_string()
+        }
     }
 }
 

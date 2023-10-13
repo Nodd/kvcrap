@@ -59,17 +59,22 @@ impl Board {
             let mut deck = new_deck(player);
             shuffle(&mut deck);
 
+            let card = &mut deck[0];
+            card.set_face_up();
+
             let player = player as usize;
 
             // Fill crape pile
             let crape = deck.split_off(deck.len() - 13);
             self.crape[player].cards.set(crape);
-            self.crape[player].cards.top_card().set_face_up();
+            let card: &mut Card = self.crape[player].cards.top_card_mut();
+            card.set_face_up();
+            //assert_eq!(card.face_up, true);
 
             // Fill tableau
             for tp in self.tableau_piles[(4 * player)..(4 * player + 4)].iter_mut() {
                 tp.cards.clear();
-                let card = deck.pop().unwrap();
+                let mut card = deck.pop().unwrap();
                 card.set_face_up();
                 tp.cards.add(card);
             }
@@ -80,6 +85,7 @@ impl Board {
             // Clear waste
             self.waste[player].cards.clear();
         }
+
         // Clear foundation
         for fp in self.foundation_piles.iter_mut() {
             fp.cards.clear();
@@ -96,65 +102,40 @@ impl Board {
             "".to_string(),
         ];
 
-        fn player_pile_str(pile: &Pile) -> String {
-            if pile.is_empty() {
-                "  ".to_string()
-            } else {
-                let card = pile.top_card();
-                if card.face_up {
-                    card.str_rank_suit()
-                } else {
-                    "##".to_string()
-                }
-            }
-        }
-
         let player_space_left = " ".repeat(13 * 3).to_string();
         str_lines[0] = player_space_left.clone()
-            + &player_pile_str(&self.crape[1].cards)
+            + &self.crape[1].str_display()
             + "  "
-            + &player_pile_str(&self.waste[1].cards)
+            + &self.waste[1].str_display()
             + " "
-            + &player_pile_str(&self.stock[1].cards);
+            + &self.stock[1].str_display();
 
         str_lines[5] = player_space_left
-            + &player_pile_str(&self.stock[0].cards)
+            + &self.stock[0].str_display()
             + " "
-            + &player_pile_str(&self.waste[0].cards)
+            + &self.waste[0].str_display()
             + "  "
-            + &player_pile_str(&self.crape[0].cards);
+            + &self.crape[0].str_display();
 
         for row in 0..4 {
             let index_left = row + 4; // 4, 5, 6, 7
             let index_right = 3 - row; // 3, 2, 1, 0
 
-            let tableau_pile_left = &self.tableau_piles[index_left].cards;
-            let tableau_pile_right = &self.tableau_piles[index_right].cards;
-            let foundation_pile_left = &self.foundation_piles[index_left].cards;
-            let foundation_pile_right = &self.foundation_piles[index_right].cards;
+            let tableau_pile_left = &self.tableau_piles[index_left];
+            let tableau_pile_right = &self.tableau_piles[index_right];
+            let foundation_pile_left = &self.foundation_piles[index_left];
+            let foundation_pile_right = &self.foundation_piles[index_right];
 
-            let mut line: String = "   ".repeat(13 - tableau_pile_left.nb_cards()).to_string();
-            for card in tableau_pile_left.iter().rev() {
-                line += &card.str_rank_suit();
-                line += " ";
-            }
-            if foundation_pile_left.is_empty() {
-                line += "|    ";
-            } else {
+            let mut line: String = "   "
+                .repeat(13 - tableau_pile_left.cards.nb_cards())
+                .to_string();
+            line += &tableau_pile_left.str_display_left();
                 line += "| ";
-                line += &foundation_pile_left.top_card().str_rank_suit();
+            line += &foundation_pile_left.str_display();
                 line += " ";
-            }
-            if foundation_pile_right.is_empty() {
-                line += "   | ";
-            } else {
-                line += &foundation_pile_right.top_card().str_rank_suit();
+            line += &foundation_pile_right.str_display();
                 line += " | ";
-            }
-            for card in tableau_pile_right.iter() {
-                line += &card.str_rank_suit();
-                line += " ";
-            }
+            line += &tableau_pile_right.str_display_right();
             str_lines[row + 1] = line;
         }
 

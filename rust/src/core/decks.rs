@@ -17,7 +17,7 @@ pub fn new_deck(player: Player) -> Vec<Card> {
     deck
 }
 
-pub fn shuffle(mut deck: &mut Vec<Card>) {
+pub fn shuffle(deck: &mut Vec<Card>) {
     let mut rng = rand::thread_rng();
     deck.shuffle(&mut rng);
 }

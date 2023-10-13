@@ -65,8 +65,15 @@ impl Pile {
     }
 
     pub fn top_card(&self) -> &Card {
-        // TODO: Check if is empty ?
-        &self.cards[self.cards.len() - 1]
+        // TODO: Check if is empty
+        let card_index = self.cards.len() - 1;
+        &self.cards[card_index]
+    }
+
+    pub fn top_card_mut(&mut self) -> &mut Card {
+        // TODO: Check if is empty
+        let card_index = self.cards.len() - 1;
+        &mut self.cards[card_index]
     }
 }
 
@@ -85,6 +92,14 @@ impl FoundationPile {
             foundation_suit,
         }
     }
+
+    pub fn str_display(&self) -> String {
+        if self.cards.is_empty() {
+            "  ".to_string()
+        } else {
+            self.cards.top_card().str_display()
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -100,6 +115,24 @@ impl TableauPile {
             tableau_id,
         }
     }
+
+    pub fn str_display_right(&self) -> String {
+        let mut result = "".to_string();
+        for card in self.cards.iter() {
+            result += &card.str_display();
+            result += " ";
+        }
+        result
+    }
+
+    pub fn str_display_left(&self) -> String {
+        let mut result = "".to_string();
+        for card in self.cards.iter().rev() {
+            result += &card.str_display();
+            result += " ";
+        }
+        result
+    }
 }
 
 #[derive(Debug)]
@@ -112,6 +145,14 @@ impl StockPile {
         StockPile {
             cards: Pile::new(NB_CARDS),
             player,
+        }
+    }
+
+    pub fn str_display(&self) -> String {
+        if self.cards.is_empty() {
+            "  ".to_string()
+        } else {
+            self.cards.top_card().str_display()
         }
     }
 }
@@ -128,6 +169,14 @@ impl WastePile {
             player,
         }
     }
+
+    pub fn str_display(&self) -> String {
+        if self.cards.is_empty() {
+            "  ".to_string()
+        } else {
+            self.cards.top_card().str_display()
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -141,6 +190,14 @@ impl CrapePile {
         CrapePile {
             cards: Pile::new(NB_CARDS),
             player,
+        }
+    }
+
+    pub fn str_display(&self) -> String {
+        if self.cards.is_empty() {
+            "  ".to_string()
+        } else {
+            self.cards.top_card().str_display()
         }
     }
 }
