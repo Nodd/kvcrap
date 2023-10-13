@@ -192,6 +192,8 @@ mod tests {
     #[test]
     fn test_check_win() {
         let mut board = Board::new();
+        assert_eq!(board.check_win(Player::Player0), true);
+        assert_eq!(board.check_win(Player::Player1), true);
         board.new_game();
         assert_eq!(board.check_win(Player::Player0), false);
         assert_eq!(board.check_win(Player::Player1), false);
