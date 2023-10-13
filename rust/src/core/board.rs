@@ -130,16 +130,22 @@ impl Board {
                 .repeat(13 - tableau_pile_left.cards.nb_cards())
                 .to_string();
             line += &tableau_pile_left.str_display_left();
-                line += "| ";
+            line += "| ";
             line += &foundation_pile_left.str_display();
-                line += " ";
+            line += " ";
             line += &foundation_pile_right.str_display();
-                line += " | ";
+            line += " | ";
             line += &tableau_pile_right.str_display_right();
             str_lines[row + 1] = line;
         }
 
         str_lines.join("\n")
+    }
+
+    pub fn check_win(&self, player: Player) -> bool {
+        self.stock[player as usize].cards.is_empty()
+            && self.waste[player as usize].cards.is_empty()
+            && self.crape[player as usize].cards.is_empty()
     }
 }
 
@@ -181,5 +187,13 @@ mod tests {
         for tp in board.foundation_piles.iter() {
             assert_eq!(tp.cards.nb_cards(), 0);
         }
+    }
+
+    #[test]
+    fn test_check_win() {
+        let mut board = Board::new();
+        board.new_game();
+        assert_eq!(board.check_win(Player::Player0), false);
+        assert_eq!(board.check_win(Player::Player1), false);
     }
 }
