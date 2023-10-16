@@ -3,24 +3,26 @@ use crate::core::players::Player;
 use crate::core::suits::Suit;
 
 use super::decks::NB_CARDS;
-use super::ranks::NB_RANKS;
+use super::ranks::*;
 
 pub enum PileTypes {
-    FoundationPile,
-    TableauPile,
-    StockPile,
-    WastePile,
-    CrapePile,
+    FoundationPile(FoundationPile),
+    TableauPile(TableauPile),
+    StockPile(StockPile),
+    WastePile(WastePile),
+    CrapePile(CrapePile),
 }
 pub enum PlayerPileTypes {
-    StockPile,
-    WastePile,
-    CrapePile,
+    StockPile(StockPile),
+    WastePile(WastePile),
+    CrapePile(CrapePile),
 }
 
 pub trait Pile {
     fn cards(&self) -> &Vec<Card>;
     fn cards_mut(&mut self) -> &mut Vec<Card>;
+    fn can_add_card(&self, card: Card, origin: PileTypes, player: Player) -> bool;
+    fn can_pop_card(&self, player: Player) -> bool;
 
     fn add(&mut self, card: Card) {
         self.cards_mut().push(card);
@@ -58,15 +60,6 @@ pub trait Pile {
         let card_index = self.cards().len() - 1;
         &mut self.cards_mut()[card_index]
     }
-
-    fn can_add_card(&self, card: Card, origin: PileTypes, player: Player) -> bool {
-        // TODO: implement everywhere, remove default implementation
-        false
-    }
-    fn can_pop_card(&self, player: Player) -> bool {
-        // TODO: implement everywhere, remove default implementation
-        false
-    }
 }
 
 #[derive(Debug)]
@@ -83,6 +76,14 @@ impl Pile for FoundationPile {
 
     fn cards_mut(&mut self) -> &mut Vec<Card> {
         &mut self.cards
+    }
+
+    fn can_add_card(&self, card: Card, _origin: PileTypes, _player: Player) -> bool {
+        card.suit() == &self.foundation_suit && card.rank() == &(self.nb_cards() + 1)
+    }
+
+    fn can_pop_card(&self, _player: Player) -> bool {
+        false
     }
 }
 
@@ -117,6 +118,18 @@ impl Pile for TableauPile {
 
     fn cards_mut(&mut self) -> &mut Vec<Card> {
         &mut self.cards
+    }
+
+    fn can_add_card(&self, card: Card, _origin: PileTypes, _player: Player) -> bool {
+        if self.is_empty() {
+            true
+        } else {
+            card.rank() == &self.top_card().rank().below() && !card.is_same_color(self.top_card())
+        }
+    }
+
+    fn can_pop_card(&self, _player: Player) -> bool {
+        true
     }
 }
 
@@ -161,6 +174,14 @@ impl Pile for StockPile {
     fn cards_mut(&mut self) -> &mut Vec<Card> {
         &mut self.cards
     }
+
+    fn can_add_card(&self, _card: Card, _origin: PileTypes, _player: Player) -> bool {
+        false
+    }
+
+    fn can_pop_card(&self, player: Player) -> bool {
+        player == self.player
+    }
 }
 
 impl StockPile {
@@ -194,6 +215,25 @@ impl Pile for WastePile {
     fn cards_mut(&mut self) -> &mut Vec<Card> {
         &mut self.cards
     }
+
+    fn can_add_card(&self, card: Card, origin: PileTypes, player: Player) -> bool {
+        if self.player == player {
+            // TODO : not in crapette mode
+            match origin {
+                PileTypes::StockPile(pile) => pile.player == player,
+                _ => false,
+            }
+        } else if self.is_empty() || card.suit() != self.top_card().suit() {
+            false
+        } else {
+            card.rank() == &self.top_card().rank().above()
+                || card.rank() == &self.top_card().rank().below()
+        }
+    }
+
+    fn can_pop_card(&self, _player: Player) -> bool {
+        false
+    }
 }
 
 impl WastePile {
@@ -226,6 +266,19 @@ impl Pile for CrapePile {
 
     fn cards_mut(&mut self) -> &mut Vec<Card> {
         &mut self.cards
+    }
+
+    fn can_add_card(&self, card: Card, _origin: PileTypes, player: Player) -> bool {
+        self.player != player
+            && !self.is_empty()
+            && self.top_card().face_up
+            && card.suit() == self.top_card().suit()
+            && (card.rank() == &self.top_card().rank().above()
+                || card.rank() == &self.top_card().rank().below())
+    }
+
+    fn can_pop_card(&self, player: Player) -> bool {
+        player == self.player
     }
 }
 

@@ -44,6 +44,14 @@ impl Rank {
             _ => panic!("Incorrect card rank {}", self.rank),
         }
     }
+
+    pub fn above(&self) -> Rank {
+        Rank::from(self.rank + 1)
+    }
+
+    pub fn below(&self) -> Rank {
+        Rank::from(self.rank - 1)
+    }
 }
 
 impl PartialEq for Rank {
@@ -52,6 +60,12 @@ impl PartialEq for Rank {
     }
 }
 impl Eq for Rank {}
+
+impl PartialEq<usize> for Rank {
+    fn eq(&self, other: &usize) -> bool {
+        self.rank as usize == *other
+    }
+}
 
 #[cfg(test)]
 mod tests {

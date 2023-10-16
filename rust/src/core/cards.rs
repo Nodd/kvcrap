@@ -62,7 +62,7 @@ impl Card {
     }
 
     /// Check if the color is the same as another Card
-    pub fn is_same_color(&self, other: Card) -> bool {
+    pub fn is_same_color(&self, other: &Card) -> bool {
         self.suit.color() == other.suit.color()
     }
 
