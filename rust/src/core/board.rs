@@ -66,29 +66,29 @@ impl Board {
 
             // Fill crape pile
             let crape = deck.split_off(deck.len() - 13);
-            self.crape[player].cards.set(crape);
-            let card: &mut Card = self.crape[player].cards.top_card_mut();
+            self.crape[player].set(crape);
+            let card: &mut Card = self.crape[player].top_card_mut();
             card.set_face_up();
             //assert_eq!(card.face_up, true);
 
             // Fill tableau
             for tp in self.tableau_piles[(4 * player)..(4 * player + 4)].iter_mut() {
-                tp.cards.clear();
+                tp.clear();
                 let mut card = deck.pop().unwrap();
                 card.set_face_up();
-                tp.cards.add(card);
+                tp.add(card);
             }
 
             // Fill stock
-            self.stock[player].cards.set(deck);
+            self.stock[player].set(deck);
 
             // Clear waste
-            self.waste[player].cards.clear();
+            self.waste[player].clear();
         }
 
         // Clear foundation
         for fp in self.foundation_piles.iter_mut() {
-            fp.cards.clear();
+            fp.clear();
         }
     }
 
@@ -126,9 +126,7 @@ impl Board {
             let foundation_pile_left = &self.foundation_piles[index_left];
             let foundation_pile_right = &self.foundation_piles[index_right];
 
-            let mut line: String = "   "
-                .repeat(13 - tableau_pile_left.cards.nb_cards())
-                .to_string();
+            let mut line: String = "   ".repeat(13 - tableau_pile_left.nb_cards()).to_string();
             line += &tableau_pile_left.str_display_left();
             line += "| ";
             line += &foundation_pile_left.str_display();
@@ -142,10 +140,41 @@ impl Board {
         str_lines.join("\n")
     }
 
+    pub fn compute_first_player(&self) -> Player {
+        // TODO
+        Player::Player0
+        /*
+        if self.crape[0].cards.top_card().rank() > self.crape[1].cards.top_card().rank() {
+            Player::Player0
+        } else if self.crape[0].cards.top_card().rank() < self.crape[1].cards.top_card().rank() {
+            Player::Player1
+        } else {
+            if self.tableau_piles[0..4]
+                .iter()
+                .cards
+                .top_card()
+                .rank()
+                .max()
+                .unwrap()
+                > self.tableau_piles[4..8]
+                    .iter()
+                    .cards
+                    .top_card()
+                    .rank()
+                    .max()
+                    .unwrap()
+            {
+                Player::Player0
+            } else {
+                Player::Player1
+            }
+        } */
+    }
+
     pub fn check_win(&self, player: Player) -> bool {
-        self.stock[player as usize].cards.is_empty()
-            && self.waste[player as usize].cards.is_empty()
-            && self.crape[player as usize].cards.is_empty()
+        self.stock[player as usize].is_empty()
+            && self.waste[player as usize].is_empty()
+            && self.crape[player as usize].is_empty()
     }
 }
 
@@ -158,16 +187,16 @@ mod tests {
         let mut board = Board::new();
         board.new_game();
         for p in 0..=1 {
-            assert_eq!(board.stock[p].cards.nb_cards(), 52 - 13 - 4);
-            assert_eq!(board.waste[p].cards.nb_cards(), 0);
-            assert_eq!(board.crape[p].cards.nb_cards(), 13);
-            assert_eq!(board.crape[p].cards.top_card().face_up, true);
+            assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
+            assert_eq!(board.waste[p].nb_cards(), 0);
+            assert_eq!(board.crape[p].nb_cards(), 13);
+            assert_eq!(board.crape[p].top_card().face_up, true);
         }
         for tp in board.tableau_piles.iter() {
-            assert_eq!(tp.cards.nb_cards(), 1);
+            assert_eq!(tp.nb_cards(), 1);
         }
         for tp in board.foundation_piles.iter() {
-            assert_eq!(tp.cards.nb_cards(), 0);
+            assert_eq!(tp.nb_cards(), 0);
         }
     }
 
@@ -177,15 +206,15 @@ mod tests {
         board.new_game();
         board.new_game();
         for p in 0..=1 {
-            assert_eq!(board.crape[p].cards.nb_cards(), 13);
-            assert_eq!(board.stock[p].cards.nb_cards(), 52 - 13 - 4);
-            assert_eq!(board.waste[p].cards.nb_cards(), 0);
+            assert_eq!(board.crape[p].nb_cards(), 13);
+            assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
+            assert_eq!(board.waste[p].nb_cards(), 0);
         }
         for tp in board.tableau_piles.iter() {
-            assert_eq!(tp.cards.nb_cards(), 1);
+            assert_eq!(tp.nb_cards(), 1);
         }
         for tp in board.foundation_piles.iter() {
-            assert_eq!(tp.cards.nb_cards(), 0);
+            assert_eq!(tp.nb_cards(), 0);
         }
     }
 

@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use crate::core::cards::Card;
 use crate::core::players::Player;
 use crate::core::suits::Suit;
@@ -20,74 +18,78 @@ pub enum PlayerPileTypes {
     CrapePile,
 }
 
-#[derive(Debug)]
-pub struct Pile {
-    cards: Vec<Card>,
-}
+pub trait Pile {
+    fn cards(&self) -> &Vec<Card>;
+    fn cards_mut(&mut self) -> &mut Vec<Card>;
 
-impl Deref for Pile {
-    type Target = Vec<Card>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.cards
-    }
-}
-
-impl Pile {
-    pub fn new(capacity: usize) -> Self {
-        Pile {
-            cards: Vec::<Card>::with_capacity(capacity),
-        }
-    }
-    pub fn add(&mut self, card: Card) {
-        self.cards.push(card);
+    fn add(&mut self, card: Card) {
+        self.cards_mut().push(card);
     }
 
-    pub fn pop(&mut self) -> Option<Card> {
-        self.cards.pop()
+    fn pop(&mut self) -> Option<Card> {
+        self.cards_mut().pop()
     }
 
-    pub fn set(&mut self, cards: Vec<Card>) {
-        self.cards.clear();
-        self.cards.extend(cards);
+    fn set(&mut self, cards: Vec<Card>) {
+        self.cards_mut().clear();
+        self.cards_mut().extend(cards);
     }
 
-    pub fn clear(&mut self) {
-        self.cards.clear();
+    fn clear(&mut self) {
+        self.cards_mut().clear();
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.cards.is_empty()
+    fn is_empty(&self) -> bool {
+        self.cards().is_empty()
     }
 
-    pub fn nb_cards(&self) -> usize {
-        self.cards.len()
+    fn nb_cards(&self) -> usize {
+        self.cards().len()
     }
 
-    pub fn top_card(&self) -> &Card {
+    fn top_card(&self) -> &Card {
         // TODO: Check if is empty
-        let card_index = self.cards.len() - 1;
-        &self.cards[card_index]
+        let card_index = self.cards().len() - 1;
+        &self.cards()[card_index]
     }
 
-    pub fn top_card_mut(&mut self) -> &mut Card {
+    fn top_card_mut(&mut self) -> &mut Card {
         // TODO: Check if is empty
-        let card_index = self.cards.len() - 1;
-        &mut self.cards[card_index]
+        let card_index = self.cards().len() - 1;
+        &mut self.cards_mut()[card_index]
+    }
+
+    fn can_add_card(&self, card: Card, origin: PileTypes, player: Player) -> bool {
+        // TODO: implement everywhere, remove default implementation
+        false
+    }
+    fn can_pop_card(&self, player: Player) -> bool {
+        // TODO: implement everywhere, remove default implementation
+        false
     }
 }
 
 #[derive(Debug)]
 pub struct FoundationPile {
-    pub cards: Pile,
+    cards: Vec<Card>,
     foundation_id: u8,
     foundation_suit: Suit,
+}
+
+impl Pile for FoundationPile {
+    fn cards(&self) -> &Vec<Card> {
+        &self.cards
+    }
+
+    fn cards_mut(&mut self) -> &mut Vec<Card> {
+        &mut self.cards
+    }
 }
 
 impl FoundationPile {
     pub fn new(foundation_id: u8, foundation_suit: Suit) -> Self {
         FoundationPile {
-            cards: Pile::new(NB_RANKS),
+            cards: Vec::<Card>::with_capacity(NB_RANKS),
             foundation_id,
             foundation_suit,
         }
@@ -97,21 +99,31 @@ impl FoundationPile {
         if self.cards.is_empty() {
             "  ".to_string()
         } else {
-            self.cards.top_card().str_display()
+            self.top_card().str_display()
         }
     }
 }
 
 #[derive(Debug)]
 pub struct TableauPile {
-    pub cards: Pile,
+    cards: Vec<Card>,
     tableau_id: u8,
+}
+
+impl Pile for TableauPile {
+    fn cards(&self) -> &Vec<Card> {
+        &self.cards
+    }
+
+    fn cards_mut(&mut self) -> &mut Vec<Card> {
+        &mut self.cards
+    }
 }
 
 impl TableauPile {
     pub fn new(tableau_id: u8) -> Self {
         TableauPile {
-            cards: Pile::new(NB_RANKS),
+            cards: Vec::<Card>::with_capacity(NB_RANKS),
             tableau_id,
         }
     }
@@ -137,13 +149,24 @@ impl TableauPile {
 
 #[derive(Debug)]
 pub struct StockPile {
-    pub cards: Pile,
+    cards: Vec<Card>,
     player: Player,
 }
+
+impl Pile for StockPile {
+    fn cards(&self) -> &Vec<Card> {
+        &self.cards
+    }
+
+    fn cards_mut(&mut self) -> &mut Vec<Card> {
+        &mut self.cards
+    }
+}
+
 impl StockPile {
     pub fn new(player: Player) -> Self {
         StockPile {
-            cards: Pile::new(NB_CARDS),
+            cards: Vec::<Card>::with_capacity(NB_CARDS),
             player,
         }
     }
@@ -152,20 +175,31 @@ impl StockPile {
         if self.cards.is_empty() {
             "  ".to_string()
         } else {
-            self.cards.top_card().str_display()
+            self.top_card().str_display()
         }
     }
 }
 
 #[derive(Debug)]
 pub struct WastePile {
-    pub cards: Pile,
+    cards: Vec<Card>,
     player: Player,
 }
+
+impl Pile for WastePile {
+    fn cards(&self) -> &Vec<Card> {
+        &self.cards
+    }
+
+    fn cards_mut(&mut self) -> &mut Vec<Card> {
+        &mut self.cards
+    }
+}
+
 impl WastePile {
     pub fn new(player: Player) -> Self {
         WastePile {
-            cards: Pile::new(NB_CARDS),
+            cards: Vec::<Card>::with_capacity(NB_CARDS),
             player,
         }
     }
@@ -174,21 +208,31 @@ impl WastePile {
         if self.cards.is_empty() {
             "  ".to_string()
         } else {
-            self.cards.top_card().str_display()
+            self.top_card().str_display()
         }
     }
 }
 
 #[derive(Debug)]
 pub struct CrapePile {
-    pub cards: Pile,
+    cards: Vec<Card>,
     player: Player,
+}
+
+impl Pile for CrapePile {
+    fn cards(&self) -> &Vec<Card> {
+        &self.cards
+    }
+
+    fn cards_mut(&mut self) -> &mut Vec<Card> {
+        &mut self.cards
+    }
 }
 
 impl CrapePile {
     pub fn new(player: Player) -> Self {
         CrapePile {
-            cards: Pile::new(NB_CARDS),
+            cards: Vec::<Card>::with_capacity(NB_CARDS),
             player,
         }
     }
@@ -197,33 +241,7 @@ impl CrapePile {
         if self.cards.is_empty() {
             "  ".to_string()
         } else {
-            self.cards.top_card().str_display()
+            self.top_card().str_display()
         }
     }
 }
-
-/*
-trait PileTrait {
-    fn add_card<T>(&T, card: Card) {
-        self.cards.push(card);
-    }
-
-    fn pop_card(&self) -> Option<Card> {
-        self.cards.pop()
-    }
-
-    fn is_empty(&self) -> bool {
-        self.cards.is_empty()
-    }
-
-    fn top_card(&self) -> &Card {
-        // TODO: Check if is empty ?
-        &self.cards[self.cards.len() - 1]
-    }
-
-    fn can_add_card(&self, card: Card, origin: Pile, player: Player) -> bool;
-    fn can_pop_card(&self, player: Player) -> bool {
-        false
-    }
-}
- */
