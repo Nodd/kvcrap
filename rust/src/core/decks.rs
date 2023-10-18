@@ -1,9 +1,9 @@
 use rand::seq::SliceRandom;
 
-use crate::core::cards::*;
-use crate::core::players::*;
-use crate::core::ranks::*;
-use crate::core::suits::*;
+use super::cards::*;
+use super::players::*;
+use super::ranks::*;
+use super::suits::*;
 
 pub const NB_CARDS: usize = NB_RANKS * NB_SUITS;
 

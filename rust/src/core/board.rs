@@ -1,54 +1,54 @@
-use crate::core::cards::*;
-use crate::core::decks::*;
-use crate::core::piles::*;
-use crate::core::players::*;
-use crate::core::suits::*;
+use super::cards::*;
+use super::decks::*;
+use super::piles::*;
+use super::players::*;
+use super::suits::*;
 
 const NB_PILES: usize = 8;
 
 #[derive(Debug)]
 pub struct Board {
-    stock: [StockPile; NB_PLAYERS],
-    waste: [WastePile; NB_PLAYERS],
-    crape: [CrapePile; NB_PLAYERS],
-    foundation_piles: [FoundationPile; NB_PILES],
-    tableau_piles: [TableauPile; NB_PILES],
+    stock: [Pile; NB_PLAYERS],
+    waste: [Pile; NB_PLAYERS],
+    crape: [Pile; NB_PLAYERS],
+    foundation_piles: [Pile; NB_PILES],
+    tableau_piles: [Pile; NB_PILES],
 }
 
 impl Board {
     pub fn new() -> Self {
         let board = Board {
             waste: [
-                WastePile::new(Player::Player0),
-                WastePile::new(Player::Player1),
+                Pile::new_waste(Player::Player0),
+                Pile::new_waste(Player::Player1),
             ],
             crape: [
-                CrapePile::new(Player::Player0),
-                CrapePile::new(Player::Player1),
+                Pile::new_crape(Player::Player0),
+                Pile::new_crape(Player::Player1),
             ],
             stock: [
-                StockPile::new(Player::Player0),
-                StockPile::new(Player::Player1),
+                Pile::new_stock(Player::Player0),
+                Pile::new_stock(Player::Player1),
             ],
             foundation_piles: [
-                FoundationPile::new(1, Suit::Diamond),
-                FoundationPile::new(2, Suit::Club),
-                FoundationPile::new(3, Suit::Heart),
-                FoundationPile::new(4, Suit::Spade),
-                FoundationPile::new(5, Suit::Spade),
-                FoundationPile::new(6, Suit::Heart),
-                FoundationPile::new(7, Suit::Club),
-                FoundationPile::new(8, Suit::Diamond),
+                Pile::new_foundation(0, Suit::Diamond),
+                Pile::new_foundation(1, Suit::Club),
+                Pile::new_foundation(2, Suit::Heart),
+                Pile::new_foundation(3, Suit::Spade),
+                Pile::new_foundation(4, Suit::Spade),
+                Pile::new_foundation(5, Suit::Heart),
+                Pile::new_foundation(6, Suit::Club),
+                Pile::new_foundation(7, Suit::Diamond),
             ],
             tableau_piles: [
-                TableauPile::new(1),
-                TableauPile::new(2),
-                TableauPile::new(3),
-                TableauPile::new(4),
-                TableauPile::new(5),
-                TableauPile::new(6),
-                TableauPile::new(7),
-                TableauPile::new(8),
+                Pile::new_tableau(0),
+                Pile::new_tableau(1),
+                Pile::new_tableau(2),
+                Pile::new_tableau(3),
+                Pile::new_tableau(4),
+                Pile::new_tableau(5),
+                Pile::new_tableau(6),
+                Pile::new_tableau(7),
             ],
         };
         board
@@ -65,7 +65,7 @@ impl Board {
             let player = player as usize;
 
             // Fill crape pile
-            let crape = deck.split_off(deck.len() - 13);
+            let crape = deck.split_off(deck.len() - NB_CRAPE_START);
             self.crape[player].set(crape);
             let card: &mut Card = self.crape[player].top_card_mut();
             card.set_face_up();
@@ -127,13 +127,13 @@ impl Board {
             let foundation_pile_right = &self.foundation_piles[index_right];
 
             let mut line: String = "   ".repeat(13 - tableau_pile_left.nb_cards()).to_string();
-            line += &tableau_pile_left.str_display_left();
+            line += &tableau_pile_left.str_display();
             line += "| ";
             line += &foundation_pile_left.str_display();
             line += " ";
             line += &foundation_pile_right.str_display();
             line += " | ";
-            line += &tableau_pile_right.str_display_right();
+            line += &tableau_pile_right.str_display();
             str_lines[row + 1] = line;
         }
 

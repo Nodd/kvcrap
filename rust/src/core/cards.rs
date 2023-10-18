@@ -1,8 +1,8 @@
 use regex::Regex;
 
-use crate::core::players::*;
-use crate::core::ranks::*;
-use crate::core::suits::*;
+use super::players::*;
+use super::ranks::*;
+use super::suits::*;
 
 #[derive(Debug)]
 pub struct Card {
