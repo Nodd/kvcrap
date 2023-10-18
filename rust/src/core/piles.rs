@@ -10,7 +10,7 @@ pub const NB_CRAPE_START: usize = 13;
 #[derive(Debug)]
 pub struct Pile {
     pub cards: Vec<Card>,
-    fields: PileType,
+    kind: PileType,
 }
 
 #[derive(Debug)]
@@ -37,7 +37,7 @@ impl Pile {
     pub fn new_foundation(foundation_id: u8, foundation_suit: Suit) -> Self {
         Pile {
             cards: Vec::<Card>::with_capacity(NB_RANKS),
-            fields: PileType::Foundation {
+            kind: PileType::Foundation {
                 foundation_id,
                 foundation_suit,
             },
@@ -46,30 +46,30 @@ impl Pile {
     pub fn new_tableau(tableau_id: u8) -> Self {
         Pile {
             cards: Vec::<Card>::with_capacity(NB_RANKS),
-            fields: PileType::Tableau { tableau_id },
+            kind: PileType::Tableau { tableau_id },
         }
     }
     pub fn new_stock(player: Player) -> Self {
         Pile {
             cards: Vec::<Card>::with_capacity(NB_CARDS - NB_CRAPE_START),
-            fields: PileType::Stock { player },
+            kind: PileType::Stock { player },
         }
     }
     pub fn new_waste(player: Player) -> Self {
         Pile {
             cards: Vec::<Card>::with_capacity(NB_CARDS - NB_CRAPE_START),
-            fields: PileType::Waste { player },
+            kind: PileType::Waste { player },
         }
     }
     pub fn new_crape(player: Player) -> Self {
         Pile {
             cards: Vec::<Card>::with_capacity(NB_CRAPE_START),
-            fields: PileType::Crape { player },
+            kind: PileType::Crape { player },
         }
     }
 
     pub fn str_display(&self) -> String {
-        match &self.fields {
+        match &self.kind {
             PileType::Foundation { .. }
             | PileType::Stock { .. }
             | PileType::Waste { .. }
@@ -105,7 +105,7 @@ impl Pile {
     }
 
     pub fn can_add_card(&self, card: &Card, origin: &PileType, player: &Player) -> bool {
-        match &self.fields {
+        match &self.kind {
             PileType::Foundation {
                 foundation_suit, ..
             } => card.suit() == foundation_suit && card.rank() == &(self.nb_cards() + 1),
@@ -150,7 +150,7 @@ impl Pile {
     }
 
     pub fn can_pop_card(&self, player: &Player) -> bool {
-        match &self.fields {
+        match &self.kind {
             PileType::Foundation { .. } | PileType::Waste { .. } => false,
             PileType::Tableau { .. } => true,
             PileType::Stock {
