@@ -142,17 +142,16 @@ impl Board {
     }
 
     pub fn compute_first_player(&self) -> Player {
-        // TODO: check tableau computations
         if self.crape[0].top_card().rank() > self.crape[1].top_card().rank() {
             Player::Player0
         } else if self.crape[0].top_card().rank() < self.crape[1].top_card().rank() {
             Player::Player1
         } else {
-            let mut max_p0 = self.tableau_piles[4].top_card().rank();
-            let mut max_p1 = self.tableau_piles[0].top_card().rank();
+            let mut max_p0 = self.tableau_piles[0].top_card().rank();
+            let mut max_p1 = self.tableau_piles[4].top_card().rank();
             for row in 1..=3 {
-                max_p0 = max(max_p0, self.tableau_piles[4 + row].top_card().rank());
-                max_p1 = max(max_p1, self.tableau_piles[row].top_card().rank());
+                max_p0 = max(max_p0, self.tableau_piles[row].top_card().rank());
+                max_p1 = max(max_p1, self.tableau_piles[4 + row].top_card().rank());
             }
             if max_p0 > max_p1 {
                 Player::Player0
