@@ -10,7 +10,7 @@ pub const NB_CRAPE_START: usize = 13;
 #[derive(Debug)]
 pub struct Pile {
     pub cards: Vec<Card>,
-    kind: PileType,
+    pub kind: PileType,
 }
 
 #[derive(Debug)]
