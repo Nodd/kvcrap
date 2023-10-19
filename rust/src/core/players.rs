@@ -27,6 +27,7 @@ impl Player {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub enum PlayerType {
     Player,
     AI,
