@@ -26,3 +26,10 @@ impl Player {
         }
     }
 }
+
+pub enum PlayerType {
+    Player,
+    AI,
+    // remote,
+}
+pub const NB_PLAYER: usize = 2;
