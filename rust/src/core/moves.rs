@@ -3,13 +3,13 @@ use super::piles::Pile;
 
 pub enum Move {
     Move {
-        card: &Card,
-        origin: &Pile,
-        destination: &Pile,
+        card: Card,
+        origin: Pile,
+        destination: Pile,
     },
     Flip {
-        card: &Card,
-        pile: &Pile,
+        card: Card,
+        pile: Pile,
     },
     FlipWaste,
 }
