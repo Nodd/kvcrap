@@ -56,10 +56,12 @@ impl Board {
         board
     }
 
-    pub fn new_game(&mut self) {
+    pub fn new_game(&mut self, seed: &str) {
+        let mut rng = new_rng(seed.to_string());
+
         for player in PLAYERS {
             let mut deck = new_deck(player);
-            shuffle(&mut deck);
+            shuffle(&mut deck, &mut rng);
 
             let card = &mut deck[0];
             card.set_face_up();
@@ -175,7 +177,7 @@ mod tests {
     #[test]
     fn test_new_game() {
         let mut board = Board::new();
-        board.new_game();
+        board.new_game("test");
         for p in 0..=1 {
             assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
             assert_eq!(board.waste[p].nb_cards(), 0);
@@ -193,8 +195,8 @@ mod tests {
     #[test]
     fn test_new_game_clear() {
         let mut board = Board::new();
-        board.new_game();
-        board.new_game();
+        board.new_game("test1");
+        board.new_game("test2");
         for p in 0..=1 {
             assert_eq!(board.crape[p].nb_cards(), 13);
             assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
@@ -213,7 +215,7 @@ mod tests {
         let mut board = Board::new();
         assert_eq!(board.check_win(Player::Player0), true);
         assert_eq!(board.check_win(Player::Player1), true);
-        board.new_game();
+        board.new_game("test");
         assert_eq!(board.check_win(Player::Player0), false);
         assert_eq!(board.check_win(Player::Player1), false);
     }
