@@ -77,38 +77,42 @@ impl GameManager {
         assert!(!self.game_config.crapette_mode);
 
         match pile.kind {
-            PileType::Waste { player } => {
-                if player == self.game_config.active_player {
-                    self.set_active_player(self.game_config.active_player.other());
-                    true
-                } else {
-                    false
+            PileType::Waste { player } => match self.game_config.active_player {
+                Some(active_player) => {
+                    if player == active_player {
+                        self.set_active_player(Some(active_player.other()));
+                        true
+                    } else {
+                        false
+                    }
                 }
-            }
+                None => false,
+            },
             _ => false,
         }
     }
 
     /// End the game if the current player has won.
     pub fn check_and_apply_win(&mut self) -> bool {
-        if self
-            .game_config
-            .board
-            .check_win(self.game_config.active_player)
-        {
-            println!("Player {:?} wins !!!", self.game_config.active_player);
+        match self.game_config.active_player {
+            Some(active_player) => {
+                if self.game_config.board.check_win(active_player) {
+                    println!("Player {:?} wins !!!", active_player);
 
-            // Callback GUI
-            // label.text = "Player {self.game_config.active_player} wins !!!"
+                    // Callback GUI
+                    // label.text = "Player {active_player} wins !!!"
 
-            // Freeze board
-            self.game_config.active_player = None;
-            //for card_widget in self.board_widget.card_widgets.values():
-            //    card_widget.do_translation = False
-            //self.board_widget.update_crapette_button_status()
-            true
-        } else {
-            false
+                    // Freeze board
+                    self.game_config.active_player = None;
+                    //for card_widget in self.board_widget.card_widgets.values():
+                    //    card_widget.do_translation = False
+                    //self.board_widget.update_crapette_button_status()
+                    true
+                } else {
+                    false
+                }
+            }
+            None => false,
         }
     }
 
