@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 pub const MIN_RANK: u8 = 1;
 pub const MAX_RANK: u8 = 13;
 //const RANKS: Vec<u8> = (MIN_RANK..=MAX_RANK).collect::<Vec<u8>>();
@@ -60,10 +62,20 @@ impl PartialEq for Rank {
     }
 }
 impl Eq for Rank {}
-
 impl PartialEq<usize> for Rank {
     fn eq(&self, other: &usize) -> bool {
         self.rank as usize == *other
+    }
+}
+
+impl PartialOrd for Rank {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.rank.partial_cmp(&other.rank)
+    }
+}
+impl Ord for Rank {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.rank.cmp(&other.rank)
     }
 }
 

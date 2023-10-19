@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use super::cards::*;
 use super::decks::*;
 use super::piles::*;
@@ -69,7 +71,6 @@ impl Board {
             self.crape[player].set(crape);
             let card: &mut Card = self.crape[player].top_card_mut();
             card.set_face_up();
-            //assert_eq!(card.face_up, true);
 
             // Fill tableau
             for tp in self.tableau_piles[(4 * player)..(4 * player + 4)].iter_mut() {
@@ -92,7 +93,7 @@ impl Board {
         }
     }
 
-    pub fn to_string(self) -> String {
+    pub fn to_string(&self) -> String {
         let mut str_lines = [
             "".to_string(),
             "".to_string(),
@@ -141,34 +142,24 @@ impl Board {
     }
 
     pub fn compute_first_player(&self) -> Player {
-        // TODO
-        Player::Player0
-        /*
-        if self.crape[0].cards.top_card().rank() > self.crape[1].cards.top_card().rank() {
+        // TODO: check tableau computations
+        if self.crape[0].top_card().rank() > self.crape[1].top_card().rank() {
             Player::Player0
-        } else if self.crape[0].cards.top_card().rank() < self.crape[1].cards.top_card().rank() {
+        } else if self.crape[0].top_card().rank() < self.crape[1].top_card().rank() {
             Player::Player1
         } else {
-            if self.tableau_piles[0..4]
-                .iter()
-                .cards
-                .top_card()
-                .rank()
-                .max()
-                .unwrap()
-                > self.tableau_piles[4..8]
-                    .iter()
-                    .cards
-                    .top_card()
-                    .rank()
-                    .max()
-                    .unwrap()
-            {
+            let mut max_p0 = self.tableau_piles[4].top_card().rank();
+            let mut max_p1 = self.tableau_piles[0].top_card().rank();
+            for row in 1..=3 {
+                max_p0 = max(max_p0, self.tableau_piles[4 + row].top_card().rank());
+                max_p1 = max(max_p1, self.tableau_piles[row].top_card().rank());
+            }
+            if max_p0 > max_p1 {
                 Player::Player0
             } else {
                 Player::Player1
             }
-        } */
+        }
     }
 
     pub fn check_win(&self, player: Player) -> bool {
