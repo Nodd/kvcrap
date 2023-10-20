@@ -18,6 +18,7 @@ pub struct Board {
 }
 
 impl Board {
+    /// Create an empty board.
     pub fn new() -> Self {
         let board = Board {
             waste: [
@@ -56,15 +57,13 @@ impl Board {
         board
     }
 
+    /// Create a new game with a standard card deal.
     pub fn new_game(&mut self, seed: &str) {
         let mut rng = new_rng(seed.to_string());
 
         for player in PLAYERS {
             let mut deck = new_deck(player);
             shuffle(&mut deck, &mut rng);
-
-            let card = &mut deck[0];
-            card.set_face_up();
 
             let player = player as usize;
 
@@ -95,6 +94,7 @@ impl Board {
         }
     }
 
+    /// Display the board as a multiline String.
     pub fn to_string(&self) -> String {
         let mut str_lines = [
             "".to_string(),
@@ -143,6 +143,11 @@ impl Board {
         str_lines.join("\n")
     }
 
+    /// Compute the first player at the start of the game.
+    ///
+    /// It's the player with the highest card on top of their crape pile.
+    /// In case of equality, it's the player with the highest card dealed on the tableau.
+    /// In case of equality, it's just player 0...
     pub fn compute_first_player(&self) -> Player {
         if self.crape[0].top_card().rank() > self.crape[1].top_card().rank() {
             Player::Player0
@@ -163,6 +168,7 @@ impl Board {
         }
     }
 
+    /// Check if the player has won the game, i.e. their piles are empty.
     pub fn check_win(&self, player: Player) -> bool {
         self.stock[player as usize].is_empty()
             && self.waste[player as usize].is_empty()
