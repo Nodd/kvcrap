@@ -1,10 +1,10 @@
 use std::cmp::max;
 
-use super::cards::*;
-use super::decks::*;
-use super::piles::*;
-use super::players::*;
-use super::suits::*;
+use super::cards::Card;
+use super::decks::{new_deck, new_rng, shuffle};
+use super::piles::{Pile, NB_CRAPE_START};
+use super::players::{Player, NB_PLAYERS, PLAYERS};
+use super::suits::Suit;
 
 const NB_PILES: usize = 8;
 

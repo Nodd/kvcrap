@@ -1,8 +1,8 @@
 use regex::Regex;
 
-use super::players::*;
-use super::ranks::*;
-use super::suits::*;
+use super::players::Player;
+use super::ranks::Rank;
+use super::suits::{Color, Suit};
 
 #[derive(Debug)]
 pub struct Card {

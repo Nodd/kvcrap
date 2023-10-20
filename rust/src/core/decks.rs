@@ -4,10 +4,10 @@ use rand::Rng; // Needed for sample_iter()
 use rand_pcg::Pcg64;
 use rand_seeder::Seeder;
 
-use super::cards::*;
-use super::players::*;
-use super::ranks::*;
-use super::suits::*;
+use super::cards::Card;
+use super::players::Player;
+use super::ranks::{Rank, MAX_RANK, MIN_RANK, NB_RANKS};
+use super::suits::{Suit, NB_SUITS};
 
 pub const NB_CARDS: usize = NB_RANKS * NB_SUITS;
 
