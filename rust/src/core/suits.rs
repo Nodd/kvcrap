@@ -1,6 +1,6 @@
 pub const NB_SUITS: usize = 4;
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Debug, Clone, Copy, Hash)]
 pub enum Suit {
     Diamond,
     Heart,

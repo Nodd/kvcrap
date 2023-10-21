@@ -1,4 +1,4 @@
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Debug, Clone, Copy, Hash)]
 pub enum Player {
     Player0 = 0,
     Player1 = 1,

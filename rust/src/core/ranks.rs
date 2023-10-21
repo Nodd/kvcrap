@@ -6,7 +6,7 @@ pub const MAX_RANK: u8 = 13;
 pub const NB_RANKS: usize = MAX_RANK as usize;
 
 // TODO: Implement as tuple `pub struct Rank(u8)` ?
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub struct Rank {
     rank: u8,
 }

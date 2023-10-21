@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::hash::{Hash, Hasher};
 
 use super::players::Player;
 use super::ranks::Rank;
@@ -82,6 +83,14 @@ impl Card {
 impl PartialEq for Card {
     fn eq(&self, other: &Self) -> bool {
         self.rank == other.rank && self.suit == other.suit && self.player == other.player
+    }
+}
+
+impl Hash for Card {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.rank.hash(state);
+        self.suit.hash(state);
+        self.player.hash(state);
     }
 }
 
