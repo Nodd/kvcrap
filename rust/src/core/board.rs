@@ -1,14 +1,15 @@
-use std::cmp::max;
-
 use rand_pcg::Pcg64;
 
 use super::cards::Card;
 use super::decks::{new_deck, shuffle};
 use super::piles::{Pile, NB_CRAPE_START};
 use super::players::{Player, NB_PLAYERS, PLAYERS};
+use super::ranks::NB_RANKS;
 use super::suits::Suit;
 
 const NB_PILES: usize = 8;
+const NB_ROWS: usize = 4;
+const PLAYER_SPACE: usize = NB_RANKS * 3;
 
 #[derive(Debug)]
 pub struct Board {
@@ -61,33 +62,49 @@ impl Board {
     /// Create a new game with a standard card deal.
     pub fn new_game(&mut self, mut rng: &mut Pcg64) {
         for player in PLAYERS {
-            let mut deck = new_deck(player);
-            shuffle(&mut deck, &mut rng);
-
+            let mut deck = self.prepare_deck(player, &mut rng);
             let player = player as usize;
 
-            // Fill crape pile
-            let crape = deck.split_off(deck.len() - NB_CRAPE_START);
-            self.crape[player].set(crape);
-            let card: &mut Card = self.crape[player].top_card_mut().unwrap();
-            card.set_face_up();
-
-            // Fill tableau
-            for tp in self.tableau_piles[(4 * player)..(4 * player + 4)].iter_mut() {
-                tp.clear();
-                let mut card = deck.pop().unwrap();
-                card.set_face_up();
-                tp.add(card);
-            }
-
-            // Fill stock
-            self.stock[player].set(deck);
+            // Fill game components
+            self.fill_crape(player, &mut deck);
+            self.fill_tableau(player, &mut deck);
+            self.fill_stock(player, deck);
 
             // Clear waste
             self.waste[player].clear();
         }
 
         // Clear foundation
+        self.clear_foundation();
+    }
+
+    fn prepare_deck(&self, player: Player, rng: &mut Pcg64) -> Vec<Card> {
+        let mut deck = new_deck(player);
+        shuffle(&mut deck, rng);
+        deck
+    }
+
+    fn fill_crape(&mut self, player: usize, deck: &mut Vec<Card>) {
+        let crape = deck.split_off(deck.len() - NB_CRAPE_START);
+        self.crape[player].set(crape);
+        let card: &mut Card = self.crape[player].top_card_mut().unwrap();
+        card.set_face_up();
+    }
+
+    fn fill_tableau(&mut self, player: usize, deck: &mut Vec<Card>) {
+        for tp in self.tableau_piles[(4 * player)..(4 * player + 4)].iter_mut() {
+            tp.clear();
+            let mut card = deck.pop().unwrap();
+            card.set_face_up();
+            tp.add(card);
+        }
+    }
+
+    fn fill_stock(&mut self, player: usize, deck: Vec<Card>) {
+        self.stock[player].set(deck);
+    }
+
+    fn clear_foundation(&mut self) {
         for fp in self.foundation_piles.iter_mut() {
             fp.clear();
         }
@@ -95,49 +112,42 @@ impl Board {
 
     /// Display the board as a multiline String.
     pub fn to_string(&self) -> String {
-        let mut str_lines = [
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
-        ];
+        let player_space = " ".repeat(PLAYER_SPACE);
 
-        let player_space_left = " ".repeat(13 * 3).to_string();
-        str_lines[0] = player_space_left.clone()
-            + &self.crape[1].str_display()
-            + "  "
-            + &self.waste[1].str_display()
-            + " "
-            + &self.stock[1].str_display();
+        let mut str_lines = vec![format!(
+            "{}{}  {} {}",
+            player_space,
+            self.crape[1].str_display(),
+            self.waste[1].str_display(),
+            self.stock[1].str_display()
+        )];
 
-        str_lines[5] = player_space_left
-            + &self.stock[0].str_display()
-            + " "
-            + &self.waste[0].str_display()
-            + "  "
-            + &self.crape[0].str_display();
-
-        for row in 0..4 {
-            let index_left = row + 4; // 4, 5, 6, 7
-            let index_right = 3 - row; // 3, 2, 1, 0
+        str_lines.extend((0..NB_ROWS).map(|row| {
+            let index_left = row + NB_ROWS;
+            let index_right = NB_ROWS - 1 - row;
 
             let tableau_pile_left = &self.tableau_piles[index_left];
             let tableau_pile_right = &self.tableau_piles[index_right];
             let foundation_pile_left = &self.foundation_piles[index_left];
             let foundation_pile_right = &self.foundation_piles[index_right];
 
-            let mut line: String = "   ".repeat(13 - tableau_pile_left.nb_cards()).to_string();
-            line += &tableau_pile_left.str_display();
-            line += "| ";
-            line += &foundation_pile_left.str_display();
-            line += " ";
-            line += &foundation_pile_right.str_display();
-            line += " | ";
-            line += &tableau_pile_right.str_display();
-            str_lines[row + 1] = line;
-        }
+            format!(
+                "{}{}| {} {} | {}",
+                "   ".repeat(NB_RANKS - tableau_pile_left.nb_cards()),
+                tableau_pile_left.str_display(),
+                foundation_pile_left.str_display(),
+                foundation_pile_right.str_display(),
+                tableau_pile_right.str_display()
+            )
+        }));
+
+        str_lines.push(format!(
+            "{}{}  {} {}",
+            player_space,
+            self.stock[0].str_display(),
+            self.waste[0].str_display(),
+            self.crape[0].str_display()
+        ));
 
         str_lines.join("\n")
     }
@@ -150,22 +160,21 @@ impl Board {
     ///
     /// Warning: this function panics if crape or tableau piles are empty
     pub fn compute_first_player(&self) -> Player {
-        if self.crape[0].top_card().unwrap().rank() > self.crape[1].top_card().unwrap().rank() {
+        if self.crape[0].top_rank().unwrap() > self.crape[1].top_rank().unwrap() {
             Player::Player0
-        } else if self.crape[0].top_card().unwrap().rank()
-            < self.crape[1].top_card().unwrap().rank()
-        {
+        } else if self.crape[0].top_rank().unwrap() < self.crape[1].top_rank().unwrap() {
             Player::Player1
         } else {
-            let mut max_p0 = self.tableau_piles[0].top_card().unwrap().rank();
-            let mut max_p1 = self.tableau_piles[4].top_card().unwrap().rank();
-            for row in 1..=3 {
-                max_p0 = max(max_p0, self.tableau_piles[row].top_card().unwrap().rank());
-                max_p1 = max(
-                    max_p1,
-                    self.tableau_piles[4 + row].top_card().unwrap().rank(),
-                );
-            }
+            let max_p0 = self.tableau_piles[0..NB_ROWS]
+                .iter()
+                .map(|pile| pile.top_rank().unwrap())
+                .max()
+                .unwrap();
+            let max_p1 = self.tableau_piles[NB_ROWS..2 * NB_ROWS]
+                .iter()
+                .map(|pile| pile.top_rank().unwrap())
+                .max()
+                .unwrap();
             if max_p0 > max_p1 {
                 Player::Player0
             } else {

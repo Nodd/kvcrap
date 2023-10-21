@@ -3,7 +3,7 @@ use super::players::Player;
 use super::suits::Suit;
 
 use super::decks::NB_CARDS;
-use super::ranks::NB_RANKS;
+use super::ranks::{Rank, NB_RANKS};
 
 pub const NB_CRAPE_START: usize = 13;
 
@@ -189,5 +189,9 @@ impl Pile {
 
     pub fn top_card_mut(&mut self) -> Option<&mut Card> {
         self.cards.last_mut()
+    }
+
+    pub fn top_rank(&self) -> Option<&Rank> {
+        self.cards.last().map(|card| card.rank())
     }
 }
