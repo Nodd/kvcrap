@@ -73,13 +73,10 @@ impl Pile {
             PileType::Foundation { .. }
             | PileType::Stock { .. }
             | PileType::Waste { .. }
-            | PileType::Crape { .. } => {
-                if self.cards.is_empty() {
-                    "  ".to_string()
-                } else {
-                    self.top_card().str_display()
-                }
-            }
+            | PileType::Crape { .. } => match self.top_card() {
+                None => "  ".to_string(),
+                Some(top_card) => top_card.str_display(),
+            },
             PileType::Tableau { tableau_id: 0..=3 } => {
                 // Right side
                 let mut result = "".to_string();
@@ -109,14 +106,12 @@ impl Pile {
             PileType::Foundation {
                 foundation_suit, ..
             } => card.suit() == foundation_suit && card.rank() == &(self.nb_cards() + 1),
-            PileType::Tableau { .. } => {
-                if self.is_empty() {
-                    true
-                } else {
-                    card.rank() == &self.top_card().rank().below()
-                        && !card.is_same_color(self.top_card())
+            PileType::Tableau { .. } => match self.top_card() {
+                None => true,
+                Some(top_card) => {
+                    card.rank() == &top_card.rank().below() && !card.is_same_color(top_card)
                 }
-            }
+            },
             PileType::Stock { .. } => false,
             PileType::Waste {
                 player: self_player,
@@ -129,22 +124,23 @@ impl Pile {
                         } => origin_player == player,
                         _ => false,
                     }
-                } else if self.is_empty() || card.suit() != self.top_card().suit() {
-                    false
                 } else {
-                    card.rank() == &self.top_card().rank().above()
-                        || card.rank() == &self.top_card().rank().below()
+                    match self.top_card() {
+                        None => false,
+                        Some(top_card) => {
+                            card.suit() == top_card.suit() && card.is_above_or_below(top_card)
+                        }
+                    }
                 }
             }
             PileType::Crape {
                 player: self_player,
             } => {
                 self_player != player
-                    && !self.is_empty()
-                    && self.top_card().face_up
-                    && card.suit() == self.top_card().suit()
-                    && (card.rank() == &self.top_card().rank().above()
-                        || card.rank() == &self.top_card().rank().below())
+                    && match self.top_card() {
+                        None => false,
+                        Some(top_card) => top_card.face_up && card.is_above_or_below(top_card),
+                    }
             }
         }
     }
@@ -187,15 +183,11 @@ impl Pile {
         self.cards.len()
     }
 
-    pub fn top_card(&self) -> &Card {
-        // TODO: Check if is empty
-        let card_index = self.cards.len() - 1;
-        &self.cards[card_index]
+    pub fn top_card(&self) -> Option<&Card> {
+        self.cards.last()
     }
 
-    pub fn top_card_mut(&mut self) -> &mut Card {
-        // TODO: Check if is empty
-        let card_index = self.cards.len() - 1;
-        &mut self.cards[card_index]
+    pub fn top_card_mut(&mut self) -> Option<&mut Card> {
+        self.cards.last_mut()
     }
 }

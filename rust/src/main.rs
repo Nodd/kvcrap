@@ -3,6 +3,9 @@
 
 use clap::Parser;
 
+use crate::core::board::Board;
+use crate::core::custom_test_games::call_custom;
+
 mod core;
 
 #[derive(Parser, Debug)]
@@ -26,8 +29,19 @@ fn main() {
     };
     println!("{}", seed);
 
-    let mut board = core::board::Board::new();
-    board.new_game(&seed);
+    let mut board = Board::new();
+
+    let custom = cli.custom.as_deref();
+    match custom {
+        Some(custom) => {
+            println!("Custom game: {}", custom);
+            call_custom(custom, &mut board);
+        }
+        None => board.new_game(&seed),
+    };
     println!("{}", board.to_string());
-    println!("{:?}", board.compute_first_player());
+
+    if custom.is_none() {
+        println!("{:?}", board.compute_first_player());
+    }
 }

@@ -1,5 +1,6 @@
 pub mod board;
 pub mod cards;
+pub mod custom_test_games;
 pub mod decks;
 pub mod game_manager;
 pub mod moves;

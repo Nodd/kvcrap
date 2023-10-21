@@ -10,17 +10,17 @@ const NB_PILES: usize = 8;
 
 #[derive(Debug)]
 pub struct Board {
-    stock: [Pile; NB_PLAYERS],
-    waste: [Pile; NB_PLAYERS],
-    crape: [Pile; NB_PLAYERS],
-    foundation_piles: [Pile; NB_PILES],
-    tableau_piles: [Pile; NB_PILES],
+    pub stock: [Pile; NB_PLAYERS],
+    pub waste: [Pile; NB_PLAYERS],
+    pub crape: [Pile; NB_PLAYERS],
+    pub foundation_piles: [Pile; NB_PILES],
+    pub tableau_piles: [Pile; NB_PILES],
 }
 
 impl Board {
     /// Create an empty board.
     pub fn new() -> Self {
-        let board = Board {
+        Board {
             waste: [
                 Pile::new_waste(Player::Player0),
                 Pile::new_waste(Player::Player1),
@@ -53,8 +53,7 @@ impl Board {
                 Pile::new_tableau(6),
                 Pile::new_tableau(7),
             ],
-        };
-        board
+        }
     }
 
     /// Create a new game with a standard card deal.
@@ -70,7 +69,7 @@ impl Board {
             // Fill crape pile
             let crape = deck.split_off(deck.len() - NB_CRAPE_START);
             self.crape[player].set(crape);
-            let card: &mut Card = self.crape[player].top_card_mut();
+            let card: &mut Card = self.crape[player].top_card_mut().unwrap();
             card.set_face_up();
 
             // Fill tableau
@@ -148,17 +147,24 @@ impl Board {
     /// It's the player with the highest card on top of their crape pile.
     /// In case of equality, it's the player with the highest card dealed on the tableau.
     /// In case of equality, it's just player 0...
+    ///
+    /// Warning: this function panics if crape or tableau piles are empty
     pub fn compute_first_player(&self) -> Player {
-        if self.crape[0].top_card().rank() > self.crape[1].top_card().rank() {
+        if self.crape[0].top_card().unwrap().rank() > self.crape[1].top_card().unwrap().rank() {
             Player::Player0
-        } else if self.crape[0].top_card().rank() < self.crape[1].top_card().rank() {
+        } else if self.crape[0].top_card().unwrap().rank()
+            < self.crape[1].top_card().unwrap().rank()
+        {
             Player::Player1
         } else {
-            let mut max_p0 = self.tableau_piles[0].top_card().rank();
-            let mut max_p1 = self.tableau_piles[4].top_card().rank();
+            let mut max_p0 = self.tableau_piles[0].top_card().unwrap().rank();
+            let mut max_p1 = self.tableau_piles[4].top_card().unwrap().rank();
             for row in 1..=3 {
-                max_p0 = max(max_p0, self.tableau_piles[row].top_card().rank());
-                max_p1 = max(max_p1, self.tableau_piles[4 + row].top_card().rank());
+                max_p0 = max(max_p0, self.tableau_piles[row].top_card().unwrap().rank());
+                max_p1 = max(
+                    max_p1,
+                    self.tableau_piles[4 + row].top_card().unwrap().rank(),
+                );
             }
             if max_p0 > max_p1 {
                 Player::Player0
@@ -188,7 +194,7 @@ mod tests {
             assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
             assert_eq!(board.waste[p].nb_cards(), 0);
             assert_eq!(board.crape[p].nb_cards(), 13);
-            assert_eq!(board.crape[p].top_card().face_up, true);
+            assert_eq!(board.crape[p].top_card().unwrap().face_up, true);
         }
         for tp in board.tableau_piles.iter() {
             assert_eq!(tp.nb_cards(), 1);

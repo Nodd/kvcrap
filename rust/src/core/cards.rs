@@ -67,6 +67,11 @@ impl Card {
         self.suit.color() == other.suit.color()
     }
 
+    /// Check if the rank is above or below the other card's rank
+    pub fn is_above_or_below(&self, other: &Card) -> bool {
+        self.rank() == &other.rank().above() || self.rank() == &other.rank().below()
+    }
+
     pub fn str_rank_suit(&self) -> String {
         format!("{}{}", self.rank.symbol(), self.suit.symbol())
     }
