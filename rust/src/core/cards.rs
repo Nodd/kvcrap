@@ -22,6 +22,14 @@ impl Card {
             face_up: false,
         }
     }
+    pub fn new_up(rank: Rank, suit: Suit, player: Player) -> Self {
+        Card {
+            rank,
+            suit,
+            player,
+            face_up: true,
+        }
+    }
 
     pub fn quick(card_str: &str) -> Self {
         let re: regex::Regex = Regex::new(r"^(?<rank>\d+)(?<suit>\w)(?<player>\d)$").unwrap();
@@ -69,7 +77,7 @@ impl Card {
 
     /// Check if the rank is above or below the other card's rank
     pub fn is_above_or_below(&self, other: &Card) -> bool {
-        self.rank() == &other.rank().above() || self.rank() == &other.rank().below()
+        self.rank.is_above_or_below(&other.rank)
     }
 
     pub fn str_rank_suit(&self) -> String {

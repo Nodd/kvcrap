@@ -94,20 +94,15 @@ impl GameManager {
     pub fn check_and_apply_end_of_turn(&mut self, pile: &Pile) -> bool {
         assert!(!self.config.crapette_mode);
 
-        match pile.kind {
-            PileType::Waste { player } => match self.config.active_player {
-                Some(active_player) => {
-                    if player == active_player {
-                        self.set_active_player(Some(active_player.other()));
-                        true
-                    } else {
-                        false
-                    }
+        if let PileType::Waste { player } = pile.kind {
+            if let Some(active_player) = self.config.active_player {
+                if player == active_player {
+                    self.set_active_player(Some(active_player.other()));
+                    return true;
                 }
-                None => false,
-            },
-            _ => false,
+            }
         }
+        false
     }
 
     /// End the game if the current player has won.

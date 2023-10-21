@@ -109,7 +109,7 @@ impl Pile {
             PileType::Tableau { .. } => match self.top_card() {
                 None => true,
                 Some(top_card) => {
-                    card.rank() == &top_card.rank().below() && !card.is_same_color(top_card)
+                    card.rank().is_below(top_card.rank()) && !card.is_same_color(top_card)
                 }
             },
             PileType::Stock { .. } => false,

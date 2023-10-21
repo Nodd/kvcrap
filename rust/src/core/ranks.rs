@@ -2,19 +2,23 @@ use std::cmp::Ordering;
 
 pub const MIN_RANK: u8 = 1;
 pub const MAX_RANK: u8 = 13;
-//const RANKS: Vec<u8> = (MIN_RANK..=MAX_RANK).collect::<Vec<u8>>();
 pub const NB_RANKS: usize = MAX_RANK as usize;
+
+const SYMBOLS: [char; NB_RANKS] = [
+    'A', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'J', 'Q', 'K',
+];
+const NAMES: [&str; NB_RANKS] = [
+    "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King",
+];
 
 // TODO: Implement as tuple `pub struct Rank(u8)` ?
 #[derive(Debug, Clone, Copy, Hash)]
-pub struct Rank {
-    rank: u8,
-}
+pub struct Rank(u8);
 
 impl From<u8> for Rank {
     fn from(item: u8) -> Self {
         match item {
-            MIN_RANK..=MAX_RANK => Rank { rank: item },
+            MIN_RANK..=MAX_RANK => Rank(item),
             _ => panic!("Incorrect card rank {item}"),
         }
     }
@@ -22,60 +26,47 @@ impl From<u8> for Rank {
 
 impl Rank {
     pub fn symbol(&self) -> char {
-        match self.rank {
-            1 => 'A',
-            2..=9 => format!("{}", self.rank)
-                .chars()
-                .next()
-                .expect("string is empty"),
-            10 => '0',
-            11 => 'J',
-            12 => 'Q',
-            13 => 'K',
-            _ => panic!("Incorrect card rank {}", self.rank),
-        }
+        SYMBOLS[(self.0 - 1) as usize]
     }
 
-    pub fn name(&self) -> String {
-        match self.rank {
-            1 => "Ace".to_string(),
-            2..=10 => format!("{}", self.rank),
-            11 => "Jack".to_string(),
-            12 => "Queen".to_string(),
-            13 => "King".to_string(),
-            _ => panic!("Incorrect card rank {}", self.rank),
-        }
+    pub fn name(&self) -> &'static str {
+        NAMES[(self.0 - 1) as usize]
     }
 
-    pub fn above(&self) -> Rank {
-        Rank::from(self.rank + 1)
+    /// Check if the rank is just above or just below the other rank
+    pub fn is_above_or_below(&self, other: &Rank) -> bool {
+        self.0 == &other.0 - 1 || self.0 == &other.0 + 1
     }
 
-    pub fn below(&self) -> Rank {
-        Rank::from(self.rank - 1)
+    pub fn is_above(&self, other: &Rank) -> bool {
+        self.0 == &other.0 + 1
+    }
+
+    pub fn is_below(&self, other: &Rank) -> bool {
+        self.0 == &other.0 - 1
     }
 }
 
 impl PartialEq for Rank {
     fn eq(&self, other: &Self) -> bool {
-        self.rank == other.rank
+        self.0 == other.0
+    }
+}
+impl PartialEq<usize> for Rank {
+    fn eq(&self, other: &usize) -> bool {
+        self.0 as usize == *other
     }
 }
 impl Eq for Rank {}
-impl PartialEq<usize> for Rank {
-    fn eq(&self, other: &usize) -> bool {
-        self.rank as usize == *other
-    }
-}
 
 impl PartialOrd for Rank {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.rank.partial_cmp(&other.rank)
+        self.0.partial_cmp(&other.0)
     }
 }
 impl Ord for Rank {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.rank.cmp(&other.rank)
+        self.0.cmp(&other.0)
     }
 }
 
@@ -85,8 +76,8 @@ mod tests {
 
     #[test]
     fn test_new_rank() {
-        assert_eq!(Rank::from(1), Rank { rank: 1 });
-        assert_eq!(Rank::from(13), Rank { rank: 13 });
+        assert_eq!(Rank::from(1), Rank(1));
+        assert_eq!(Rank::from(13), Rank(13));
     }
 
     #[test]

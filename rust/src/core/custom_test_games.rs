@@ -15,14 +15,12 @@ fn foundation_to_fill(board: &mut Board) {
     let mut card: Card;
     // Diamond Ace to Queen on Diamonds foundation pile
     for rank in MIN_RANK..=MAX_RANK - 1 {
-        card = Card::new(Rank::from(rank), Suit::Diamond, Player::Player0);
-        card.set_face_up();
+        card = Card::new_up(Rank::from(rank), Suit::Diamond, Player::Player0);
         board.foundation_piles[0].add(card);
     }
 
     // Diamond King on a tableau pile
-    card = Card::new(Rank::from(MAX_RANK), Suit::Diamond, Player::Player0);
-    card.set_face_up();
+    card = Card::new_up(Rank::from(MAX_RANK), Suit::Diamond, Player::Player0);
     board.tableau_piles[0].add(card)
 }
 
