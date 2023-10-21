@@ -1,7 +1,9 @@
 use std::cmp::max;
 
+use rand_pcg::Pcg64;
+
 use super::cards::Card;
-use super::decks::{new_deck, new_rng, shuffle};
+use super::decks::{new_deck, shuffle};
 use super::piles::{Pile, NB_CRAPE_START};
 use super::players::{Player, NB_PLAYERS, PLAYERS};
 use super::suits::Suit;
@@ -57,9 +59,7 @@ impl Board {
     }
 
     /// Create a new game with a standard card deal.
-    pub fn new_game(&mut self, seed: &str) {
-        let mut rng = new_rng(seed.to_string());
-
+    pub fn new_game(&mut self, mut rng: &mut Pcg64) {
         for player in PLAYERS {
             let mut deck = new_deck(player);
             shuffle(&mut deck, &mut rng);
@@ -184,12 +184,15 @@ impl Board {
 
 #[cfg(test)]
 mod tests {
+    use crate::core::decks::new_rng;
+
     use super::*;
 
     #[test]
     fn test_new_game() {
         let mut board = Board::new();
-        board.new_game("test");
+        let mut rng = new_rng("test");
+        board.new_game(&mut rng);
         for p in 0..=1 {
             assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
             assert_eq!(board.waste[p].nb_cards(), 0);
@@ -207,8 +210,9 @@ mod tests {
     #[test]
     fn test_new_game_clear() {
         let mut board = Board::new();
-        board.new_game("test1");
-        board.new_game("test2");
+        let mut rng = new_rng("test");
+        board.new_game(&mut rng);
+        board.new_game(&mut rng);
         for p in 0..=1 {
             assert_eq!(board.crape[p].nb_cards(), 13);
             assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
@@ -227,7 +231,8 @@ mod tests {
         let mut board = Board::new();
         assert_eq!(board.check_win(Player::Player0), true);
         assert_eq!(board.check_win(Player::Player1), true);
-        board.new_game("test");
+        let mut rng = new_rng("test");
+        board.new_game(&mut rng);
         assert_eq!(board.check_win(Player::Player0), false);
         assert_eq!(board.check_win(Player::Player1), false);
     }

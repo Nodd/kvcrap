@@ -32,7 +32,7 @@ pub fn shuffle(deck: &mut Vec<Card>, rng: &mut Pcg64) {
 }
 
 /// Create a random generator from a given String seed.
-pub fn new_rng(seed: String) -> Pcg64 {
+pub fn new_rng(seed: &str) -> Pcg64 {
     Seeder::from(seed).make_rng()
 }
 
@@ -69,7 +69,8 @@ mod tests {
     fn test_new_shuffled_deck() {
         let deck1 = new_deck(Player::Player0);
         let mut deck2 = new_deck(Player::Player0);
-        let mut rng = new_rng("test".to_string());
+        let seed = "test".to_string();
+        let mut rng = new_rng(&seed);
         shuffle(&mut deck2, &mut rng);
         assert_ne!(deck1, deck2);
         assert_eq!(deck2.len(), NB_CARDS);

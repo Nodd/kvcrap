@@ -3,8 +3,7 @@
 
 use clap::Parser;
 
-use crate::core::board::Board;
-use crate::core::custom_test_games::call_custom;
+use crate::core::game_manager::GameManager;
 
 mod core;
 
@@ -23,25 +22,14 @@ struct Args {
 fn main() {
     let cli = Args::parse();
 
-    let seed = match cli.seed.as_deref() {
-        Some(seed) => seed.to_string(),
-        None => core::decks::generate_seed(),
-    };
-    println!("{}", seed);
-
-    let mut board = Board::new();
-
+    let seed = cli.seed.as_deref();
     let custom = cli.custom.as_deref();
-    match custom {
-        Some(custom) => {
-            println!("Custom game: {}", custom);
-            call_custom(custom, &mut board);
-        }
-        None => board.new_game(&seed),
-    };
-    println!("{}", board.to_string());
 
-    if custom.is_none() {
-        println!("{:?}", board.compute_first_player());
+    let game_manager = GameManager::new(seed, custom);
+    println!("Seed: {}", game_manager.config.seed);
+    if custom.is_some() {
+        println!("Custom game: {}", custom.unwrap());
     }
+    println!("{}", game_manager.board.to_string());
+    println!("{:?}", game_manager.config.active_player.unwrap());
 }

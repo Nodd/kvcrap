@@ -1,28 +1,32 @@
-use crate::core::piles::PileType;
+use rand_pcg::Pcg64;
 
 use super::board::Board;
+use super::custom_test_games::call_custom;
+use super::decks::{generate_seed, new_rng};
 use super::moves::Move;
-use super::piles::Pile;
+use super::piles::{Pile, PileType};
 use super::players::{Player, PlayerType, NB_PLAYER};
 
 pub struct GameConfig {
-    player_types: [PlayerType; NB_PLAYER],
-    seed: Option<u64>,
-    custom_game: Option<String>,
-    active_player: Option<Player>,
+    pub player_types: [PlayerType; NB_PLAYER],
+    pub seed: String,
+    pub rng: Pcg64,
+    pub custom_game: Option<String>,
+    pub active_player: Option<Player>,
     step: usize,
     last_move: Option<Move>,
     crapette_mode: bool,
     start_time: Option<String>,
     log_path: String,
-    board: Board,
 }
 
 impl GameConfig {
-    fn new() -> Self {
+    fn new(seed: String) -> Self {
+        let rng = new_rng(&seed);
         GameConfig {
             player_types: [PlayerType::Player, PlayerType::Player],
-            seed: None,
+            seed,
+            rng,
             custom_game: None,
             active_player: None,
             step: 0,
@@ -30,12 +34,7 @@ impl GameConfig {
             crapette_mode: false,
             start_time: None,
             log_path: "".to_string(), // Path(__file__).parent / "log"
-            board: Board::new(),
         }
-    }
-
-    fn generate_seed(&mut self) {
-        self.seed = Some(0); // TODO
     }
 
     fn is_player_ai(&self) -> bool {
@@ -53,31 +52,50 @@ impl GameConfig {
     }
 }
 
-struct GameManager {
-    game_config: GameConfig,
+pub struct GameManager {
+    pub config: GameConfig,
+    pub board: Board,
 }
 
 impl GameManager {
-    pub fn new() -> Self {
-        Self {
-            game_config: GameConfig::new(),
-        }
+    pub fn new(seed: Option<&str>, custom: Option<&str>) -> Self {
+        let seed = match seed {
+            Some(seed) => seed.to_string(),
+            None => generate_seed(),
+        };
+
+        let mut game_manager = Self {
+            config: GameConfig::new(seed),
+            board: Board::new(),
+        };
+
+        match custom {
+            None => {
+                game_manager.board.new_game(&mut game_manager.config.rng);
+                game_manager.config.active_player = Some(game_manager.board.compute_first_player());
+            }
+            Some(custom) => {
+                call_custom(custom, &mut game_manager.board);
+                game_manager.config.active_player = Some(Player::Player0);
+            }
+        };
+        game_manager
     }
 
     /// Change the active player.
     // and updates the GUI accordingly.
     pub fn set_active_player(&mut self, player: Option<Player>) {
         self.set_crapette_last_move(None);
-        self.game_config.active_player = player;
+        self.config.active_player = player;
         //TODO: callback
     }
 
     /// End the player turn if conditions are met.
     pub fn check_and_apply_end_of_turn(&mut self, pile: &Pile) -> bool {
-        assert!(!self.game_config.crapette_mode);
+        assert!(!self.config.crapette_mode);
 
         match pile.kind {
-            PileType::Waste { player } => match self.game_config.active_player {
+            PileType::Waste { player } => match self.config.active_player {
                 Some(active_player) => {
                     if player == active_player {
                         self.set_active_player(Some(active_player.other()));
@@ -94,16 +112,16 @@ impl GameManager {
 
     /// End the game if the current player has won.
     pub fn check_and_apply_win(&mut self) -> bool {
-        match self.game_config.active_player {
+        match self.config.active_player {
             Some(active_player) => {
-                if self.game_config.board.check_win(active_player) {
+                if self.board.check_win(active_player) {
                     println!("Player {:?} wins !!!", active_player);
 
                     // Callback GUI
                     // label.text = "Player {active_player} wins !!!"
 
                     // Freeze board
-                    self.game_config.active_player = None;
+                    self.config.active_player = None;
                     //for card_widget in self.board_widget.card_widgets.values():
                     //    card_widget.do_translation = False
                     //self.board_widget.update_crapette_button_status()
@@ -117,10 +135,10 @@ impl GameManager {
     }
 
     pub fn set_crapette_last_move(&mut self, r#move: Option<Move>) {
-        if self.game_config.crapette_mode {
+        if self.config.crapette_mode {
             return;
         }
-        self.game_config.last_move = r#move;
+        self.config.last_move = r#move;
 
         // Update GUI
         //self.board_widget.update_crapette_button_status();
