@@ -72,11 +72,11 @@ impl GameManager {
         match custom {
             None => {
                 game_manager.board.new_game(&mut game_manager.config.rng);
-                game_manager.config.active_player = Some(game_manager.board.compute_first_player());
+                game_manager.set_active_player(Some(game_manager.board.compute_first_player()));
             }
             Some(custom) => {
                 call_custom(custom, &mut game_manager.board);
-                game_manager.config.active_player = Some(Player::Player0);
+                game_manager.set_active_player(Some(Player::Player0));
             }
         };
         game_manager
@@ -90,13 +90,13 @@ impl GameManager {
         //TODO: callback
     }
 
-    /// End the player turn if conditions are met.
-    pub fn check_and_apply_end_of_turn(&mut self, pile: &Pile) -> bool {
+    /// End the player turn if conditions are met when moving a card on a pile.
+    pub fn check_and_apply_end_of_turn(&mut self, pile: &PileType) -> bool {
         assert!(!self.config.crapette_mode);
 
-        if let PileType::Waste { player } = pile.kind {
+        if let PileType::Waste { player } = pile {
             if let Some(active_player) = self.config.active_player {
-                if player == active_player {
+                if player == &active_player {
                     self.set_active_player(Some(active_player.other()));
                     return true;
                 }
@@ -116,7 +116,7 @@ impl GameManager {
                     // label.text = "Player {active_player} wins !!!"
 
                     // Freeze board
-                    self.config.active_player = None;
+                    self.set_active_player(None);
                     //for card_widget in self.board_widget.card_widgets.values():
                     //    card_widget.do_translation = False
                     //self.board_widget.update_crapette_button_status()
