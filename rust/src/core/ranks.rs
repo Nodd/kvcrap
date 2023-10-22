@@ -11,7 +11,6 @@ const NAMES: [&str; NB_RANKS] = [
     "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King",
 ];
 
-// TODO: Implement as tuple `pub struct Rank(u8)` ?
 #[derive(Debug, Clone, Copy, Hash)]
 pub struct Rank(u8);
 
