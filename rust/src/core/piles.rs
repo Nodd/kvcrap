@@ -1,9 +1,8 @@
 use super::cards::Card;
-use super::players::Player;
-use super::suits::Suit;
-
 use super::decks::NB_CARDS;
+use super::players::Player;
 use super::ranks::{Rank, NB_RANKS};
+use super::suits::Suit;
 
 pub const NB_CRAPE_START: usize = 13;
 
@@ -13,7 +12,7 @@ pub struct Pile {
     pub kind: PileType,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum PileType {
     Foundation {
         foundation_id: u8,

@@ -1,15 +1,15 @@
 use super::cards::Card;
-use super::piles::Pile;
+use super::piles::PileType;
 
 pub enum Move {
     Move {
         card: Card,
-        origin: Pile,
-        destination: Pile,
+        origin: PileType,
+        destination: PileType,
     },
     Flip {
         card: Card,
-        pile: Pile,
+        pile: PileType,
     },
     FlipWaste,
 }
