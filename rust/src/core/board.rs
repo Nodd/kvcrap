@@ -8,7 +8,7 @@ use super::ranks::NB_RANKS;
 use super::suits::Suit;
 
 const NB_PILES: usize = 8;
-const NB_ROWS: usize = 4;
+pub const NB_ROWS: usize = 4;
 const PLAYER_SPACE: usize = NB_RANKS * 3;
 
 #[derive(Debug)]
@@ -92,7 +92,7 @@ impl Board {
     }
 
     fn fill_tableau(&mut self, player: usize, deck: &mut Vec<Card>) {
-        for tp in self.tableau_piles[(4 * player)..(4 * player + 4)].iter_mut() {
+        for tp in self.tableau_piles[(NB_ROWS * player)..].iter_mut() {
             tp.clear();
             let mut card = deck.pop().unwrap();
             card.set_face_up();
@@ -165,12 +165,12 @@ impl Board {
         } else if self.crape[0].top_rank().unwrap() < self.crape[1].top_rank().unwrap() {
             Player::Player1
         } else {
-            let max_p0 = self.tableau_piles[0..NB_ROWS]
+            let max_p0 = self.tableau_piles[..NB_ROWS]
                 .iter()
                 .map(|pile| pile.top_rank().unwrap())
                 .max()
                 .unwrap();
-            let max_p1 = self.tableau_piles[NB_ROWS..2 * NB_ROWS]
+            let max_p1 = self.tableau_piles[NB_ROWS..]
                 .iter()
                 .map(|pile| pile.top_rank().unwrap())
                 .max()

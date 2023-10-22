@@ -61,7 +61,7 @@ impl Suit {
         }
     }
 
-    pub fn into_iter() -> core::array::IntoIter<Self, 4> {
+    pub fn into_iter() -> core::array::IntoIter<Self, NB_SUITS> {
         [Suit::Diamond, Suit::Heart, Suit::Club, Suit::Spade].into_iter()
     }
 }
