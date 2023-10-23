@@ -27,8 +27,8 @@ fn main() {
 
     let game_manager = GameManager::new(seed, custom);
     println!("Seed: {}", game_manager.config.seed);
-    if custom.is_some() {
-        println!("Custom game: {}", custom.unwrap());
+    if let Some(custom_game) = custom {
+        println!("Custom game: {}", custom_game);
     }
     println!("{}", game_manager.board.to_string());
     println!("{:?}", game_manager.config.active_player.unwrap());
