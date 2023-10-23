@@ -4,7 +4,7 @@ use super::board::Board;
 use super::custom_test_games::call_custom;
 use super::decks::{generate_seed, new_rng};
 use super::moves::Move;
-use super::piles::{Pile, PileType};
+use super::piles::PileType;
 use super::players::{Player, PlayerType, NB_PLAYER};
 
 pub struct GameConfig {
@@ -129,13 +129,45 @@ impl GameManager {
         }
     }
 
-    pub fn set_crapette_last_move(&mut self, r#move: Option<Move>) {
+    pub fn set_crapette_last_move(&mut self, card_move: Option<Move>) {
         if self.config.crapette_mode {
             return;
         }
-        self.config.last_move = r#move;
+        self.config.last_move = card_move;
 
         // Update GUI
         //self.board_widget.update_crapette_button_status();
+    }
+
+    pub fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) {
+        let card_move = self.board.move_card(
+            origin_type,
+            destination_type,
+            self.config.active_player.unwrap(),
+        );
+        if card_move.is_some() && !self.config.crapette_mode {
+            self.set_crapette_last_move(match &origin_type {
+                PileType::Crape { .. } | PileType::Stock { .. } => card_move,
+                _ => None,
+            });
+
+            let _end = self.check_and_apply_end_of_turn(&destination_type);
+            // TODO: AI moves
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_move_card() {
+        let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
+        let tableau0 = PileType::Tableau { tableau_id: 0 };
+        let tableau1 = PileType::Tableau { tableau_id: 1 };
+        game_manager.move_card(&tableau0, &tableau1);
+        assert_eq!(game_manager.board.tableau_piles[0].nb_cards(), 0);
+        assert_eq!(game_manager.board.tableau_piles[1].nb_cards(), 1);
     }
 }

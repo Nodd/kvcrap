@@ -5,7 +5,7 @@ use super::players::Player;
 use super::ranks::Rank;
 use super::suits::{Color, Suit};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Card {
     rank: Rank,
     suit: Suit,

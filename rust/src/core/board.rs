@@ -2,7 +2,8 @@ use rand_pcg::Pcg64;
 
 use super::cards::Card;
 use super::decks::{new_deck, shuffle};
-use super::piles::{Pile, NB_CRAPE_START};
+use super::moves::Move;
+use super::piles::{Pile, PileType, NB_CRAPE_START};
 use super::players::{Player, NB_PLAYERS, PLAYERS};
 use super::ranks::NB_RANKS;
 use super::suits::Suit;
@@ -92,7 +93,7 @@ impl Board {
     }
 
     fn fill_tableau(&mut self, player: usize, deck: &mut Vec<Card>) {
-        for tp in self.tableau_piles[(NB_ROWS * player)..].iter_mut() {
+        for tp in self.tableau_piles[(NB_ROWS * player)..(NB_ROWS * (player + 1))].iter_mut() {
             tp.clear();
             let mut card = deck.pop().unwrap();
             card.set_face_up();
@@ -107,6 +108,30 @@ impl Board {
     fn clear_foundation(&mut self) {
         for fp in self.foundation_piles.iter_mut() {
             fp.clear();
+        }
+    }
+
+    fn pile_from_type(&self, pile_type: &PileType) -> &Pile {
+        match pile_type {
+            PileType::Foundation { foundation_id, .. } => {
+                &self.foundation_piles[*foundation_id as usize]
+            }
+            PileType::Tableau { tableau_id } => &self.tableau_piles[*tableau_id as usize],
+            PileType::Stock { player } => &self.stock[*player as usize],
+            PileType::Waste { player } => &self.waste[*player as usize],
+            PileType::Crape { player } => &self.crape[*player as usize],
+        }
+    }
+
+    fn pile_from_type_mut(&mut self, pile_type: &PileType) -> &mut Pile {
+        match pile_type {
+            PileType::Foundation { foundation_id, .. } => {
+                &mut self.foundation_piles[*foundation_id as usize]
+            }
+            PileType::Tableau { tableau_id } => &mut self.tableau_piles[*tableau_id as usize],
+            PileType::Stock { player } => &mut self.stock[*player as usize],
+            PileType::Waste { player } => &mut self.waste[*player as usize],
+            PileType::Crape { player } => &mut self.crape[*player as usize],
         }
     }
 
@@ -181,6 +206,39 @@ impl Board {
                 Player::Player1
             }
         }
+    }
+
+    pub fn move_card(
+        &mut self,
+        origin_type: &PileType,
+        destination_type: &PileType,
+        player: Player,
+    ) -> Option<Move> {
+        {
+            let origin = self.pile_from_type(origin_type);
+            let destination = self.pile_from_type(destination_type);
+
+            let card = origin.top_card().unwrap();
+
+            if !destination.can_add_card(&card, &origin_type, &player) {
+                println!("Unable to move {card:?} from {origin_type:?} to {destination_type:?}");
+                // TODO: Callback for card return
+                return None;
+            }
+        }
+        let card;
+        {
+            let origin = self.pile_from_type_mut(origin_type);
+            card = origin.pop().unwrap();
+        }
+        let card_move = Some(Move::Move {
+            card: card,
+            origin: *origin_type,
+            destination: *destination_type,
+        });
+        let destination = self.pile_from_type_mut(destination_type);
+        destination.add(card);
+        card_move
     }
 
     /// Check if the player has won the game, i.e. their piles are empty.
