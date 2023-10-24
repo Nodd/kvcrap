@@ -185,9 +185,16 @@ impl Board {
     ///
     /// Warning: this function panics if crape or tableau piles are empty
     pub fn compute_first_player(&self) -> Player {
-        if self.crape[0].top_rank().unwrap() > self.crape[1].top_rank().unwrap() {
+        let crape_rank_p0 = self.crape[0]
+            .top_rank()
+            .expect("Crape should not be empty on start");
+        let crape_rank_p1 = self.crape[1]
+            .top_rank()
+            .expect("Crape should not be empty on start");
+
+        if crape_rank_p0 > crape_rank_p1 {
             Player::Player0
-        } else if self.crape[0].top_rank().unwrap() < self.crape[1].top_rank().unwrap() {
+        } else if crape_rank_p0 < crape_rank_p1 {
             Player::Player1
         } else {
             let max_p0 = self.tableau_piles[..NB_ROWS]
@@ -247,7 +254,10 @@ impl Board {
     ///   - game-wise, the move may be valid or not
     fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) -> Option<Move> {
         // Actually apply the move
-        let card = self.pile_from_type_mut(origin_type).pop().unwrap();
+        let card = self
+            .pile_from_type_mut(origin_type)
+            .pop()
+            .expect("Pile must not be empty");
         self.pile_from_type_mut(destination_type).add(card);
         Some(Move::Move {
             card: card,
