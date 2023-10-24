@@ -167,6 +167,17 @@ impl GameManager {
         }
         card_move
     }
+
+    pub fn flip_card_up(&mut self, pile_type: &PileType) {
+        if self.config.crapette_mode {
+            // TODO
+        }
+
+        self.board.flip_card_up(
+            pile_type,
+            &self.config.active_player.expect("No active player"),
+        );
+    }
 }
 
 #[cfg(test)]
@@ -191,5 +202,14 @@ mod tests {
         let tableau1 = PileType::Tableau { tableau_id: 1 };
         let card_move = game_manager.move_card(&tableau0, &tableau1);
         assert_eq!(card_move.is_err(), true);
+    }
+
+    #[test]
+    fn test_flip_card() {
+        let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
+        let crape = PileType::Crape {
+            player: Player::Player0,
+        };
+        game_manager.flip_card_up(&crape);
     }
 }

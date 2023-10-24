@@ -157,6 +157,24 @@ impl Pile {
         }
     }
 
+    pub fn can_flip_card_up(&self, player: &Player) -> bool {
+        match &self.kind {
+            PileType::Stock {
+                player: self_player,
+            }
+            | PileType::Crape {
+                player: self_player,
+            } if player == self_player => {
+                if let Some(card) = self.top_card() {
+                    !card.face_up
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+
     pub fn add(&mut self, card: Card) {
         self.cards.push(card);
     }

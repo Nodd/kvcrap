@@ -266,6 +266,15 @@ impl Board {
         })
     }
 
+    pub fn flip_card_up(&mut self, pile_type: &PileType, player: &Player) {
+        let pile = self.pile_from_type_mut(pile_type);
+        if pile.can_flip_card_up(player) {
+            if let Some(card) = pile.top_card_mut() {
+                card.set_face_up();
+            }
+        }
+    }
+
     /// Check if the player has won the game, i.e. their piles are empty.
     pub fn check_win(&self, player: Player) -> bool {
         self.stock[player as usize].is_empty()
