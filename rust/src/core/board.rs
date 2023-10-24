@@ -227,7 +227,7 @@ impl Board {
         let origin = self.pile_from_type(origin_type);
         let destination = self.pile_from_type(destination_type);
 
-        let card = origin
+        let card = *origin
             .top_card()
             .ok_or("Unable to take a card from empty pile")?;
 
@@ -239,12 +239,16 @@ impl Board {
             return Err("Unable to take card from origin");
         }
 
-        if !destination.can_add_card(card, &origin_type, &player) {
+        if !destination.can_add_card(&card, &origin_type, &player) {
             return Err("Unable to move card from origin to destination");
         }
 
-        self.move_card(origin_type, destination_type)
-            .ok_or("Unable to move card")
+        self.move_card(origin_type, destination_type);
+        Ok(Move::Move {
+            card: card,
+            origin: *origin_type,
+            destination: *destination_type,
+        })
     }
 
     /// Move a card on the board, from one pile to another
@@ -252,18 +256,13 @@ impl Board {
     /// This is a low level move, nothing is checked:
     ///   - the origin pile must not be empty, otherwise it panics
     ///   - game-wise, the move may be valid or not
-    fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) -> Option<Move> {
+    fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) {
         // Actually apply the move
         let card = self
             .pile_from_type_mut(origin_type)
             .pop()
             .expect("Pile must not be empty");
         self.pile_from_type_mut(destination_type).add(card);
-        Some(Move::Move {
-            card: card,
-            origin: *origin_type,
-            destination: *destination_type,
-        })
     }
 
     pub fn flip_card_up(&mut self, pile_type: &PileType, player: &Player) {
@@ -272,6 +271,16 @@ impl Board {
             if let Some(card) = pile.top_card_mut() {
                 card.set_face_up();
             }
+        }
+    }
+
+    pub fn flip_waste_to_stock(&mut self, player: &Player) {
+        let waste = &mut self.waste[*player as usize];
+        let stock = &mut self.stock[*player as usize];
+        while !waste.is_empty() {
+            let card = waste.pop().unwrap();
+            card.set_face_down();
+            stock.add(card);
         }
     }
 

@@ -177,6 +177,13 @@ impl GameManager {
             pile_type,
             &self.config.active_player.expect("No active player"),
         );
+
+        // TODO Crapette checks
+    }
+
+    pub fn flip_waste_to_stock(&mut self) {
+        self.board
+            .flip_waste_to_stock(&self.config.active_player.expect("No active player"))
     }
 }
 
