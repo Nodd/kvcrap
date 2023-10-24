@@ -139,7 +139,11 @@ impl GameManager {
         //self.board_widget.update_crapette_button_status();
     }
 
-    pub fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) {
+    pub fn move_card(
+        &mut self,
+        origin_type: &PileType,
+        destination_type: &PileType,
+    ) -> Result<Move, &'static str> {
         let card_move = self.board.move_card_checked(
             origin_type,
             destination_type,
@@ -161,6 +165,7 @@ impl GameManager {
             }
             Err(e) => println!("Error: {}", e),
         }
+        card_move
     }
 }
 
@@ -173,7 +178,8 @@ mod tests {
         let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
         let tableau0 = PileType::Tableau { tableau_id: 0 };
         let tableau1 = PileType::Tableau { tableau_id: 1 };
-        game_manager.move_card(&tableau0, &tableau1);
+        let result = game_manager.move_card(&tableau0, &tableau1);
+        result.unwrap();
         assert_eq!(game_manager.board.tableau_piles[0].nb_cards(), 0);
         assert_eq!(game_manager.board.tableau_piles[1].nb_cards(), 1);
     }
@@ -183,6 +189,7 @@ mod tests {
         let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
         let tableau0 = PileType::Tableau { tableau_id: 2 };
         let tableau1 = PileType::Tableau { tableau_id: 1 };
-        game_manager.move_card(&tableau0, &tableau1);
+        let card_move = game_manager.move_card(&tableau0, &tableau1);
+        assert_eq!(card_move.is_err(), true);
     }
 }
