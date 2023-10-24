@@ -214,31 +214,23 @@ impl Board {
         destination_type: &PileType,
         player: Player,
     ) -> Option<Move> {
-        {
-            let origin = self.pile_from_type(origin_type);
-            let destination = self.pile_from_type(destination_type);
+        let origin = self.pile_from_type(origin_type);
+        let destination = self.pile_from_type(destination_type);
 
-            let card = origin.top_card().unwrap();
+        let card = origin.top_card().unwrap();
+        if !destination.can_add_card(&card, &origin_type, &player) {
+            println!("Unable to move {card:?} from {origin_type:?} to {destination_type:?}");
+            // TODO: Callback for card return
+            return None;
+        }
 
-            if !destination.can_add_card(&card, &origin_type, &player) {
-                println!("Unable to move {card:?} from {origin_type:?} to {destination_type:?}");
-                // TODO: Callback for card return
-                return None;
-            }
-        }
-        let card;
-        {
-            let origin = self.pile_from_type_mut(origin_type);
-            card = origin.pop().unwrap();
-        }
-        let card_move = Some(Move::Move {
+        let card = self.pile_from_type_mut(origin_type).pop().unwrap();
+        self.pile_from_type_mut(destination_type).add(card);
+        Some(Move::Move {
             card: card,
             origin: *origin_type,
             destination: *destination_type,
-        });
-        let destination = self.pile_from_type_mut(destination_type);
-        destination.add(card);
-        card_move
+        })
     }
 
     /// Check if the player has won the game, i.e. their piles are empty.
