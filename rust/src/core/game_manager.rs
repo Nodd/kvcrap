@@ -140,19 +140,26 @@ impl GameManager {
     }
 
     pub fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) {
-        let card_move = self.board.move_card(
+        let card_move = self.board.move_card_checked(
             origin_type,
             destination_type,
-            self.config.active_player.unwrap(),
+            self.config
+                .active_player
+                .expect("Active player should be set"),
         );
-        if card_move.is_some() && !self.config.crapette_mode {
-            self.set_crapette_last_move(match &origin_type {
-                PileType::Crape { .. } | PileType::Stock { .. } => card_move,
-                _ => None,
-            });
+        match card_move {
+            Ok(card_move) => {
+                if !self.config.crapette_mode {
+                    self.set_crapette_last_move(match &origin_type {
+                        PileType::Crape { .. } | PileType::Stock { .. } => Some(card_move),
+                        _ => None,
+                    });
 
-            let _end = self.check_and_apply_end_of_turn(&destination_type);
-            // TODO: AI moves
+                    let _end = self.check_and_apply_end_of_turn(&destination_type);
+                    // TODO: AI moves
+                }
+            }
+            Err(e) => println!("Error: {}", e),
         }
     }
 }

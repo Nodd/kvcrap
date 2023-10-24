@@ -208,22 +208,45 @@ impl Board {
         }
     }
 
-    pub fn move_card(
+    /// Move a card on the board, from one pile to another
+    ///
+    /// All checks are done to ensure that the move is valid.
+    pub fn move_card_checked(
         &mut self,
         origin_type: &PileType,
         destination_type: &PileType,
         player: Player,
-    ) -> Option<Move> {
+    ) -> Result<Move, &'static str> {
         let origin = self.pile_from_type(origin_type);
         let destination = self.pile_from_type(destination_type);
 
-        let card = origin.top_card().unwrap();
-        if !destination.can_add_card(&card, &origin_type, &player) {
-            println!("Unable to move {card:?} from {origin_type:?} to {destination_type:?}");
-            // TODO: Callback for card return
-            return None;
+        let card = origin
+            .top_card()
+            .ok_or("Unable to take a card from empty pile")?;
+
+        if !card.face_up {
+            return Err("Unable to move a card which faces down");
         }
 
+        if !origin.can_pop_card(&player) {
+            return Err("Unable to take card from origin");
+        }
+
+        if !destination.can_add_card(card, &origin_type, &player) {
+            return Err("Unable to move card from origin to destination");
+        }
+
+        self.move_card(origin_type, destination_type)
+            .ok_or("Unable to move card")
+    }
+
+    /// Move a card on the board, from one pile to another
+    ///
+    /// This is a low level move, nothing is checked:
+    ///   - the origin pile must not be empty, otherwise it panics
+    ///   - game-wise, the move may be valid or not
+    fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) -> Option<Move> {
+        // Actually apply the move
         let card = self.pile_from_type_mut(origin_type).pop().unwrap();
         self.pile_from_type_mut(destination_type).add(card);
         Some(Move::Move {

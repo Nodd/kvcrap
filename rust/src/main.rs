@@ -31,5 +31,11 @@ fn main() {
         println!("Custom game: {}", custom_game);
     }
     println!("{}", game_manager.board.to_string());
-    println!("{:?}", game_manager.config.active_player.unwrap());
+    println!(
+        "{:?}",
+        game_manager
+            .config
+            .active_player
+            .expect("Active player should be set")
+    );
 }
