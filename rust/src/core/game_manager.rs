@@ -177,4 +177,12 @@ mod tests {
         assert_eq!(game_manager.board.tableau_piles[0].nb_cards(), 0);
         assert_eq!(game_manager.board.tableau_piles[1].nb_cards(), 1);
     }
+
+    #[test]
+    fn test_move_card_invalid() {
+        let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
+        let tableau0 = PileType::Tableau { tableau_id: 2 };
+        let tableau1 = PileType::Tableau { tableau_id: 1 };
+        game_manager.move_card(&tableau0, &tableau1);
+    }
 }
