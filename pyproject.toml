@@ -5,6 +5,7 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Framework :: Kivy",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Intended Audience :: End Users/Desktop",
@@ -39,8 +40,8 @@ test = ["pytest", "pytest-cov"]
 crapette = "crapette.crapette:main"
 
 [build-system]
-requires = ["setuptools>=61.2"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
 
 [tool.setuptools]
 packages = ["crapette"]
@@ -132,3 +133,8 @@ ignore = [
     "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
     "TRY003",  # Avoid specifying long messages outside the exception class
 ]
+
+[tool.maturin]
+python-source = "src"
+module-name = "crapette.rust_brain"
+features = ["pyo3/extension-module"]

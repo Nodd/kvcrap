@@ -28,3 +28,6 @@ bin/
 
 # Ruff
 .ruff_cache
+
+# Build
+*.so
