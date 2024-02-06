@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 *.egg-info
+.env/
 
 # Setuptools
 crapette.egg-info/
