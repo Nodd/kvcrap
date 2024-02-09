@@ -8,7 +8,7 @@ use super::players::{Player, NB_PLAYERS, PLAYERS};
 use super::ranks::NB_RANKS;
 use super::suits::Suit;
 
-const NB_PILES: usize = 8;
+pub const NB_PILES: usize = 8;
 pub const NB_ROWS: usize = 4;
 const PLAYER_SPACE: usize = NB_RANKS * 3;
 
