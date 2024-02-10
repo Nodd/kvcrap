@@ -12,13 +12,13 @@ pub const NB_PILES: usize = 8;
 pub const NB_ROWS: usize = 4;
 const PLAYER_SPACE: usize = NB_RANKS * 3;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Board {
     pub stock: [Pile; NB_PLAYERS],
     pub waste: [Pile; NB_PLAYERS],
     pub crape: [Pile; NB_PLAYERS],
-    pub foundation_piles: [Pile; NB_PILES],
-    pub tableau_piles: [Pile; NB_PILES],
+    pub foundation: [Pile; NB_PILES],
+    pub tableau: [Pile; NB_PILES],
 }
 
 impl Board {
@@ -37,7 +37,7 @@ impl Board {
                 Pile::new_stock(Player::Player0),
                 Pile::new_stock(Player::Player1),
             ],
-            foundation_piles: [
+            foundation: [
                 Pile::new_foundation(0, Suit::Diamond),
                 Pile::new_foundation(1, Suit::Club),
                 Pile::new_foundation(2, Suit::Heart),
@@ -47,7 +47,7 @@ impl Board {
                 Pile::new_foundation(6, Suit::Club),
                 Pile::new_foundation(7, Suit::Diamond),
             ],
-            tableau_piles: [
+            tableau: [
                 Pile::new_tableau(0),
                 Pile::new_tableau(1),
                 Pile::new_tableau(2),
@@ -93,7 +93,7 @@ impl Board {
     }
 
     fn fill_tableau(&mut self, player: usize, deck: &mut Vec<Card>) {
-        for tp in self.tableau_piles[(NB_ROWS * player)..(NB_ROWS * (player + 1))].iter_mut() {
+        for tp in self.tableau[(NB_ROWS * player)..(NB_ROWS * (player + 1))].iter_mut() {
             tp.clear();
             let mut card = deck.pop().unwrap();
             card.set_face_up();
@@ -106,17 +106,15 @@ impl Board {
     }
 
     fn clear_foundation(&mut self) {
-        for fp in self.foundation_piles.iter_mut() {
+        for fp in self.foundation.iter_mut() {
             fp.clear();
         }
     }
 
     fn pile_from_type(&self, pile_type: &PileType) -> &Pile {
         match pile_type {
-            PileType::Foundation { foundation_id, .. } => {
-                &self.foundation_piles[*foundation_id as usize]
-            }
-            PileType::Tableau { tableau_id } => &self.tableau_piles[*tableau_id as usize],
+            PileType::Foundation { foundation_id, .. } => &self.foundation[*foundation_id as usize],
+            PileType::Tableau { tableau_id } => &self.tableau[*tableau_id as usize],
             PileType::Stock { player } => &self.stock[*player as usize],
             PileType::Waste { player } => &self.waste[*player as usize],
             PileType::Crape { player } => &self.crape[*player as usize],
@@ -126,9 +124,9 @@ impl Board {
     fn pile_from_type_mut(&mut self, pile_type: &PileType) -> &mut Pile {
         match pile_type {
             PileType::Foundation { foundation_id, .. } => {
-                &mut self.foundation_piles[*foundation_id as usize]
+                &mut self.foundation[*foundation_id as usize]
             }
-            PileType::Tableau { tableau_id } => &mut self.tableau_piles[*tableau_id as usize],
+            PileType::Tableau { tableau_id } => &mut self.tableau[*tableau_id as usize],
             PileType::Stock { player } => &mut self.stock[*player as usize],
             PileType::Waste { player } => &mut self.waste[*player as usize],
             PileType::Crape { player } => &mut self.crape[*player as usize],
@@ -151,10 +149,10 @@ impl Board {
             let index_left = row + NB_ROWS;
             let index_right = NB_ROWS - 1 - row;
 
-            let tableau_pile_left = &self.tableau_piles[index_left];
-            let tableau_pile_right = &self.tableau_piles[index_right];
-            let foundation_pile_left = &self.foundation_piles[index_left];
-            let foundation_pile_right = &self.foundation_piles[index_right];
+            let tableau_pile_left = &self.tableau[index_left];
+            let tableau_pile_right = &self.tableau[index_right];
+            let foundation_pile_left = &self.foundation[index_left];
+            let foundation_pile_right = &self.foundation[index_right];
 
             format!(
                 "{}{}| {} {} | {}",
@@ -197,12 +195,12 @@ impl Board {
         } else if crape_rank_p0 < crape_rank_p1 {
             Player::Player1
         } else {
-            let max_p0 = self.tableau_piles[..NB_ROWS]
+            let max_p0 = self.tableau[..NB_ROWS]
                 .iter()
                 .map(|pile| pile.top_rank().unwrap())
                 .max()
                 .unwrap();
-            let max_p1 = self.tableau_piles[NB_ROWS..]
+            let max_p1 = self.tableau[NB_ROWS..]
                 .iter()
                 .map(|pile| pile.top_rank().unwrap())
                 .max()
@@ -292,6 +290,36 @@ impl Board {
     }
 }
 
+impl PartialEq for Board {
+    fn eq(&self, other: &Self) -> bool {
+        // Player piles
+        if self.waste != other.waste || self.crape != other.crape || self.stock != other.stock {
+            return false;
+        }
+
+        // Tableau Piles
+        let mut piles = self.tableau.clone();
+        let mut piles_other = other.tableau.clone();
+        piles.sort();
+        piles_other.sort();
+        if piles != piles_other {
+            return false;
+        }
+
+        // Foundation Piles
+        let mut piles = self.foundation.clone();
+        let mut piles_other = other.foundation.clone();
+        piles.sort();
+        piles_other.sort();
+        if piles != piles_other {
+            return false;
+        }
+
+        return true;
+    }
+}
+impl Eq for Board {}
+
 #[cfg(test)]
 mod tests {
     use crate::core::decks::new_rng;
@@ -309,10 +337,10 @@ mod tests {
             assert_eq!(board.crape[p].nb_cards(), 13);
             assert_eq!(board.crape[p].top_card().unwrap().face_up, true);
         }
-        for tp in board.tableau_piles.iter() {
+        for tp in board.tableau.iter() {
             assert_eq!(tp.nb_cards(), 1);
         }
-        for tp in board.foundation_piles.iter() {
+        for tp in board.foundation.iter() {
             assert_eq!(tp.nb_cards(), 0);
         }
     }
@@ -328,10 +356,10 @@ mod tests {
             assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
             assert_eq!(board.waste[p].nb_cards(), 0);
         }
-        for tp in board.tableau_piles.iter() {
+        for tp in board.tableau.iter() {
             assert_eq!(tp.nb_cards(), 1);
         }
-        for tp in board.foundation_piles.iter() {
+        for tp in board.foundation.iter() {
             assert_eq!(tp.nb_cards(), 0);
         }
     }

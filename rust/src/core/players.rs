@@ -1,3 +1,5 @@
+use std::ops::Index;
+
 #[derive(PartialEq, Debug, Clone, Copy, Hash)]
 pub enum Player {
     Player0 = 0,
@@ -17,6 +19,15 @@ impl From<u8> for Player {
     }
 }
 
+// Index 2-element arrays with the Player enum
+impl<T> Index<Player> for [T; NB_PLAYERS] {
+    type Output = T;
+
+    fn index(&self, player: Player) -> &Self::Output {
+        &self[player as usize]
+    }
+}
+
 impl Player {
     /// Returns the other player.
     pub fn other(&self) -> Self {
@@ -33,4 +44,14 @@ pub enum PlayerType {
     AI,
     // remote,
 }
-pub const NB_PLAYER: usize = 2;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_player_values() {
+        assert_eq!(Player::Player0 as usize, 0);
+        assert_eq!(Player::Player1 as usize, 1);
+    }
+}

@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 
 use super::players::Player;
@@ -9,7 +10,7 @@ use super::suits::{Color, Suit};
 pub struct Card {
     rank: Rank,
     suit: Suit,
-    player: Player,
+    // player: Player,
     pub face_up: bool,
 }
 
@@ -18,7 +19,7 @@ impl Card {
         Card {
             rank,
             suit,
-            player,
+            // player,
             face_up: false,
         }
     }
@@ -26,7 +27,7 @@ impl Card {
         Card {
             rank,
             suit,
-            player,
+            // player,
             face_up: true,
         }
     }
@@ -48,9 +49,9 @@ impl Card {
         &self.suit
     }
 
-    pub fn player(&self) -> &Player {
-        &self.player
-    }
+    // pub fn player(&self) -> &Player {
+    //     &self.player
+    // }
 
     pub fn set_face_up(&mut self) {
         self.face_up = true;
@@ -95,7 +96,25 @@ impl Card {
 
 impl PartialEq for Card {
     fn eq(&self, other: &Self) -> bool {
-        self.rank == other.rank && self.suit == other.suit && self.player == other.player
+        // Only check rank and suit
+        // Player and face up/down are mostly visual and seldom needed
+        self.rank == other.rank && self.suit == other.suit
+    }
+}
+impl Eq for Card {}
+
+impl Ord for Card {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.rank == other.rank {
+            return self.suit.cmp(&other.suit);
+        } else {
+            return self.rank.cmp(&other.rank);
+        }
+    }
+}
+impl PartialOrd for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
@@ -103,7 +122,6 @@ impl Hash for Card {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.rank.hash(state);
         self.suit.hash(state);
-        self.player.hash(state);
     }
 }
 
@@ -125,11 +143,43 @@ mod tests {
     }
 
     #[test]
-    fn test_equal() {
-        let c1 = Card::quick("1d0");
-        let c2 = Card::quick("1d0");
-        assert_eq!(c1, c2);
-        let c3 = Card::quick("2s1");
-        assert_ne!(c1, c3);
+    fn test_eq() {
+        let c = Card::quick("1d0");
+        assert_eq!(c, c);
+        let cc = Card::quick("1d0");
+        assert_eq!(c, cc);
+        let cc = Card::quick("1d1");
+        assert_eq!(c, cc);
+        let cc = Card::quick("2s1");
+        assert_ne!(c, cc);
+    }
+
+    #[test]
+    fn test_ord() {
+        let c = Card::quick("1d0");
+        assert_eq!(c < c, false);
+        assert_eq!(c > c, false);
+        assert_eq!(c <= c, true);
+        assert_eq!(c >= c, true);
+        let cc = Card::quick("1d0");
+        assert_eq!(c < cc, false);
+        assert_eq!(c > cc, false);
+        assert_eq!(c <= cc, true);
+        assert_eq!(c >= cc, true);
+        let cc = Card::quick("1d1");
+        assert_eq!(c < cc, false);
+        assert_eq!(c > cc, false);
+        assert_eq!(c <= cc, true);
+        assert_eq!(c >= cc, true);
+        let cc = Card::quick("2d0");
+        assert_eq!(c < cc, true);
+        assert_eq!(c > cc, false);
+        assert_eq!(c <= cc, true);
+        assert_eq!(c >= cc, false);
+        let cc = Card::quick("1s0");
+        assert_eq!(c < cc, true);
+        assert_eq!(c > cc, false);
+        assert_eq!(c <= cc, true);
+        assert_eq!(c >= cc, false);
     }
 }

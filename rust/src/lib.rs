@@ -6,6 +6,9 @@ use core::players::*;
 use core::ranks::*;
 use core::suits::*;
 
+mod brain;
+use brain::djikstra::BrainDijkstra;
+
 use pyo3::prelude::*;
 
 pub struct GameConfig<'a> {
@@ -67,14 +70,14 @@ fn parse_python_board(py_board: &PyAny) -> Board {
         );
     }
     let it = board
-        .foundation_piles
+        .foundation
         .iter_mut()
         .zip(rusty_board.foundation_piles.iter());
     for (pile, py_pile) in it {
         fill_pile(pile, py_pile)
     }
     let it = board
-        .tableau_piles
+        .tableau
         .iter_mut()
         .zip(rusty_board.tableau_piles.iter());
     for (pile, py_pile) in it {

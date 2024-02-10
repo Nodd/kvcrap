@@ -5,10 +5,10 @@ use super::custom_test_games::call_custom;
 use super::decks::{generate_seed, new_rng};
 use super::moves::Move;
 use super::piles::PileType;
-use super::players::{Player, PlayerType, NB_PLAYER};
+use super::players::{Player, PlayerType, NB_PLAYERS};
 
 pub struct GameConfig {
-    pub player_types: [PlayerType; NB_PLAYER],
+    pub player_types: [PlayerType; NB_PLAYERS],
     pub seed: String,
     pub rng: Pcg64,
     pub custom_game: Option<String>,
@@ -198,8 +198,8 @@ mod tests {
         let tableau1 = PileType::Tableau { tableau_id: 1 };
         let result = game_manager.move_card(&tableau0, &tableau1);
         result.unwrap();
-        assert_eq!(game_manager.board.tableau_piles[0].nb_cards(), 0);
-        assert_eq!(game_manager.board.tableau_piles[1].nb_cards(), 1);
+        assert_eq!(game_manager.board.tableau[0].nb_cards(), 0);
+        assert_eq!(game_manager.board.tableau[1].nb_cards(), 1);
     }
 
     #[test]

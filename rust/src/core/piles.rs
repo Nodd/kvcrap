@@ -1,3 +1,7 @@
+use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
+use std::mem::discriminant;
+
 use super::cards::Card;
 use super::decks::NB_CARDS;
 use super::players::Player;
@@ -6,7 +10,7 @@ use super::suits::Suit;
 
 pub const NB_CRAPE_START: usize = 13;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Pile {
     pub cards: Vec<Card>,
     pub kind: PileType,
@@ -210,5 +214,40 @@ impl Pile {
 
     pub fn top_rank(&self) -> Option<&Rank> {
         self.cards.last().map(|card| card.rank())
+    }
+}
+
+impl PartialEq for Pile {
+    fn eq(&self, other: &Self) -> bool {
+        // Equal if same kind of pile and same cards inside
+        // Card equility only checks rank and suit; not player nor facing up or down
+        discriminant(&self.kind) == discriminant(&other.kind) && self.cards == other.cards
+    }
+}
+impl Eq for Pile {}
+
+impl PartialOrd for Pile {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if discriminant(&self.kind) != discriminant(&other.kind) {
+            return None;
+        }
+        Some(self.cmp(other))
+    }
+}
+impl Ord for Pile {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if discriminant(&self.kind) != discriminant(&other.kind) {
+            panic!("Sorting Piles of different kind");
+        }
+        if self.nb_cards() == other.nb_cards() {
+            return self.cards.cmp(&other.cards);
+        }
+        return self.nb_cards().cmp(&other.nb_cards());
+    }
+}
+
+impl Hash for Pile {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.cards.hash(state);
     }
 }

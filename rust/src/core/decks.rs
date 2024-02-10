@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn test_new_deck() {
         let deck = new_deck(Player::Player0);
-        assert_eq!(deck[0], Card::quick("1d0"));
+        assert_eq!(deck[0], Card::quick("1c0"));
         assert_eq!(deck.len(), NB_CARDS);
     }
     #[test]
