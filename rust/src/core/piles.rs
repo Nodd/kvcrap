@@ -200,6 +200,13 @@ impl Pile {
         self.cards.is_empty()
     }
 
+    pub fn is_full(&self) -> bool {
+        match self.kind {
+            PileType::Foundation { .. } | PileType::Tableau { .. } => self.nb_cards() == NB_RANKS,
+            _ => false,
+        }
+    }
+
     pub fn nb_cards(&self) -> usize {
         self.cards.len()
     }

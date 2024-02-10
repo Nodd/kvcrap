@@ -1,7 +1,9 @@
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
 use crate::{core::moves::Move, Board, Player};
+use crate::{Pile, PileType};
 
 use super::board_score::{BoardScore, WORSE_SCORE};
 
@@ -30,6 +32,45 @@ impl BoardNode {
             moves: vec![],
             index: 0,
         }
+    }
+
+    pub fn search_neighbors(
+        &mut self,
+        known_nodes: HashMap<Board, BoardNode>,
+        known_nodes_unvisited: BinaryHeap<BoardNode>,
+    ) {
+        // This one was searched
+        // Note: already popped from known_nodes_unvisited
+        self.visited = true;
+
+        // If last move was from a player pile, stop here
+        if let Some(last_move) = self.moves.last() {
+            if let Move::Move { origin, .. } = last_move {
+                if matches!(origin, PileType::Crape { .. } | PileType::Stock { .. }) {
+                    return;
+                }
+            }
+        }
+    }
+
+    fn piles_dest(&self) {
+        // Player piles
+        let mut piles: Vec<&Pile> = vec![
+            &self.board.crape[self.player.other()],
+            &self.board.waste[self.player.other()],
+        ];
+        // Filter empty piles
+        piles.retain(|pile| !pile.is_empty());
+
+        // Tableau piles
+        // Remove duplicate Piles
+        let tableau_piles_unique = self.board.tableau.iter().collect::<HashSet<&Pile>>();
+        let mut sorted_tableau_piles: Vec<&Pile> = tableau_piles_unique.into_iter().collect();
+        sorted_tableau_piles.sort();
+
+        // Foundation piles
+        let mut foundation_piles = self.board.foundation[0..4].to_vec();
+        foundation_piles.retain(|pile| !pile.is_full());
     }
 }
 
