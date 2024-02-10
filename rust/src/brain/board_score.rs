@@ -9,13 +9,17 @@ pub const WORSE_SCORE: BoardScore = [i32::MAX; NB_SCORE_VALUES];
 
 pub fn board_score(board: Board, player: Player) -> BoardScore {
     let mut score: BoardScore = [
-        board.foundation.iter().map(|p| p.nb_cards() as i32).sum(),
+        board
+            .foundation
+            .iter()
+            .map(|pile| pile.nb_cards() as i32)
+            .sum(),
         -(board.crape[player].nb_cards() as i32),
         -(board.stock[player].nb_cards() as i32),
         board
             .tableau
             .iter()
-            .map(|p| if p.is_empty() { 1 } else { 0 })
+            .map(|pile| if pile.is_empty() { 1 } else { 0 })
             .sum(),
         0,
         0,
@@ -26,11 +30,11 @@ pub fn board_score(board: Board, player: Player) -> BoardScore {
         0,
         0,
     ];
-    let mut tableau = board.tableau.clone();
-    tableau.sort();
-    tableau.reverse();
+    let mut sorted_tableau = board.tableau.clone();
+    sorted_tableau.sort();
+    sorted_tableau.reverse();
     for i in 0..=8 {
-        score[i + 4] = tableau[i].nb_cards() as i32;
+        score[i + 4] = sorted_tableau[i].nb_cards() as i32;
     }
-    return score;
+    score
 }

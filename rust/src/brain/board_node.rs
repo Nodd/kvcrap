@@ -23,11 +23,11 @@ impl BoardNode {
             board: board,
             player: player,
             // ai_config,
-            cost: [0].to_vec(),
+            cost: vec![0],
             score: WORSE_SCORE,
             //score_min,
             visited: false,
-            moves: [].to_vec(),
+            moves: vec![],
             index: 0,
         }
     }

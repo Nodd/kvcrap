@@ -11,11 +11,7 @@ pub const PLAYERS: [Player; NB_PLAYERS] = [Player::Player0, Player::Player1];
 
 impl From<u8> for Player {
     fn from(item: u8) -> Self {
-        match item {
-            0 => Player::Player0,
-            1 => Player::Player1,
-            _ => panic!("Incorrect number {item} for player"),
-        }
+        PLAYERS[item as usize]
     }
 }
 
@@ -42,7 +38,7 @@ impl Player {
 pub enum PlayerType {
     Player,
     AI,
-    // remote,
+    // Remote,
 }
 
 #[cfg(test)]
