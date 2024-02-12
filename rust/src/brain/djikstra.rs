@@ -2,7 +2,7 @@ use std::collections::{BinaryHeap, HashMap};
 use std::time::Instant;
 
 use crate::core::board::Board;
-use crate::core::moves::Move;
+use crate::core::moves::CardAction;
 use crate::core::players::Player;
 
 use super::board_node::BoardNode;

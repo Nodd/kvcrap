@@ -1,8 +1,10 @@
+use std::hash::{Hash, Hasher};
+
 use rand_pcg::Pcg64;
 
 use super::cards::Card;
 use super::decks::{new_deck, shuffle};
-use super::moves::Move;
+use super::moves::CardAction;
 use super::piles::{Pile, PileType, NB_CRAPE_START};
 use super::players::{Player, NB_PLAYERS, PLAYERS};
 use super::ranks::NB_RANKS;
@@ -113,8 +115,10 @@ impl Board {
 
     fn pile_from_type(&self, pile_type: &PileType) -> &Pile {
         match pile_type {
-            PileType::Foundation { foundation_id, .. } => &self.foundation[*foundation_id as usize],
-            PileType::Tableau { tableau_id } => &self.tableau[*tableau_id as usize],
+            PileType::Foundation {
+                id: foundation_id, ..
+            } => &self.foundation[*foundation_id as usize],
+            PileType::Tableau { id: tableau_id } => &self.tableau[*tableau_id as usize],
             PileType::Stock { player } => &self.stock[*player as usize],
             PileType::Waste { player } => &self.waste[*player as usize],
             PileType::Crape { player } => &self.crape[*player as usize],
@@ -123,10 +127,10 @@ impl Board {
 
     fn pile_from_type_mut(&mut self, pile_type: &PileType) -> &mut Pile {
         match pile_type {
-            PileType::Foundation { foundation_id, .. } => {
-                &mut self.foundation[*foundation_id as usize]
-            }
-            PileType::Tableau { tableau_id } => &mut self.tableau[*tableau_id as usize],
+            PileType::Foundation {
+                id: foundation_id, ..
+            } => &mut self.foundation[*foundation_id as usize],
+            PileType::Tableau { id: tableau_id } => &mut self.tableau[*tableau_id as usize],
             PileType::Stock { player } => &mut self.stock[*player as usize],
             PileType::Waste { player } => &mut self.waste[*player as usize],
             PileType::Crape { player } => &mut self.crape[*player as usize],
@@ -221,7 +225,7 @@ impl Board {
         origin_type: &PileType,
         destination_type: &PileType,
         player: Player,
-    ) -> Result<Move, &'static str> {
+    ) -> Result<CardAction, &'static str> {
         let origin = self.pile_from_type(origin_type);
         let destination = self.pile_from_type(destination_type);
 
@@ -242,7 +246,7 @@ impl Board {
         }
 
         self.move_card(origin_type, destination_type);
-        Ok(Move::Move {
+        Ok(CardAction::Move {
             card: card,
             origin: *origin_type,
             destination: *destination_type,
@@ -288,6 +292,24 @@ impl Board {
             && self.waste[player as usize].is_empty()
             && self.crape[player as usize].is_empty()
     }
+
+    pub fn apply_action(&mut self, action: &CardAction) {
+        match action {
+            CardAction::Move {
+                origin,
+                destination,
+                ..
+            } => self.move_card(origin, destination),
+            CardAction::Flip { pile, .. } => self.flip_card_up(pile, &Player::Player0),
+            CardAction::FlipWaste => self.flip_waste_to_stock(&Player::Player0),
+        }
+    }
+
+    pub fn copy_with_action(&self, action: &CardAction) -> Self {
+        let mut new_board = self.clone();
+        new_board.apply_action(&action);
+        new_board
+    }
 }
 
 impl PartialEq for Board {
@@ -319,6 +341,16 @@ impl PartialEq for Board {
     }
 }
 impl Eq for Board {}
+
+impl Hash for Board {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.crape.hash(state);
+        self.waste.hash(state);
+        self.stock.hash(state);
+        self.tableau.hash(state);
+        self.foundation.hash(state);
+    }
+}
 
 #[cfg(test)]
 mod tests {

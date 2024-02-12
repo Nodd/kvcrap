@@ -3,7 +3,7 @@ use rand_pcg::Pcg64;
 use super::board::Board;
 use super::custom_test_games::call_custom;
 use super::decks::{generate_seed, new_rng};
-use super::moves::Move;
+use super::moves::CardAction;
 use super::piles::PileType;
 use super::players::{Player, PlayerType, NB_PLAYERS};
 
@@ -14,7 +14,7 @@ pub struct GameConfig {
     pub custom_game: Option<String>,
     pub active_player: Option<Player>,
     step: usize,
-    last_move: Option<Move>,
+    last_move: Option<CardAction>,
     crapette_mode: bool,
     start_time: Option<String>,
     log_path: String,
@@ -129,7 +129,7 @@ impl GameManager {
         }
     }
 
-    pub fn set_crapette_last_move(&mut self, card_move: Option<Move>) {
+    pub fn set_crapette_last_move(&mut self, card_move: Option<CardAction>) {
         if self.config.crapette_mode {
             return;
         }
@@ -143,7 +143,7 @@ impl GameManager {
         &mut self,
         origin_type: &PileType,
         destination_type: &PileType,
-    ) -> Result<Move, &'static str> {
+    ) -> Result<CardAction, &'static str> {
         let card_move = self.board.move_card_checked(
             origin_type,
             destination_type,
@@ -194,8 +194,8 @@ mod tests {
     #[test]
     fn test_move_card() {
         let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
-        let tableau0 = PileType::Tableau { tableau_id: 0 };
-        let tableau1 = PileType::Tableau { tableau_id: 1 };
+        let tableau0 = PileType::Tableau { id: 0 };
+        let tableau1 = PileType::Tableau { id: 1 };
         let result = game_manager.move_card(&tableau0, &tableau1);
         result.unwrap();
         assert_eq!(game_manager.board.tableau[0].nb_cards(), 0);
@@ -205,8 +205,8 @@ mod tests {
     #[test]
     fn test_move_card_invalid() {
         let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
-        let tableau0 = PileType::Tableau { tableau_id: 2 };
-        let tableau1 = PileType::Tableau { tableau_id: 1 };
+        let tableau0 = PileType::Tableau { id: 2 };
+        let tableau1 = PileType::Tableau { id: 1 };
         let card_move = game_manager.move_card(&tableau0, &tableau1);
         assert_eq!(card_move.is_err(), true);
     }

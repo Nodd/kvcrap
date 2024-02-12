@@ -18,22 +18,11 @@ pub struct Pile {
 
 #[derive(Debug, Clone, Copy)]
 pub enum PileType {
-    Foundation {
-        foundation_id: u8,
-        foundation_suit: Suit,
-    },
-    Tableau {
-        tableau_id: u8,
-    },
-    Stock {
-        player: Player,
-    },
-    Waste {
-        player: Player,
-    },
-    Crape {
-        player: Player,
-    },
+    Foundation { id: u8, suit: Suit },
+    Tableau { id: u8 },
+    Stock { player: Player },
+    Waste { player: Player },
+    Crape { player: Player },
 }
 
 impl Pile {
@@ -41,15 +30,15 @@ impl Pile {
         Pile {
             cards: Vec::<Card>::with_capacity(NB_RANKS),
             kind: PileType::Foundation {
-                foundation_id,
-                foundation_suit,
+                id: foundation_id,
+                suit: foundation_suit,
             },
         }
     }
     pub fn new_tableau(tableau_id: u8) -> Self {
         Pile {
             cards: Vec::<Card>::with_capacity(NB_RANKS),
-            kind: PileType::Tableau { tableau_id },
+            kind: PileType::Tableau { id: tableau_id },
         }
     }
     pub fn new_stock(player: Player) -> Self {
@@ -76,38 +65,41 @@ impl Pile {
             PileType::Foundation { .. }
             | PileType::Stock { .. }
             | PileType::Waste { .. }
-            | PileType::Crape { .. } => match self.top_card() {
-                None => "  ".to_string(),
-                Some(top_card) => top_card.str_display(),
-            },
-            PileType::Tableau { tableau_id: 0..=3 } => {
+            | PileType::Crape { .. } => self
+                .top_card()
+                .map_or("  ".to_string(), |top_card| top_card.str_display()),
+            PileType::Tableau { id: 0..=3 } => {
                 // Right side
-                let mut result = "".to_string();
-                for card in self.cards.iter() {
-                    result += &card.str_display();
-                    result += " ";
-                }
-                result
+                format!(
+                    "{}",
+                    self.cards
+                        .iter()
+                        .map(|card| card.str_display())
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                )
             }
-            PileType::Tableau { tableau_id: 4..=7 } => {
+            PileType::Tableau { id: 4..=7 } => {
                 // Left side
-                let mut result = "".to_string();
-                for card in self.cards.iter().rev() {
-                    result += &card.str_display();
-                    result += " ";
-                }
-                result
+                format!(
+                    "{} ",
+                    self.cards
+                        .iter()
+                        .rev()
+                        .map(|card| card.str_display())
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                )
             }
-            PileType::Tableau {
-                tableau_id: 8..=u8::MAX,
-            } => panic!("PileType::Tableau.tableau_id > 7"),
+            PileType::Tableau { id: 8..=u8::MAX } => panic!("PileType::Tableau.tableau_id > 7"),
         }
     }
 
     pub fn can_add_card(&self, card: &Card, origin: &PileType, player: &Player) -> bool {
         match &self.kind {
             PileType::Foundation {
-                foundation_suit, ..
+                suit: foundation_suit,
+                ..
             } => card.suit() == foundation_suit && card.rank() == &(self.nb_cards() + 1),
             PileType::Tableau { .. } => match self.top_card() {
                 None => true,
@@ -207,6 +199,10 @@ impl Pile {
         }
     }
 
+    pub fn is_same(&self, other: &Pile) -> bool {
+        self.kind.is_same(&other.kind)
+    }
+
     pub fn nb_cards(&self) -> usize {
         self.cards.len()
     }
@@ -227,7 +223,7 @@ impl Pile {
 impl PartialEq for Pile {
     fn eq(&self, other: &Self) -> bool {
         // Equal if same kind of pile and same cards inside
-        // Card equility only checks rank and suit; not player nor facing up or down
+        // Card equality only checks rank and suit; not player nor facing up or down
         discriminant(&self.kind) == discriminant(&other.kind) && self.cards == other.cards
     }
 }
@@ -256,5 +252,25 @@ impl Ord for Pile {
 impl Hash for Pile {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.cards.hash(state);
+    }
+}
+
+impl PileType {
+    pub fn is_same(&self, other: &PileType) -> bool {
+        if let (PileType::Crape { player: p1 }, PileType::Crape { player: p2 })
+        | (PileType::Waste { player: p1 }, PileType::Waste { player: p2 })
+        | (PileType::Stock { player: p1 }, PileType::Stock { player: p2 }) = (&self, &other)
+        {
+            return p1 == p2;
+        }
+
+        if let (PileType::Foundation { id: id1, .. }, PileType::Foundation { id: id2, .. })
+        | (PileType::Tableau { id: id1, .. }, PileType::Tableau { id: id2, .. }) =
+            (&self, &other)
+        {
+            return id1 == id2;
+        }
+
+        false
     }
 }

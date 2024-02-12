@@ -2,7 +2,7 @@ use super::cards::Card;
 use super::piles::PileType;
 
 #[derive(Debug, Clone, Copy)]
-pub enum Move {
+pub enum CardAction {
     Move {
         card: Card,
         origin: PileType,

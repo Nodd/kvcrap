@@ -2,20 +2,22 @@ use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
-use crate::{core::moves::Move, Board, Player};
-use crate::{Pile, PileType};
+use crate::core::moves::CardAction;
+use crate::{Board, Pile, PileType, Player, NB_SUITS};
 
 use super::board_score::{BoardScore, WORSE_SCORE};
+
+type Cost = (usize, Vec<[usize; 2]>);
 
 pub struct BoardNode {
     board: Board,
     player: Player,
     // ai_config,
-    cost: Vec<usize>,
+    cost: Cost,
     pub score: BoardScore,
     //score_min,
     pub visited: bool,
-    moves: Vec<Move>,
+    moves: Vec<CardAction>,
     pub index: usize,
 }
 
@@ -25,7 +27,7 @@ impl BoardNode {
             board: board,
             player: player,
             // ai_config,
-            cost: vec![0],
+            cost: (0, Vec::<[usize; 2]>::new()),
             score: WORSE_SCORE,
             //score_min,
             visited: false,
@@ -36,41 +38,201 @@ impl BoardNode {
 
     pub fn search_neighbors(
         &mut self,
-        known_nodes: HashMap<Board, BoardNode>,
-        known_nodes_unvisited: BinaryHeap<BoardNode>,
+        known_nodes: &mut HashMap<&Board, BoardNode>,
+        known_unvisited_nodes: &mut BinaryHeap<&BoardNode>,
     ) {
         // This one was searched
-        // Note: already popped from known_nodes_unvisited
+        // Note: already popped from known_unvisited_nodes
         self.visited = true;
 
         // If last move was from a player pile, stop here
         if let Some(last_move) = self.moves.last() {
-            if let Move::Move { origin, .. } = last_move {
+            if let CardAction::Move { origin, .. } = last_move {
                 if matches!(origin, PileType::Crape { .. } | PileType::Stock { .. }) {
                     return;
                 }
             }
         }
+
+        let piles_orig = self.get_piles_orig();
+        let piles_dest = self.get_piles_dest();
+
+        // Check all possible origin piles
+        for pile_orig in &piles_orig {
+            let card = pile_orig.top_card().unwrap();
+
+            // Precomputation
+            let is_pile_orig_one_card_tableau =
+                pile_orig.nb_cards() == 1 && matches!(pile_orig.kind, PileType::Tableau { .. });
+
+            // Check all possible destination piles
+            for pile_dest in &piles_dest {
+                // Check if the move is possible
+                if !pile_dest.can_add_card(card, &pile_orig.kind, &self.player) {
+                    continue;
+                }
+
+                // Avoid noop move
+                if pile_dest.is_same(pile_orig) {
+                    continue;
+                }
+
+                // Avoid equivalent moves with empty piles on the tableau
+                // It's an important optimization when there are multiple empty piles on the tableau
+                if (is_pile_orig_one_card_tableau
+                    && pile_dest.is_empty()
+                    && matches!(pile_dest.kind, PileType::Tableau { .. }))
+                {
+                    continue;
+                }
+
+                // Do not undo the previous move
+                if let Some(CardAction::Move {
+                    origin,
+                    destination,
+                    ..
+                }) = self.moves.last()
+                {
+                    if destination.is_same(&pile_orig.kind) && origin.is_same(&pile_dest.kind) {
+                        continue;
+                    }
+                }
+
+                self.register_next_board(
+                    CardAction::Move {
+                        card: card.clone(),
+                        origin: pile_orig.kind,
+                        destination: pile_dest.kind,
+                    },
+                    known_nodes,
+                    known_unvisited_nodes,
+                )
+            }
+        }
     }
 
-    fn piles_dest(&self) {
-        // Player piles
-        let mut piles: Vec<&Pile> = vec![
-            &self.board.crape[self.player.other()],
-            &self.board.waste[self.player.other()],
-        ];
-        // Filter empty piles
-        piles.retain(|pile| !pile.is_empty());
+    fn register_next_board<'a>(
+        &self,
+        r#move: CardAction,
+        known_nodes: &mut HashMap<&'a Board, BoardNode>,
+        known_unvisited_nodes: &mut BinaryHeap<&'a BoardNode>,
+    ) {
+        // Instantiate neighbor
+        let next_board: &'a Board = &self.board.copy_with_action(&r#move);
+        let cost = self.compute_move_cost(&r#move);
+
+        if let Some(next_board_node) = known_nodes.get_mut(&next_board) {
+            // Known board, check if a lower cost was found
+            // Skip if cost is higher or equal
+            if next_board_node.visited || cost >= next_board_node.cost {
+                return;
+            }
+            // Mark old BoardNode as visited instead of removing it from the heap, which is slow
+            next_board_node.visited = true;
+        }
+
+        // Unknown board or new one in replacement
+        let mut next_board_node = BoardNode::new(next_board, self.player);
+        next_board_node.moves = self.moves.clone();
+        next_board_node.moves.push(r#move);
+        next_board_node.cost = cost;
+        known_nodes.insert(&next_board, next_board_node);
+        known_unvisited_nodes.push(&next_board_node);
+    }
+
+    fn get_piles_orig(&self) -> Vec<&Pile> {
+        let mut piles = Vec::with_capacity(8 + 2);
 
         // Tableau piles
         // Remove duplicate Piles
-        let tableau_piles_unique = self.board.tableau.iter().collect::<HashSet<&Pile>>();
-        let mut sorted_tableau_piles: Vec<&Pile> = tableau_piles_unique.into_iter().collect();
-        sorted_tableau_piles.sort();
+        let unique_tableau_piles = self.board.tableau.iter().collect::<HashSet<&Pile>>();
+        piles.extend(unique_tableau_piles.iter().filter(|pile| !pile.is_empty()));
+
+        // TODO : optimize by filter out the piles where cards can't go anywhere ?
+
+        // Player piles
+        if let Some(card) = self.board.crape[self.player].top_card() {
+            if card.face_up {
+                piles.push(&self.board.crape[self.player]);
+            }
+        }
+        if let Some(card) = self.board.stock[self.player].top_card() {
+            if card.face_up {
+                piles.push(&self.board.stock[self.player]);
+            }
+        }
+        piles
+    }
+
+    fn get_piles_dest(&self) -> Vec<&Pile> {
+        let mut piles_dest = Vec::with_capacity(8 + 8 + 2);
+
+        // Tableau piles
+        // Remove duplicate Piles
+        let unique_tableau_piles = self.board.tableau.iter().collect::<HashSet<&Pile>>();
+        piles_dest.extend(unique_tableau_piles);
 
         // Foundation piles
-        let mut foundation_piles = self.board.foundation[0..4].to_vec();
-        foundation_piles.retain(|pile| !pile.is_full());
+        piles_dest.extend(
+            &self.board.foundation[0..4]
+                .iter()
+                .filter(|pile| !pile.is_full())
+                .collect::<Vec<_>>(),
+        );
+        for i in 0..4 {
+            let pile1 = &self.board.foundation[i];
+            let pile2 = &self.board.foundation[NB_SUITS - 1 - i];
+            if pile2.nb_cards() != pile1.nb_cards() && !pile2.is_full() {
+                piles_dest.push(pile2);
+            }
+        }
+
+        // Opponent piles
+        let opponent_piles = [
+            &self.board.crape[self.player.other()],
+            &self.board.waste[self.player.other()],
+        ];
+        piles_dest.extend(opponent_piles.iter().filter(|pile| !pile.is_empty()));
+
+        piles_dest
+    }
+
+    fn compute_move_cost(&self, r#move: &CardAction) -> Cost {
+        let mut move_costs = Vec::<[usize; 2]>::with_capacity(self.moves.len());
+
+        // Cost of previous moves, excluding the number of moves
+        move_costs.extend(&self.cost.1);
+
+        // Cost of this move
+        if let CardAction::Move {
+            destination,
+            origin,
+            ..
+        } = r#move
+        {
+            let dest_cost = match destination {
+                PileType::Foundation { .. } => 0,
+                PileType::Crape { .. } => 1,
+                PileType::Waste { .. } => 2,
+                PileType::Tableau { .. } => 3,
+                PileType::Stock { .. } => panic!("Stock can never be a destination pile"),
+            };
+            let orig_cost = match origin {
+                PileType::Tableau { .. } => 0,
+                PileType::Crape { .. } => 1,
+                PileType::Stock { .. } => 2,
+                PileType::Waste { .. } => panic!("Waste can never be an origin pile"),
+                PileType::Foundation { .. } => panic!("Foundation can never be an origin pile"),
+            };
+            move_costs.push([dest_cost, orig_cost]);
+        } else {
+            panic!("AI can only move cards")
+        }
+
+        // The lowest the number of moves, the better
+        let cost: Cost = (self.moves.len(), move_costs);
+
+        cost
     }
 }
 
