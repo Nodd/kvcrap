@@ -1,6 +1,8 @@
+use std::borrow::Borrow;
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
+use std::rc::Rc;
 
 use crate::core::moves::CardAction;
 use crate::{Board, Pile, PileType, Player, NB_SUITS};
@@ -16,7 +18,6 @@ pub struct BoardNode {
     cost: Cost,
     pub score: BoardScore,
     //score_min,
-    pub visited: bool,
     moves: Vec<CardAction>,
     pub index: usize,
 }
@@ -30,7 +31,6 @@ impl BoardNode {
             cost: (0, Vec::<[usize; 2]>::new()),
             score: WORSE_SCORE,
             //score_min,
-            visited: false,
             moves: vec![],
             index: 0,
         }
@@ -38,13 +38,9 @@ impl BoardNode {
 
     pub fn search_neighbors(
         &mut self,
-        known_nodes: &mut HashMap<&Board, BoardNode>,
-        known_unvisited_nodes: &mut BinaryHeap<&BoardNode>,
+        known_nodes: &mut HashMap<Board, Rc<BoardNode>>,
+        known_unvisited_nodes: &mut BTreeSet<Rc<BoardNode>>,
     ) {
-        // This one was searched
-        // Note: already popped from known_unvisited_nodes
-        self.visited = true;
-
         // If last move was from a player pile, stop here
         if let Some(last_move) = self.moves.last() {
             if let CardAction::Move { origin, .. } = last_move {
@@ -114,30 +110,32 @@ impl BoardNode {
     fn register_next_board<'a>(
         &self,
         r#move: CardAction,
-        known_nodes: &mut HashMap<&'a Board, BoardNode>,
-        known_unvisited_nodes: &mut BinaryHeap<&'a BoardNode>,
+        known_nodes: &mut HashMap<Board, Rc<BoardNode>>,
+        known_unvisited_nodes: &mut BTreeSet<Rc<BoardNode>>,
     ) {
         // Instantiate neighbor
-        let next_board: &'a Board = &self.board.copy_with_action(&r#move);
+        let next_board: Board = self.board.copy_with_action(&r#move);
         let cost = self.compute_move_cost(&r#move);
 
-        if let Some(next_board_node) = known_nodes.get_mut(&next_board) {
+        if let Some(next_board_node) = known_nodes.get(&next_board) {
             // Known board, check if a lower cost was found
             // Skip if cost is higher or equal
-            if next_board_node.visited || cost >= next_board_node.cost {
+            if cost >= next_board_node.cost {
                 return;
             }
-            // Mark old BoardNode as visited instead of removing it from the heap, which is slow
-            next_board_node.visited = true;
+            known_unvisited_nodes.remove(Rc::as_ref(&next_board_node));
+            known_nodes.remove(&next_board);
         }
 
         // Unknown board or new one in replacement
-        let mut next_board_node = BoardNode::new(next_board, self.player);
+        let mut next_board_node = BoardNode::new(next_board.clone(), self.player);
         next_board_node.moves = self.moves.clone();
         next_board_node.moves.push(r#move);
         next_board_node.cost = cost;
-        known_nodes.insert(&next_board, next_board_node);
-        known_unvisited_nodes.push(&next_board_node);
+        // TODO: use a Rc<...> here
+        let next_board_node_rc = Rc::new(next_board_node);
+        known_nodes.insert(next_board, next_board_node_rc.clone());
+        known_unvisited_nodes.insert(next_board_node_rc);
     }
 
     fn get_piles_orig(&self) -> Vec<&Pile> {
@@ -260,10 +258,6 @@ impl PartialOrd for BoardNode {
 
 impl Hash for BoardNode {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.board.crape.hash(state);
-        self.board.waste.hash(state);
-        self.board.stock.hash(state);
-        self.board.tableau.hash(state);
-        self.board.foundation.hash(state);
+        self.board.hash(state);
     }
 }
