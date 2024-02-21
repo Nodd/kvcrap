@@ -1,4 +1,5 @@
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BTreeSet, BinaryHeap, HashMap};
+use std::rc::Rc;
 use std::time::Instant;
 
 use crate::core::board::Board;
@@ -44,51 +45,44 @@ pub fn compute_states(board: &Board, active_player: Player, crapette_mode: bool,
 }
 
 pub struct BrainDijkstra {
-    known_nodes: HashMap<Board, BoardNode>,
-    known_nodes_unvisited: BinaryHeap<BoardNode>,
+    known_nodes: HashMap<Board, Rc<BoardNode>>,
+    known_unvisited_nodes: BTreeSet<Rc<BoardNode>>,
 }
-/*
 impl BrainDijkstra {
     pub fn new(board: Board, player: Player) -> Self {
         let mut brain_djikstra = BrainDijkstra {
-            known_nodes: HashMap::new {},
-            known_nodes_unvisited: BinaryHeap::<BoardNode>::new {},
+            known_nodes: HashMap::new(),
+            known_unvisited_nodes: BTreeSet::new(),
         };
         let first_node = BoardNode::new(board, player);
-        brain_djikstra.known_nodes[&board] = first_node;
-        brain_djikstra.known_nodes_unvisited.push(first_node);
-        return brain_djikstra;
+        let first_node_rc = Rc::new(first_node);
+        brain_djikstra
+            .known_nodes
+            .insert(board, first_node_rc.clone());
+        brain_djikstra.known_unvisited_nodes.insert(first_node_rc);
+
+        brain_djikstra
     }
 
-    fn select_next_node(&mut self) -> Option<BoardNode> {
-        let board_node: Option<BoardNode>;
-        let visited = true;
-        while visited {
-            board_node = &self.known_nodes_unvisited.pop();
-            match board_node {
-                None => return None,
-                Some(bn) => {
-                    if !bn.visited {
-                        return board_node;
-                    }
-                }
-            }
-        }
-        return None;
+    fn select_next_node(&mut self) -> Option<Rc<BoardNode>> {
+        self.known_unvisited_nodes
+            .take(&self.known_unvisited_nodes.first().unwrap().clone())
     }
 
-    pub fn search(&mut self) -> (Vec<Move>, usize) {
+    pub fn search(&mut self) -> (Vec<crate::brain::djikstra::CardAction>, usize) {
         let mut max_score = WORSE_SCORE;
-        let moves: Vec<Move> = Vec::new();
-        let nb_nodes_visited = 0;
+        let moves: Vec<CardAction> = Vec::new();
+        let mut nb_nodes_visited = 0;
+        let mut best_node: Rc<BoardNode>;
         loop {
             match self.select_next_node() {
                 None => {
                     break;
                 }
-                Some(next_node) => {
+                Some(mut next_node) => {
                     nb_nodes_visited += 1;
-                    next_node.search_neighbors(&self.known_nodes, &self.known_nodes_unvisited);
+                    next_node
+                        .search_neighbors(&mut self.known_nodes, &mut self.known_unvisited_nodes);
                     next_node.index = nb_nodes_visited;
                     if next_node.score > max_score {
                         max_score = next_node.score;
@@ -98,7 +92,6 @@ impl BrainDijkstra {
             }
         }
 
-        return (moves, nb_nodes_visited);
+        (moves, nb_nodes_visited)
     }
 }
-*/

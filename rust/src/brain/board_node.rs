@@ -132,7 +132,7 @@ impl BoardNode {
         next_board_node.moves = self.moves.clone();
         next_board_node.moves.push(r#move);
         next_board_node.cost = cost;
-        // TODO: use a Rc<...> here
+
         let next_board_node_rc = Rc::new(next_board_node);
         known_nodes.insert(next_board, next_board_node_rc.clone());
         known_unvisited_nodes.insert(next_board_node_rc);
