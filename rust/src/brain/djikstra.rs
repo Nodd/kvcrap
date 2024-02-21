@@ -54,7 +54,7 @@ impl BrainDijkstra {
             known_nodes: HashMap::new(),
             known_unvisited_nodes: BTreeSet::new(),
         };
-        let first_node = BoardNode::new(board, player);
+        let first_node = BoardNode::new(board.clone(), player);
         let first_node_rc = Rc::new(first_node);
         brain_djikstra
             .known_nodes
@@ -83,7 +83,7 @@ impl BrainDijkstra {
                     nb_nodes_visited += 1;
                     next_node
                         .search_neighbors(&mut self.known_nodes, &mut self.known_unvisited_nodes);
-                    next_node.index = nb_nodes_visited;
+                    Rc::make_mut(&mut next_node).index = nb_nodes_visited;
                     if next_node.score > max_score {
                         max_score = next_node.score;
                         best_node = next_node;

@@ -2,6 +2,7 @@ use std::borrow::Borrow;
 use std::cmp::Ordering;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
 use crate::core::moves::CardAction;
@@ -11,6 +12,7 @@ use super::board_score::{BoardScore, WORSE_SCORE};
 
 type Cost = (usize, Vec<[usize; 2]>);
 
+#[derive(Clone)]
 pub struct BoardNode {
     board: Board,
     player: Player,
@@ -37,7 +39,7 @@ impl BoardNode {
     }
 
     pub fn search_neighbors(
-        &mut self,
+        &self,
         known_nodes: &mut HashMap<Board, Rc<BoardNode>>,
         known_unvisited_nodes: &mut BTreeSet<Rc<BoardNode>>,
     ) {
