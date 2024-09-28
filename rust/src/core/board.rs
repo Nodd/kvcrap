@@ -160,9 +160,14 @@ impl Board {
             let foundation_pile_right = &self.foundation[index_right];
 
             format!(
-                "{}{}| {} {} | {}",
+                "{}{}{}| {} {} | {}",
                 "   ".repeat(NB_RANKS - tableau_pile_left.nb_cards()),
                 tableau_pile_left.str_display(colored),
+                if tableau_pile_left.is_empty() {
+                    ""
+                } else {
+                    " "
+                },
                 foundation_pile_left.str_display(colored),
                 foundation_pile_right.str_display(colored),
                 tableau_pile_right.str_display(colored)
