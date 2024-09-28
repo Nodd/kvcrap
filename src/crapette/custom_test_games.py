@@ -21,7 +21,7 @@ def empty_stock(board: Board):
     for card in deck:
         card.face_up = True
 
-    # Fill waste with Dimamonds
+    # Fill waste with Diamonds
     board.players_piles[0].waste.set_cards(deck[:13])
 
 
@@ -35,7 +35,7 @@ def empty_stock_and_waste(board: Board):
     for index, pile in enumerate(board.tableau_piles[:-1]):
         pile.set_cards(deck[index + 1 : index + 2])
 
-    # Fill crape with Dimamonds 9 and 10
+    # Fill crape with Diamonds 9 and 10
     board.players_piles[0].crape.set_cards(
         deck[board.NB_PILES + 1 : board.NB_PILES - 1 : -1]
     )

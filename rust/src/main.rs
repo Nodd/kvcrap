@@ -1,4 +1,4 @@
-// Disable all warnings about ununsed code
+// Disable all warnings about unused code
 #![allow(dead_code)]
 
 use clap::Parser;
