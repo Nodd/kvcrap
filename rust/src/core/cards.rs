@@ -11,7 +11,7 @@ use super::suits::{Color, Suit};
 pub struct Card {
     rank: Rank,
     suit: Suit,
-    // player: Player,
+    player: Player,
     pub face_up: bool,
 }
 
@@ -20,7 +20,7 @@ impl Card {
         Card {
             rank,
             suit,
-            // player,
+            player,
             face_up: false,
         }
     }
@@ -28,7 +28,7 @@ impl Card {
         Card {
             rank,
             suit,
-            // player,
+            player,
             face_up: true,
         }
     }
@@ -50,9 +50,9 @@ impl Card {
         &self.suit
     }
 
-    // pub fn player(&self) -> &Player {
-    //     &self.player
-    // }
+    pub fn player(&self) -> &Player {
+        &self.player
+    }
 
     pub fn set_face_up(&mut self) {
         self.face_up = true;
@@ -99,10 +99,15 @@ impl Card {
         if self.face_up {
             self.str_rank_suit(colored)
         } else {
+            let base = "##";
             if colored {
-                "##".on_white().to_string()
+                match self.player {
+                    Player::Player0 => base.bright_green().on_green(),
+                    Player::Player1 => base.bright_blue().on_blue(),
+                }
+                .to_string()
             } else {
-                "##".to_string()
+                base.to_string()
             }
         }
     }
