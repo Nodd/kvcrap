@@ -15,7 +15,7 @@ type Cost = (usize, Vec<[usize; 2]>);
 #[derive(Clone)]
 pub struct BoardNode {
     board: Board,
-    player: Player,
+    active_player: Player,
     // ai_config,
     cost: Cost,
     pub score: BoardScore,
@@ -25,10 +25,10 @@ pub struct BoardNode {
 }
 
 impl BoardNode {
-    pub fn new(board: Board, player: Player) -> Self {
+    pub fn new(board: Board, active_player: Player) -> Self {
         BoardNode {
             board: board,
-            player: player,
+            active_player,
             // ai_config,
             cost: (0, Vec::<[usize; 2]>::new()),
             score: WORSE_SCORE,
@@ -66,7 +66,7 @@ impl BoardNode {
             // Check all possible destination piles
             for pile_dest in &piles_dest {
                 // Check if the move is possible
-                if !pile_dest.can_add_card(card, &pile_orig.kind, &self.player) {
+                if !pile_dest.can_add_card(card, &pile_orig.kind, &self.active_player) {
                     continue;
                 }
 
@@ -130,7 +130,7 @@ impl BoardNode {
         }
 
         // Unknown board or new one in replacement
-        let mut next_board_node = BoardNode::new(next_board.clone(), self.player);
+        let mut next_board_node = BoardNode::new(next_board.clone(), self.active_player);
         next_board_node.moves = self.moves.clone();
         next_board_node.moves.push(r#move);
         next_board_node.cost = cost;
@@ -151,14 +151,14 @@ impl BoardNode {
         // TODO : optimize by filter out the piles where cards can't go anywhere ?
 
         // Player piles
-        if let Some(card) = self.board.crape[self.player].top_card() {
+        if let Some(card) = self.board.crape[self.active_player].top_card() {
             if card.face_up {
-                piles.push(&self.board.crape[self.player]);
+                piles.push(&self.board.crape[self.active_player]);
             }
         }
-        if let Some(card) = self.board.stock[self.player].top_card() {
+        if let Some(card) = self.board.stock[self.active_player].top_card() {
             if card.face_up {
-                piles.push(&self.board.stock[self.player]);
+                piles.push(&self.board.stock[self.active_player]);
             }
         }
         piles
@@ -189,8 +189,8 @@ impl BoardNode {
 
         // Opponent piles
         let opponent_piles = [
-            &self.board.crape[self.player.other()],
-            &self.board.waste[self.player.other()],
+            &self.board.crape[self.active_player.other()],
+            &self.board.waste[self.active_player.other()],
         ];
         piles_dest.extend(opponent_piles.iter().filter(|pile| !pile.is_empty()));
 
