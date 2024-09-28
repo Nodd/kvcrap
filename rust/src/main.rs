@@ -7,6 +7,9 @@ use crate::core::game_manager::GameManager;
 
 mod core;
 
+mod brain;
+use brain::djikstra::compute_states;
+
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -37,5 +40,12 @@ fn main() {
             .config
             .active_player
             .expect("Active player should be set")
+    );
+
+    compute_states(
+        &game_manager.board,
+        game_manager.config.active_player.unwrap(),
+        false,
+        "",
     );
 }

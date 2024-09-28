@@ -1,6 +1,7 @@
 use colored::{ColoredString, Colorize};
 use regex::Regex;
 use std::cmp::Ordering;
+use std::fmt;
 use std::hash::{Hash, Hasher};
 
 use super::players::Player;
@@ -110,6 +111,12 @@ impl Card {
                 base.to_string()
             }
         }
+    }
+}
+
+impl fmt::Display for Card {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.str_rank_suit(false))
     }
 }
 

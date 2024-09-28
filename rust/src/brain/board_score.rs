@@ -1,4 +1,4 @@
-use crate::{Board, Player};
+use crate::core::{board::Board, players::Player};
 
 // TODO: use a newtype ?
 // cf https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types

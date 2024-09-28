@@ -21,8 +21,13 @@ pub struct RustBrainConfig {
 pub fn compute_states(board: &Board, active_player: Player, crapette_mode: bool, log_path: &str) {
     let start_time = Instant::now();
 
-    //let moves, nb_nodes_visited = brain_dijkstra(board, active_player, crapette_mode, log_path);
-
+    let mut brain_dijkstra = BrainDijkstra::new(board, active_player);
+    let (moves, nb_nodes_visited) = brain_dijkstra.search();
+    println!("nb_nodes_visited: {}", nb_nodes_visited);
+    println!("nb actions: {}", moves.len());
+    for action in moves {
+        println!("action: {}", action);
+    }
     /*
     if not moves:
     player_piles = self.game_config.board.players_piles[
@@ -48,8 +53,10 @@ pub struct BrainDijkstra {
     known_nodes: HashMap<Board, Rc<BoardNode>>,
     known_unvisited_nodes: BTreeSet<Rc<BoardNode>>,
 }
+
 impl BrainDijkstra {
-    pub fn new(board: Board, player: Player) -> Self {
+    pub fn new(board: &Board, player: Player) -> Self {
+        println!("BrainDijkstra.new");
         let mut brain_djikstra = BrainDijkstra {
             known_nodes: HashMap::new(),
             known_unvisited_nodes: BTreeSet::new(),
@@ -58,18 +65,19 @@ impl BrainDijkstra {
         let first_node_rc = Rc::new(first_node);
         brain_djikstra
             .known_nodes
-            .insert(board, first_node_rc.clone());
+            .insert(board.clone(), first_node_rc.clone());
         brain_djikstra.known_unvisited_nodes.insert(first_node_rc);
 
         brain_djikstra
     }
 
     fn select_next_node(&mut self) -> Option<Rc<BoardNode>> {
-        self.known_unvisited_nodes
-            .take(&self.known_unvisited_nodes.first().unwrap().clone())
+        // println!("BrainDijkstra.select_next_node");
+        self.known_unvisited_nodes.pop_first()
     }
 
     pub fn search(&mut self) -> (Vec<crate::brain::djikstra::CardAction>, usize) {
+        println!("BrainDijkstra.search");
         let mut max_score = WORSE_SCORE;
         let moves: Vec<CardAction> = Vec::new();
         let mut nb_nodes_visited = 0;

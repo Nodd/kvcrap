@@ -6,7 +6,7 @@ use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
 use crate::core::moves::CardAction;
-use crate::{Board, Pile, PileType, Player, NB_SUITS};
+use crate::core::{board::Board, piles::Pile, piles::PileType, players::Player, suits::NB_SUITS};
 
 use super::board_score::{BoardScore, WORSE_SCORE};
 

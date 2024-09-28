@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::{Index, IndexMut};
 
 #[derive(PartialEq, Debug, Clone, Copy, Hash)]
@@ -8,6 +9,12 @@ pub enum Player {
 
 pub const NB_PLAYERS: usize = 2;
 pub const PLAYERS: [Player; NB_PLAYERS] = [Player::Player0, Player::Player1];
+
+impl fmt::Display for Player {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
+    }
+}
 
 impl From<u8> for Player {
     fn from(item: u8) -> Self {

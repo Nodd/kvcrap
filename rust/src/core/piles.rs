@@ -1,5 +1,6 @@
 use colored::{ColoredString, Colorize};
 use std::cmp::Ordering;
+use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::mem::discriminant;
 
@@ -11,12 +12,6 @@ use super::suits::Suit;
 
 pub const NB_CRAPE_START: usize = 13;
 
-#[derive(Debug, Clone)]
-pub struct Pile {
-    pub cards: Vec<Card>,
-    pub kind: PileType,
-}
-
 #[derive(Debug, Clone, Copy)]
 pub enum PileType {
     Foundation { id: u8, suit: Suit },
@@ -24,6 +19,28 @@ pub enum PileType {
     Stock { player: Player },
     Waste { player: Player },
     Crape { player: Player },
+}
+
+impl fmt::Display for PileType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                PileType::Foundation { id, suit } => format!("Foundation{}{}", id, suit.symbol()),
+                PileType::Tableau { id } => format!("Tableau{}", id),
+                PileType::Stock { player } => format!("Stock{}", player),
+                PileType::Waste { player } => format!("Waste{}", player),
+                PileType::Crape { player } => format!("Crape{}", player),
+            }
+        )
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Pile {
+    pub cards: Vec<Card>,
+    pub kind: PileType,
 }
 
 impl Pile {
