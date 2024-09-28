@@ -102,7 +102,7 @@ fn compute(
     };
 
     let board = parse_python_board(board);
-    println!("{}", board.to_string());
+    println!("{}", board.to_string(true));
     Ok("toto".to_string())
 }
 

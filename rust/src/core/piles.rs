@@ -1,3 +1,4 @@
+use colored::{ColoredString, Colorize};
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::mem::discriminant;
@@ -60,39 +61,32 @@ impl Pile {
         }
     }
 
-    pub fn str_display(&self) -> String {
+    pub fn str_display(&self, colored: bool) -> String {
         match &self.kind {
             PileType::Foundation { .. }
             | PileType::Stock { .. }
             | PileType::Waste { .. }
             | PileType::Crape { .. } => self
                 .top_card()
-                .map_or("  ".to_string(), |top_card| top_card.str_display()),
+                .map_or("  ".to_string(), |top_card| top_card.str_display(colored)),
             PileType::Tableau { id: 0..=3 } => {
                 // Right side
-                format!(
-                    "{}",
-                    self.cards
-                        .iter()
-                        .map(|card| card.str_display())
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                )
+                self.join_cards(&self.cards.iter().collect::<Vec<_>>(), colored)
             }
             PileType::Tableau { id: 4..=7 } => {
                 // Left side
-                format!(
-                    "{} ",
-                    self.cards
-                        .iter()
-                        .rev()
-                        .map(|card| card.str_display())
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                )
+                self.join_cards(&self.cards.iter().rev().collect::<Vec<_>>(), colored)
             }
             PileType::Tableau { id: 8..=u8::MAX } => panic!("PileType::Tableau.tableau_id > 7"),
         }
+    }
+
+    fn join_cards(&self, cards: &Vec<&Card>, colored: bool) -> String {
+        cards
+            .iter()
+            .map(|card| card.str_display(colored))
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 
     pub fn can_add_card(&self, card: &Card, origin: &PileType, player: &Player) -> bool {

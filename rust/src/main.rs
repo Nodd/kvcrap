@@ -30,7 +30,7 @@ fn main() {
     if let Some(custom_game) = custom {
         println!("Custom game: {}", custom_game);
     }
-    println!("{}", game_manager.board.to_string());
+    println!("{}", game_manager.board.to_string(true));
     println!(
         "{:?}",
         game_manager

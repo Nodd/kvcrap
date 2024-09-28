@@ -138,15 +138,15 @@ impl Board {
     }
 
     /// Display the board as a multiline String.
-    pub fn to_string(&self) -> String {
+    pub fn to_string(&self, colored: bool) -> String {
         let player_space = " ".repeat(PLAYER_SPACE);
 
         let mut str_lines = vec![format!(
             "{}{}  {} {}",
             player_space,
-            self.crape[1].str_display(),
-            self.waste[1].str_display(),
-            self.stock[1].str_display()
+            self.crape[1].str_display(colored),
+            self.waste[1].str_display(colored),
+            self.stock[1].str_display(colored)
         )];
 
         str_lines.extend((0..NB_ROWS).map(|row| {
@@ -161,19 +161,19 @@ impl Board {
             format!(
                 "{}{}| {} {} | {}",
                 "   ".repeat(NB_RANKS - tableau_pile_left.nb_cards()),
-                tableau_pile_left.str_display(),
-                foundation_pile_left.str_display(),
-                foundation_pile_right.str_display(),
-                tableau_pile_right.str_display()
+                tableau_pile_left.str_display(colored),
+                foundation_pile_left.str_display(colored),
+                foundation_pile_right.str_display(colored),
+                tableau_pile_right.str_display(colored)
             )
         }));
 
         str_lines.push(format!(
             "{}{}  {} {}",
             player_space,
-            self.stock[0].str_display(),
-            self.waste[0].str_display(),
-            self.crape[0].str_display()
+            self.stock[0].str_display(colored),
+            self.waste[0].str_display(colored),
+            self.crape[0].str_display(colored)
         ));
 
         str_lines.join("\n")

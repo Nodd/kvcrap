@@ -1,3 +1,4 @@
+use colored::{ColoredString, Colorize};
 use regex::Regex;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
@@ -81,15 +82,28 @@ impl Card {
         self.rank.is_above_or_below(&other.rank)
     }
 
-    pub fn str_rank_suit(&self) -> String {
-        format!("{}{}", self.rank.symbol(), self.suit.symbol())
+    pub fn str_rank_suit(&self, colored: bool) -> String {
+        let mut str = format!("{}{}", self.rank.symbol(), self.suit.symbol());
+        if colored {
+            str = match self.suit.color() {
+                Color::Red => str.red(),
+                Color::Black => str.black(),
+            }
+            .on_white()
+            .to_string();
+        }
+        str
     }
 
-    pub fn str_display(&self) -> String {
+    pub fn str_display(&self, colored: bool) -> String {
         if self.face_up {
-            format!("{}{}", self.rank.symbol(), self.suit.symbol())
+            self.str_rank_suit(colored)
         } else {
-            "##".to_string()
+            if colored {
+                "##".on_white().to_string()
+            } else {
+                "##".to_string()
+            }
         }
     }
 }
