@@ -66,7 +66,7 @@ impl Board {
     pub fn new_game(&mut self, mut rng: &mut Pcg64) {
         for player in PLAYERS {
             let mut deck = self.prepare_deck(player, &mut rng);
-            let player = player as usize;
+            let player = player;
 
             // Fill game components
             self.fill_crape(player, &mut deck);
@@ -87,14 +87,15 @@ impl Board {
         deck
     }
 
-    fn fill_crape(&mut self, player: usize, deck: &mut Vec<Card>) {
+    fn fill_crape(&mut self, player: Player, deck: &mut Vec<Card>) {
         let crape = deck.split_off(deck.len() - NB_CRAPE_START);
         self.crape[player].set(crape);
         let card: &mut Card = self.crape[player].top_card_mut().unwrap();
         card.set_face_up();
     }
 
-    fn fill_tableau(&mut self, player: usize, deck: &mut Vec<Card>) {
+    fn fill_tableau(&mut self, player: Player, deck: &mut Vec<Card>) {
+        let player = player as usize;
         for tp in self.tableau[(NB_ROWS * player)..(NB_ROWS * (player + 1))].iter_mut() {
             tp.clear();
             let mut card = deck.pop().unwrap();
@@ -103,7 +104,7 @@ impl Board {
         }
     }
 
-    fn fill_stock(&mut self, player: usize, deck: Vec<Card>) {
+    fn fill_stock(&mut self, player: Player, deck: Vec<Card>) {
         self.stock[player].set(deck);
     }
 
@@ -119,9 +120,9 @@ impl Board {
                 id: foundation_id, ..
             } => &self.foundation[*foundation_id as usize],
             PileType::Tableau { id: tableau_id } => &self.tableau[*tableau_id as usize],
-            PileType::Stock { player } => &self.stock[*player as usize],
-            PileType::Waste { player } => &self.waste[*player as usize],
-            PileType::Crape { player } => &self.crape[*player as usize],
+            PileType::Stock { player } => &self.stock[*player],
+            PileType::Waste { player } => &self.waste[*player],
+            PileType::Crape { player } => &self.crape[*player],
         }
     }
 
@@ -131,9 +132,9 @@ impl Board {
                 id: foundation_id, ..
             } => &mut self.foundation[*foundation_id as usize],
             PileType::Tableau { id: tableau_id } => &mut self.tableau[*tableau_id as usize],
-            PileType::Stock { player } => &mut self.stock[*player as usize],
-            PileType::Waste { player } => &mut self.waste[*player as usize],
-            PileType::Crape { player } => &mut self.crape[*player as usize],
+            PileType::Stock { player } => &mut self.stock[*player],
+            PileType::Waste { player } => &mut self.waste[*player],
+            PileType::Crape { player } => &mut self.crape[*player],
         }
     }
 
@@ -277,8 +278,8 @@ impl Board {
     }
 
     pub fn flip_waste_to_stock(&mut self, player: &Player) {
-        let waste = &mut self.waste[*player as usize];
-        let stock = &mut self.stock[*player as usize];
+        let waste = &mut self.waste[*player];
+        let stock = &mut self.stock[*player];
         while !waste.is_empty() {
             let card = waste.pop().unwrap();
             card.set_face_down();
@@ -288,9 +289,9 @@ impl Board {
 
     /// Check if the player has won the game, i.e. their piles are empty.
     pub fn check_win(&self, player: Player) -> bool {
-        self.stock[player as usize].is_empty()
-            && self.waste[player as usize].is_empty()
-            && self.crape[player as usize].is_empty()
+        self.stock[player].is_empty()
+            && self.waste[player].is_empty()
+            && self.crape[player].is_empty()
     }
 
     pub fn apply_action(&mut self, action: &CardAction) {

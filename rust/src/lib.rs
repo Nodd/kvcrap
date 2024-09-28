@@ -57,15 +57,15 @@ fn parse_python_board(py_board: &PyAny) -> Board {
     // TODO : vérifier que les 2 itérateurs font bien la même taille
     for player in PLAYERS {
         fill_pile(
-            &mut board.stock[player as usize],
+            &mut board.stock[player],
             &rusty_board.players_piles[player as usize][0],
         );
         fill_pile(
-            &mut board.waste[player as usize],
+            &mut board.waste[player],
             &rusty_board.players_piles[player as usize][1],
         );
         fill_pile(
-            &mut board.crape[player as usize],
+            &mut board.crape[player],
             &rusty_board.players_piles[player as usize][2],
         );
     }

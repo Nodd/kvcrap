@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 
 #[derive(PartialEq, Debug, Clone, Copy, Hash)]
 pub enum Player {
@@ -21,6 +21,12 @@ impl<T> Index<Player> for [T; NB_PLAYERS] {
 
     fn index(&self, player: Player) -> &Self::Output {
         &self[player as usize]
+    }
+}
+
+impl<T> IndexMut<Player> for [T; NB_PLAYERS] {
+    fn index_mut(&mut self, player: Player) -> &mut Self::Output {
+        &mut self[player as usize]
     }
 }
 

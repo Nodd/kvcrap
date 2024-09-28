@@ -40,7 +40,7 @@ impl GameConfig {
     fn is_player_ai(&self) -> bool {
         match self.active_player {
             None => false,
-            Some(player) => self.player_types[player as usize] == PlayerType::AI,
+            Some(player) => self.player_types[player] == PlayerType::AI,
         }
     }
 
