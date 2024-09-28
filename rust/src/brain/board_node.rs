@@ -59,7 +59,7 @@ impl BoardNode {
         for pile_orig in &piles_orig {
             let card = pile_orig.top_card().unwrap();
 
-            // Precomputation
+            // Pre computation
             let is_pile_orig_one_card_tableau =
                 pile_orig.nb_cards() == 1 && matches!(pile_orig.kind, PileType::Tableau { .. });
 
