@@ -2,6 +2,7 @@
 #![allow(dead_code)]
 
 use clap::Parser;
+use env_logger;
 
 use crate::core::game_manager::GameManager;
 
@@ -23,6 +24,8 @@ struct Args {
 }
 
 fn main() {
+    env_logger::init();
+
     let cli = Args::parse();
 
     let seed = cli.seed.as_deref();

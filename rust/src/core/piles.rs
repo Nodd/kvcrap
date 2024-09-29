@@ -227,6 +227,13 @@ impl Pile {
     }
 }
 
+impl fmt::Display for Pile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // TODO: Use a shorter representation that debug for the cards
+        write!(f, "{}({:?})", self.kind, self.cards)
+    }
+}
+
 impl PartialEq for Pile {
     fn eq(&self, other: &Self) -> bool {
         // Equal if same kind of pile and same cards inside
