@@ -62,7 +62,23 @@ impl BoardNode {
         // Check all possible origin piles
         trace!("Check all {} possible origin piles", piles_orig.len());
         for pile_orig in &piles_orig {
-            let card = pile_orig.top_card().expect("Pile should be empty");
+            // Do not undo the previous move
+            // TODO: check if checking the known boards later is really slower
+            if let Some(CardAction::Move {
+                destination: previous_destination,
+                ..
+            }) = self.moves.last()
+            {
+                if previous_destination.is_same(&pile_orig.kind) {
+                    trace!(
+                        "    Move from {} would move the same card again, skipping",
+                        pile_orig.kind
+                    );
+                    continue;
+                }
+            }
+
+            let card = pile_orig.top_card().expect("Pile should not be empty");
 
             // Pre computation
             let is_pile_orig_one_card_tableau =
@@ -78,10 +94,7 @@ impl BoardNode {
             for pile_dest in &piles_dest {
                 // Avoid noop move
                 if pile_dest.is_same(pile_orig) {
-                    trace!(
-                        "    Moving to the same pile {}, skipping",
-                        pile_dest.kind
-                    );
+                    trace!("    Moving to the same pile {}, skipping", pile_dest.kind);
                     continue;
                 }
 
@@ -103,23 +116,6 @@ impl BoardNode {
                         pile_dest.kind
                     );
                     continue;
-                }
-
-                // Do not undo the previous move
-                // TODO: check if checking the known boards later is really slower
-                if let Some(CardAction::Move {
-                    origin,
-                    destination,
-                    ..
-                }) = self.moves.last()
-                {
-                    if destination.is_same(&pile_orig.kind) && origin.is_same(&pile_dest.kind) {
-                        trace!(
-                            "    Move to {} would revert previous move, skipping",
-                            pile_dest.kind
-                        );
-                        continue;
-                    }
                 }
 
                 trace!(
@@ -154,8 +150,6 @@ impl BoardNode {
             // Known board
             trace!("      Next board already known");
 
-
-
             // Check if a lower cost was found
             // Skip if cost is higher or equal
             if cost >= next_board_node.cost {
@@ -163,10 +157,14 @@ impl BoardNode {
                 return;
             }
             trace!("      Cost is lower, replacing");
-            known_unvisited_nodes.remove(Rc::as_ref(&next_board_node));
+            let was_unknown = known_unvisited_nodes.remove(Rc::as_ref(&next_board_node));
+            if was_unknown {
+                trace!("      Previous board was unvisited, removed from unvisited list");
+            } else {
+                error!("      Previous board was visited, not removed from unvisited list, it's not normal!!");
+            }
             known_nodes.remove(&next_board);
-        }
-        else {
+        } else {
             trace!("      Next board not known");
         }
 
@@ -178,8 +176,15 @@ impl BoardNode {
         next_board_node.cost = cost;
 
         let next_board_node_rc = Rc::new(next_board_node);
-        known_nodes.insert(next_board, next_board_node_rc.clone());
-        known_unvisited_nodes.insert(next_board_node_rc);
+        if let Some(previous_node) = known_nodes.insert(next_board, next_board_node_rc.clone()) {
+            error!("      Node was already existing in known_nodes");
+        }
+
+        if !known_unvisited_nodes.insert(next_board_node_rc) {
+            error!("      Node was already existing in known_unvisited_nodes");
+        }
+        trace!("      {} known boards", known_nodes.len());
+        trace!("      {} unvisited boards", known_unvisited_nodes.len());
     }
 
     fn get_piles_orig(&self) -> Vec<&Pile> {
