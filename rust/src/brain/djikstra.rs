@@ -1,3 +1,4 @@
+use log::{debug, error, info, trace, warn};
 use std::collections::{BTreeSet, BinaryHeap, HashMap};
 use std::io::stdin;
 use std::rc::Rc;
@@ -73,13 +74,15 @@ impl BrainDijkstra {
 
     fn select_next_node(&mut self) -> Option<Rc<BoardNode>> {
         // println!("BrainDijkstra.select_next_node");
+        trace!("BrainDijkstra.select_next_node");
+        debug!("{} nodes to visit", self.known_unvisited_nodes.len());
         self.known_unvisited_nodes.pop_first()
     }
 
-    pub fn search(&mut self) -> (CardActions, usize) {
-        println!("BrainDijkstra.search");
+    pub fn search(&mut self) -> (Option<CardActions>, usize) {
+        trace!("BrainDijkstra.search");
         let mut max_score = WORSE_SCORE;
-        let mut moves = CardActions::new();
+        let mut moves: Option<CardActions> = None;
         let mut nb_nodes_visited = 0;
         let mut best_node: Rc<BoardNode>;
         loop {
@@ -88,20 +91,19 @@ impl BrainDijkstra {
                     break;
                 }
                 Some(mut next_node) => {
-                    println!("{:?}", next_node.moves);
-                    println!("{}", next_node.board.to_string(true));
-                    println!("Press Enter to continue");
-                    let mut s = String::new();
-                    stdin().read_line(&mut s);
+                    debug!("Current moves:\n{:?}", next_node.moves);
+                    debug!("Current board:\n{}", next_node.board.to_string(true));
 
                     nb_nodes_visited += 1;
                     next_node
                         .search_neighbors(&mut self.known_nodes, &mut self.known_unvisited_nodes);
                     Rc::make_mut(&mut next_node).index = nb_nodes_visited;
+                    debug!("Score: {:?}", next_node.score);
                     if next_node.score > max_score {
+                        debug!("New best score: {:?}", next_node.score);
                         max_score = next_node.score;
                         best_node = next_node;
-                        moves = best_node.moves.clone();
+                        moves = Some(best_node.moves.clone());
                     }
                 }
             }
