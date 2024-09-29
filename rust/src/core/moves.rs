@@ -77,12 +77,12 @@ impl fmt::Display for CardActions {
 impl fmt::Debug for CardActions {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.actions.len() {
-            0 => write!(f, "No action\n"),
-            1 => write!(f, "1 action:\n  {}\n", self.actions[0]),
+            0 => write!(f, "No action"),
+            1 => write!(f, "1 action:\n  {}", self.actions[0]),
             _ => {
-                write!(f, "{} actions:\n", self.actions.len())?;
+                write!(f, "{} actions:", self.actions.len())?;
                 for action in self.actions.iter() {
-                    write!(f, "  {}\n", action)?;
+                    write!(f, "\n  {}", action)?;
                 }
                 Ok(())
             }

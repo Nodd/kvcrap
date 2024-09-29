@@ -81,7 +81,7 @@ impl Pile {
             | PileType::Waste { .. }
             | PileType::Crape { .. } => self
                 .top_card()
-                .map_or("  ".to_string(), |top_card| top_card.str_display(colored)),
+                .map_or("[]".to_string(), |top_card| top_card.str_display(colored)),
             PileType::Tableau { id: 0..=3 } => {
                 // Right side
                 self.join_cards(&self.cards.iter().collect::<Vec<_>>(), colored)

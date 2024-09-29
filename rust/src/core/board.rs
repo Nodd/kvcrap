@@ -160,7 +160,7 @@ impl Board {
             let foundation_pile_right = &self.foundation[index_right];
 
             format!(
-                "{}{}{}| {} {} | {}",
+                "{}{}{}│ {} {} │ {}",
                 "   ".repeat(NB_RANKS - tableau_pile_left.nb_cards()),
                 tableau_pile_left.str_display(colored),
                 if tableau_pile_left.is_empty() {
@@ -175,7 +175,7 @@ impl Board {
         }));
 
         str_lines.push(format!(
-            "{}{}  {} {}",
+            "{}{} {}  {}",
             player_space,
             self.stock[0].str_display(colored),
             self.waste[0].str_display(colored),

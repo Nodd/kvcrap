@@ -40,7 +40,7 @@ impl Card {
         let rank: u8 = rank_str.parse::<u8>().unwrap();
         let suit: char = suit_str.chars().next().expect("string is empty");
         let player: u8 = player_str.parse::<u8>().unwrap();
-        Card::new(Rank::from(rank), Suit::from(suit), Player::from(player))
+        Card::new_up(Rank::from(rank), Suit::from(suit), Player::from(player))
     }
 
     pub fn rank(&self) -> &Rank {
@@ -100,7 +100,7 @@ impl Card {
         if self.face_up {
             self.str_rank_suit(colored)
         } else {
-            let base = "##";
+            let base = "▒▒";
             if colored {
                 match self.player {
                     Player::Player0 => base.bright_green().on_green(),

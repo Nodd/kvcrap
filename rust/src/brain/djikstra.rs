@@ -88,8 +88,8 @@ impl BrainDijkstra {
                     break;
                 }
                 Some(mut next_node) => {
-                    print!("{:?}\n", next_node.moves);
-                    println!("{}\n", next_node.board.to_string(true));
+                    println!("{:?}", next_node.moves);
+                    println!("{}", next_node.board.to_string(true));
                     println!("Press Enter to continue");
                     let mut s = String::new();
                     stdin().read_line(&mut s);
