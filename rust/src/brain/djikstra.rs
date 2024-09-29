@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::time::Instant;
 
 use crate::core::board::Board;
-use crate::core::moves::{CardAction, CardActions};
+use crate::core::moves::{self, CardAction, CardActions};
 use crate::core::players::Player;
 
 use super::board_node::BoardNode;
@@ -26,7 +26,11 @@ pub fn compute_states(board: &Board, active_player: Player, crapette_mode: bool,
     let mut brain_dijkstra = BrainDijkstra::new(board, active_player);
     let (moves, nb_nodes_visited) = brain_dijkstra.search();
     println!("nb_nodes_visited: {}", nb_nodes_visited);
-    println!("{:?}", moves);
+    if let Some(moves) = moves {
+        println!("{:?}", moves);
+    } else {
+        println!("No moves to do");
+    };
 
     /*
     if not moves:
