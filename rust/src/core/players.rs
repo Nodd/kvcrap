@@ -1,7 +1,7 @@
 use std::fmt;
 use std::ops::{Index, IndexMut};
 
-#[derive(PartialEq, Debug, Clone, Copy, Hash)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy, Hash)]
 pub enum Player {
     Player0 = 0,
     Player1 = 1,

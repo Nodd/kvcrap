@@ -120,34 +120,42 @@ impl fmt::Display for Card {
     }
 }
 
+// Hash is need to store cards (actually, boards containing piles containing cards) in a HashSet
+// The IA implementation needs to differentiate the rank and suit only
+// Player and face up/down are mostly visual and seldom needed
+impl Hash for Card {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.rank.hash(state);
+        self.suit.hash(state);
+    }
+}
+
+// Eq is need to store cards (actually, boards containing piles containing cards) in a HashSet
+// Eq implementation can only be done in PartialEq
+// Implementing the Eq trait is just an information for the compiler.
 impl PartialEq for Card {
     fn eq(&self, other: &Self) -> bool {
-        // Only check rank and suit
-        // Player and face up/down are mostly visual and seldom needed
         self.rank == other.rank && self.suit == other.suit
     }
 }
-impl Eq for Card {}
+impl Eq for Card {} // Requires PartialEq
 
+// Ord is needed to sort piles of cards
+// Ord requires that the type also be PartialOrd and Eq (which requires PartialEq).
+// Rank is the most important field
+// Suit is only used do resolve ties and is needed to be coherent with Eq
+// but otherwise has no real meaning
 impl Ord for Card {
     fn cmp(&self, other: &Self) -> Ordering {
-        if self.rank == other.rank {
-            return self.suit.cmp(&other.suit);
-        } else {
-            return self.rank.cmp(&other.rank);
+        match self.rank.cmp(&other.rank) {
+            Ordering::Equal => self.suit.cmp(&other.suit),
+            ordering => ordering,
         }
     }
 }
 impl PartialOrd for Card {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
-    }
-}
-
-impl Hash for Card {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.rank.hash(state);
-        self.suit.hash(state);
     }
 }
 

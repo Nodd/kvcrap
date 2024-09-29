@@ -318,44 +318,45 @@ impl Board {
     }
 }
 
-impl PartialEq for Board {
-    fn eq(&self, other: &Self) -> bool {
-        // Player piles
-        if self.waste != other.waste || self.crape != other.crape || self.stock != other.stock {
-            return false;
-        }
-
-        // Tableau Piles
-        let mut piles = self.tableau.clone();
-        let mut piles_other = other.tableau.clone();
-        piles.sort();
-        piles_other.sort();
-        if piles != piles_other {
-            return false;
-        }
-
-        // Foundation Piles
-        let mut piles = self.foundation.clone();
-        let mut piles_other = other.foundation.clone();
-        piles.sort();
-        piles_other.sort();
-        if piles != piles_other {
-            return false;
-        }
-
-        return true;
-    }
-}
-impl Eq for Board {}
-
+// Hash is need to store cards (actually, boards containing piles) in a HashSet
+// The IA implementation needs to not differentiate the order of tableau and foundation
+// so they are sorted first
 impl Hash for Board {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.crape.hash(state);
         self.waste.hash(state);
         self.stock.hash(state);
-        self.tableau.hash(state);
-        self.foundation.hash(state);
+        hash_sorted(&self.tableau, state);
+        hash_sorted(&self.foundation, state);
     }
+}
+fn hash_sorted<H: Hasher>(piles: &[Pile; 8], state: &mut H) {
+    let mut piles = piles.clone();
+    piles.sort();
+    piles.hash(state);
+}
+
+// Eq is need to store boards in a HashSet
+// Eq implementation can only be done in PartialEq
+// Implementing the Eq trait is just an information for the compiler.
+// The IA implementation needs to not differentiate the order of tableau and foundation
+// so they are sorted first
+impl PartialEq for Board {
+    fn eq(&self, other: &Self) -> bool {
+        self.crape == other.crape
+            && self.waste == other.waste
+            && self.stock == other.stock
+            && compare_sorted(&self.tableau, &other.tableau)
+            && compare_sorted(&self.foundation, &other.foundation)
+    }
+}
+impl Eq for Board {} // Requires PartialEq
+fn compare_sorted(piles: &[Pile; 8], piles_other: &[Pile; 8]) -> bool {
+    let mut piles = piles.clone();
+    let mut piles_other = piles_other.clone();
+    piles.sort();
+    piles_other.sort();
+    piles == piles_other
 }
 
 #[cfg(test)]

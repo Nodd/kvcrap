@@ -12,13 +12,33 @@ use super::suits::Suit;
 
 pub const NB_CRAPE_START: usize = 13;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub enum PileType {
     Foundation { id: u8, suit: Suit },
     Tableau { id: u8 },
     Stock { player: Player },
     Waste { player: Player },
     Crape { player: Player },
+}
+
+impl PileType {
+    pub fn is_same(&self, other: &PileType) -> bool {
+        if let (PileType::Crape { player: p1 }, PileType::Crape { player: p2 })
+        | (PileType::Waste { player: p1 }, PileType::Waste { player: p2 })
+        | (PileType::Stock { player: p1 }, PileType::Stock { player: p2 }) = (&self, &other)
+        {
+            return p1 == p2;
+        }
+
+        if let (PileType::Foundation { id: id1, .. }, PileType::Foundation { id: id2, .. })
+        | (PileType::Tableau { id: id1, .. }, PileType::Tableau { id: id2, .. }) =
+            (&self, &other)
+        {
+            return id1 == id2;
+        }
+
+        false
+    }
 }
 
 impl fmt::Display for PileType {
@@ -234,15 +254,56 @@ impl fmt::Display for Pile {
     }
 }
 
-impl PartialEq for Pile {
-    fn eq(&self, other: &Self) -> bool {
-        // Equal if same kind of pile and same cards inside
-        // Card equality only checks rank and suit; not player nor facing up or down
-        discriminant(&self.kind) == discriminant(&other.kind) && self.cards == other.cards
+// Hash is need to store cards (actually, boards containing piles) in a HashSet
+// The IA implementation needs to differentiate the kind and cards only
+// PileType::Tableau and PileType::Foundation fields can be ignored here
+// PileType::Crape, PileType::Stock and PileType::Waste player field could be used
+// but it's not needed in practice (at worst it means a few hash misses for the HashSet)
+impl Hash for Pile {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        discriminant(&self.kind).hash(state);
+        self.cards.hash(state);
     }
 }
-impl Eq for Pile {}
 
+// Eq is need to store cards (actually, boards containing piles) in a HashSet
+// Eq implementation can only be done in PartialEq
+// Implementing the Eq trait is just an information for the compiler.
+impl PartialEq for Pile {
+    fn eq(&self, other: &Self) -> bool {
+        if discriminant(&self.kind) != discriminant(&other.kind) {
+            unreachable!(
+                "Two different kinds of piles ({} and {}) cannot be compared",
+                self.kind, other.kind
+            )
+        }
+        // Equal if there are the same cards inside
+        // Card equality only checks rank and suit, not player nor facing up or down
+        self.cards == other.cards
+    }
+}
+impl Eq for Pile {} // Requires PartialEq
+
+// Ord is needed to sort piles
+// Ord requires that the type also be PartialOrd and Eq (which requires PartialEq).
+// Comparing different kind should never happen, it's an error in Ord
+// First the number of cards is compared, then the cards themselves
+impl Ord for Pile {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if discriminant(&self.kind) == discriminant(&other.kind) {
+            match self.nb_cards().cmp(&other.nb_cards()) {
+                Ordering::Equal => self.cards.cmp(&other.cards),
+                ordering => ordering,
+            }
+        } else {
+            // TODO: define an order between PileTypes, just in case ?
+            unreachable!(
+                "Two different kinds of piles ({} and {}) cannot be compared",
+                self.kind, other.kind
+            )
+        }
+    }
+}
 impl PartialOrd for Pile {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if discriminant(&self.kind) != discriminant(&other.kind) {
@@ -251,40 +312,13 @@ impl PartialOrd for Pile {
         Some(self.cmp(other))
     }
 }
-impl Ord for Pile {
-    fn cmp(&self, other: &Self) -> Ordering {
-        if discriminant(&self.kind) != discriminant(&other.kind) {
-            panic!("Sorting Piles of different kind");
-        }
-        if self.nb_cards() == other.nb_cards() {
-            return self.cards.cmp(&other.cards);
-        }
-        return self.nb_cards().cmp(&other.nb_cards());
-    }
-}
 
-impl Hash for Pile {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.cards.hash(state);
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl PileType {
-    pub fn is_same(&self, other: &PileType) -> bool {
-        if let (PileType::Crape { player: p1 }, PileType::Crape { player: p2 })
-        | (PileType::Waste { player: p1 }, PileType::Waste { player: p2 })
-        | (PileType::Stock { player: p1 }, PileType::Stock { player: p2 }) = (&self, &other)
-        {
-            return p1 == p2;
-        }
-
-        if let (PileType::Foundation { id: id1, .. }, PileType::Foundation { id: id2, .. })
-        | (PileType::Tableau { id: id1, .. }, PileType::Tableau { id: id2, .. }) =
-            (&self, &other)
-        {
-            return id1 == id2;
-        }
-
-        false
-    }
+    // #[test]
+    // fn test_piletype_eq() {
+    //     assert_eq!(PileType::Tableau { id: 0 }, PileType::Tableau { id: 1 });
+    // }
 }
