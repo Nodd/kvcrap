@@ -324,6 +324,12 @@ impl BoardNode {
     }
 }
 
+impl Hash for BoardNode {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.board.hash(state);
+    }
+}
+
 impl PartialEq for BoardNode {
     fn eq(&self, other: &Self) -> bool {
         self.board == other.board
@@ -331,23 +337,22 @@ impl PartialEq for BoardNode {
 }
 impl Eq for BoardNode {}
 
+// Compare cost first, then score, the board itself
+// Comparison with the board is needed so that the behavior
+// is coherent with Eq
 impl Ord for BoardNode {
     fn cmp(&self, other: &Self) -> Ordering {
-        if self.cost == other.cost {
-            return self.score.cmp(&other.score);
-        } else {
-            return self.cost.cmp(&other.cost);
+        match self.cost.cmp(&other.cost) {
+            Ordering::Equal => match self.score.cmp(&other.score) {
+                Ordering::Equal => self.board.cmp(&other.board),
+                ordering => ordering,
+            },
+            ordering => ordering,
         }
     }
 }
 impl PartialOrd for BoardNode {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
-    }
-}
-
-impl Hash for BoardNode {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.board.hash(state);
     }
 }

@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 
 use rand_pcg::Pcg64;
@@ -346,17 +347,51 @@ impl PartialEq for Board {
         self.crape == other.crape
             && self.waste == other.waste
             && self.stock == other.stock
-            && compare_sorted(&self.tableau, &other.tableau)
-            && compare_sorted(&self.foundation, &other.foundation)
+            && sorted_eq(&self.tableau, &other.tableau)
+            && sorted_eq(&self.foundation, &other.foundation)
     }
 }
 impl Eq for Board {} // Requires PartialEq
-fn compare_sorted(piles: &[Pile; 8], piles_other: &[Pile; 8]) -> bool {
+fn sorted_eq(piles: &[Pile; 8], piles_other: &[Pile; 8]) -> bool {
     let mut piles = piles.clone();
     let mut piles_other = piles_other.clone();
     piles.sort();
     piles_other.sort();
     piles == piles_other
+}
+
+impl Ord for Board {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // It could be implemented with tuples comparison but it would not short circuit :(
+        // (self.crape, self.waste, self.stock, sorted(&self.tableau), sorted(&self.foundation))
+        //    .cmp(&(other.crape, other.waste, other.stock, sorted(&other.tableau), sorted(&other.foundation)))
+
+        match self.crape.cmp(&other.crape) {
+            Ordering::Equal => match self.waste.cmp(&other.waste) {
+                Ordering::Equal => match self.stock.cmp(&other.stock) {
+                    Ordering::Equal => match sorted_cmp(&self.tableau, &other.tableau) {
+                        Ordering::Equal => sorted_cmp(&self.foundation, &other.foundation),
+                        ordering => ordering,
+                    },
+                    ordering => ordering,
+                },
+                ordering => ordering,
+            },
+            ordering => ordering,
+        }
+    }
+}
+impl PartialOrd for Board {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+fn sorted_cmp(piles: &[Pile; 8], piles_other: &[Pile; 8]) -> Ordering {
+    let mut piles = piles.clone();
+    let mut piles_other = piles_other.clone();
+    piles.sort();
+    piles_other.sort();
+    piles.cmp(&piles_other)
 }
 
 #[cfg(test)]
