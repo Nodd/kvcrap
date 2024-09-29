@@ -7,7 +7,7 @@ use core::ranks::*;
 use core::suits::*;
 
 mod brain;
-use brain::djikstra::BrainDijkstra;
+use brain::djikstra::brain_djikstra;
 
 use pyo3::prelude::*;
 

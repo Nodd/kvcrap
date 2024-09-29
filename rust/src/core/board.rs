@@ -307,7 +307,7 @@ impl Board {
                 destination,
                 ..
             } => self.move_card(origin, destination),
-            CardAction::Flip { pile, .. } => self.flip_card_up(pile, &Player::Player0),
+            CardAction::Flip { pile } => self.flip_card_up(pile, &Player::Player0),
             CardAction::FlipWaste => self.flip_waste_to_stock(&Player::Player0),
         }
     }

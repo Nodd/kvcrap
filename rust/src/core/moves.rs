@@ -12,7 +12,6 @@ pub enum CardAction {
         destination: PileType,
     },
     Flip {
-        card: Card,
         pile: PileType,
     },
     FlipWaste,
@@ -26,8 +25,8 @@ impl fmt::Display for CardAction {
                 origin,
                 destination,
             } => write!(f, "Move {} from {} to {}", card, origin, destination),
-            CardAction::Flip { card, pile } => write!(f, "Flip {} in {}", card, pile),
-            CardAction::FlipWaste => write!(f, "FlipWaste"),
+            CardAction::Flip { pile } => write!(f, "Flip {} top card", pile),
+            CardAction::FlipWaste => write!(f, "Flip waste"),
         }
     }
 }

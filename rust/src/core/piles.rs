@@ -161,7 +161,11 @@ impl Pile {
                 self_player != player
                     && match self.top_card() {
                         None => false,
-                        Some(top_card) => top_card.face_up && card.is_above_or_below(top_card),
+                        Some(top_card) => {
+                            top_card.face_up
+                                && card.suit() == top_card.suit()
+                                && card.is_above_or_below(top_card)
+                        }
                     }
             }
         }
