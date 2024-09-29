@@ -7,6 +7,7 @@ use super::suits::Suit;
 pub fn call_custom(name: &str, board: &mut Board) {
     match name {
         "foundation_to_fill" => foundation_to_fill(board),
+        "trivial_move" => trivial_move(board),
         _ => panic!("ERROR: Custom game '{name}' unknown"),
     }
 }
@@ -22,6 +23,14 @@ fn foundation_to_fill(board: &mut Board) {
     // Diamond King on a tableau pile
     card = Card::new_up(Rank::from(MAX_RANK), Suit::Diamond, Player::Player0);
     board.tableau[0].add(card)
+}
+
+fn trivial_move(board: &mut Board) {
+    let mut card: Card;
+    card = Card::quick("5d0");
+    board.tableau[0].add(card);
+    card = Card::quick("6c0");
+    board.tableau[1].add(card);
 }
 
 #[cfg(test)]
