@@ -9,7 +9,7 @@ use std::rc::Rc;
 use crate::core::moves::{CardAction, CardActions};
 use crate::core::{board::Board, piles::Pile, piles::PileType, players::Player, suits::NB_SUITS};
 
-use super::board_score::{BoardScore, WORSE_SCORE};
+use super::board_score::{board_score, BoardScore};
 
 type Cost = (usize, Vec<[usize; 2]>);
 
@@ -27,12 +27,13 @@ pub struct BoardNode {
 
 impl BoardNode {
     pub fn new(board: Board, active_player: Player, moves: &CardActions) -> Self {
+        let score = board_score(&board, active_player);
         BoardNode {
             board: board,
             active_player,
             // ai_config,
             cost: (0, Vec::<[usize; 2]>::new()),
-            score: WORSE_SCORE,
+            score: score,
             //score_min,
             moves: moves.clone(),
             index: 0,
