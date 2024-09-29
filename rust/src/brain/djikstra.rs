@@ -81,40 +81,39 @@ pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usi
 
     moves = finalize_moves(moves, &best_node.board, active_player);
 
+    debug!("{:?}", moves);
     debug!("Initial board:\n{}", board.to_string(true));
     debug!("Final board:\n{}", best_node.board.to_string(true));
 
     (moves, nb_nodes_visited)
 }
 
+// moves can be empty if the stock is empty and not the crape
+// In this case the turn should end without any move.
 fn finalize_moves(mut moves: CardActions, board: &Board, active_player: Player) -> CardActions {
     trace!("Finalize moves");
     let crape = &board.crape[active_player];
-    let mut added_move = false;
+
     if let Some(card) = board.crape[active_player].top_card() {
         if (!card.face_up) {
             moves.push(CardAction::Flip { pile: crape.kind });
-            added_move = true;
+            return moves;
         }
     }
+
     let stock = &board.stock[active_player];
-    if !added_move {
-        if let Some(card) = stock.top_card() {
-            if (!card.face_up) {
-                moves.push(CardAction::Flip { pile: stock.kind });
-            } else {
-                moves.push(CardAction::Move {
-                    card: card.clone(),
-                    origin: stock.kind,
-                    destination: board.waste[active_player].kind,
-                });
-            }
+    if let Some(card) = stock.top_card() {
+        if !card.face_up {
+            moves.push(CardAction::Flip { pile: stock.kind });
         } else {
-            moves.push(CardAction::FlipWaste {});
+            moves.push(CardAction::Move {
+                card: card.clone(),
+                origin: stock.kind,
+                destination: board.waste[active_player].kind,
+            });
         }
+    } else {
+        moves.push(CardAction::FlipWaste {});
     }
-    // Can be empty if the stock is empty and not the crape
-    // In this case the turn should end without any move.
-    println!("{:?}", moves);
     moves
 }
