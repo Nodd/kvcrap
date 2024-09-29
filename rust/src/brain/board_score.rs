@@ -1,6 +1,6 @@
 use crate::core::{board::Board, players::Player};
 
-// TODO: use a newtype ?
+// TODO: use a new type ?
 // cf https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types
 pub type BoardScore = [i32; NB_SCORE_VALUES];
 
