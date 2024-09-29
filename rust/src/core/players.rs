@@ -12,7 +12,14 @@ pub const PLAYERS: [Player; NB_PLAYERS] = [Player::Player0, Player::Player1];
 
 impl fmt::Display for Player {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self)
+        write!(
+            f,
+            "{}",
+            match self {
+                Player::Player0 => "0",
+                Player::Player1 => "1",
+            }
+        )
     }
 }
 

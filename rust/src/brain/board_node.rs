@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
-use crate::core::moves::CardAction;
+use crate::core::moves::{CardAction, CardActions};
 use crate::core::{board::Board, piles::Pile, piles::PileType, players::Player, suits::NB_SUITS};
 
 use super::board_score::{BoardScore, WORSE_SCORE};
@@ -14,18 +14,18 @@ type Cost = (usize, Vec<[usize; 2]>);
 
 #[derive(Clone)]
 pub struct BoardNode {
-    board: Board,
+    pub board: Board,
     active_player: Player,
     // ai_config,
     cost: Cost,
     pub score: BoardScore,
     //score_min,
-    moves: Vec<CardAction>,
+    pub moves: CardActions,
     pub index: usize,
 }
 
 impl BoardNode {
-    pub fn new(board: Board, active_player: Player) -> Self {
+    pub fn new(board: Board, active_player: Player, moves: &CardActions) -> Self {
         BoardNode {
             board: board,
             active_player,
@@ -33,7 +33,7 @@ impl BoardNode {
             cost: (0, Vec::<[usize; 2]>::new()),
             score: WORSE_SCORE,
             //score_min,
-            moves: vec![],
+            moves: moves.clone(),
             index: 0,
         }
     }
@@ -130,8 +130,8 @@ impl BoardNode {
         }
 
         // Unknown board or new one in replacement
-        let mut next_board_node = BoardNode::new(next_board.clone(), self.active_player);
-        next_board_node.moves = self.moves.clone();
+        let mut next_board_node =
+            BoardNode::new(next_board.clone(), self.active_player, &self.moves);
         next_board_node.moves.push(r#move);
         next_board_node.cost = cost;
 

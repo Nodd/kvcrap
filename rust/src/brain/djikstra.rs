@@ -1,9 +1,10 @@
 use std::collections::{BTreeSet, BinaryHeap, HashMap};
+use std::io::stdin;
 use std::rc::Rc;
 use std::time::Instant;
 
 use crate::core::board::Board;
-use crate::core::moves::CardAction;
+use crate::core::moves::{CardAction, CardActions};
 use crate::core::players::Player;
 
 use super::board_node::BoardNode;
@@ -24,10 +25,8 @@ pub fn compute_states(board: &Board, active_player: Player, crapette_mode: bool,
     let mut brain_dijkstra = BrainDijkstra::new(board, active_player);
     let (moves, nb_nodes_visited) = brain_dijkstra.search();
     println!("nb_nodes_visited: {}", nb_nodes_visited);
-    println!("nb actions: {}", moves.len());
-    for action in moves {
-        println!("action: {}", action);
-    }
+    println!("{:?}", moves);
+
     /*
     if not moves:
     player_piles = self.game_config.board.players_piles[
@@ -61,7 +60,8 @@ impl BrainDijkstra {
             known_nodes: HashMap::new(),
             known_unvisited_nodes: BTreeSet::new(),
         };
-        let first_node = BoardNode::new(board.clone(), player);
+        let moves = CardActions::new();
+        let first_node = BoardNode::new(board.clone(), player, &moves);
         let first_node_rc = Rc::new(first_node);
         brain_djikstra
             .known_nodes
@@ -76,10 +76,10 @@ impl BrainDijkstra {
         self.known_unvisited_nodes.pop_first()
     }
 
-    pub fn search(&mut self) -> (Vec<crate::brain::djikstra::CardAction>, usize) {
+    pub fn search(&mut self) -> (CardActions, usize) {
         println!("BrainDijkstra.search");
         let mut max_score = WORSE_SCORE;
-        let moves: Vec<CardAction> = Vec::new();
+        let mut moves = CardActions::new();
         let mut nb_nodes_visited = 0;
         let mut best_node: Rc<BoardNode>;
         loop {
@@ -88,6 +88,12 @@ impl BrainDijkstra {
                     break;
                 }
                 Some(mut next_node) => {
+                    print!("{:?}\n", next_node.moves);
+                    println!("{}\n", next_node.board.to_string(true));
+                    println!("Press Enter to continue");
+                    let mut s = String::new();
+                    stdin().read_line(&mut s);
+
                     nb_nodes_visited += 1;
                     next_node
                         .search_neighbors(&mut self.known_nodes, &mut self.known_unvisited_nodes);
@@ -95,6 +101,7 @@ impl BrainDijkstra {
                     if next_node.score > max_score {
                         max_score = next_node.score;
                         best_node = next_node;
+                        moves = best_node.moves.clone();
                     }
                 }
             }

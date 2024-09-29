@@ -23,17 +23,13 @@ pub enum PileType {
 
 impl fmt::Display for PileType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                PileType::Foundation { id, suit } => format!("Foundation{}{}", id, suit.symbol()),
-                PileType::Tableau { id } => format!("Tableau{}", id),
-                PileType::Stock { player } => format!("Stock{}", player),
-                PileType::Waste { player } => format!("Waste{}", player),
-                PileType::Crape { player } => format!("Crape{}", player),
-            }
-        )
+        match self {
+            PileType::Foundation { id, suit } => write!(f, "Foundation{}{}", id, suit.symbol()),
+            PileType::Tableau { id } => write!(f, "Tableau{}", id),
+            PileType::Stock { player } => write!(f, "Stock{}", player),
+            PileType::Waste { player } => write!(f, "Waste{}", player),
+            PileType::Crape { player } => write!(f, "Crape{}", player),
+        }
     }
 }
 
