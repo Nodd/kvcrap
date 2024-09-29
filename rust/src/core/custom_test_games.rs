@@ -8,6 +8,7 @@ pub fn call_custom(name: &str, board: &mut Board) {
     match name {
         "foundation_to_fill" => foundation_to_fill(board),
         "trivial_move" => trivial_move(board),
+        "multiple_moves" => multiple_moves(board),
         _ => panic!("ERROR: Custom game '{name}' unknown"),
     }
 }
@@ -31,6 +32,17 @@ fn trivial_move(board: &mut Board) {
     board.tableau[0].add(card);
     card = Card::quick("6c0");
     board.tableau[1].add(card);
+}
+
+fn multiple_moves(board: &mut Board) {
+    trivial_move(board);
+
+    let mut card: Card;
+
+    card = Card::quick("5h0");
+    board.tableau[2].add(card);
+    card = Card::quick("6s0");
+    board.tableau[3].add(card);
 }
 
 #[cfg(test)]
