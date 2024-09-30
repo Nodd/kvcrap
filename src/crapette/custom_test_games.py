@@ -1,3 +1,4 @@
+from crapette import rust_brain
 from crapette.core.board import Board
 from crapette.core.cards import Card, new_deck
 
@@ -13,6 +14,8 @@ def foundation_to_fill(board: Board):
 
     # Diamonds King on a tableau pile
     board.tableau_piles[0].set_cards(deck[Card.NB_RANKS - 1 : Card.NB_RANKS])
+
+    print(repr(rust_brain.compute(board, 0, False, "")))
 
 
 def empty_stock(board: Board):
