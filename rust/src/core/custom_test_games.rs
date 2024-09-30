@@ -51,6 +51,7 @@ fn massive_moves(board: &mut Board) {
         r#"
         T0: Ks
         T1: Qh Js 0h 9s 8h 7s 6h 5s 4h 3s 2h As
+        T2: 5c 4d 3c 2d
     "#,
         // T2: 13c
         // T3: 12d 11c 10d 9c 8d 7c 6d 5c 4d 3c 2d
