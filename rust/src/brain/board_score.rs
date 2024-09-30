@@ -13,18 +13,23 @@ pub fn board_score(board: &Board, active_player: Player) -> BoardScore {
     sorted_tableau.reverse();
 
     [
+        // More cards in foundation is the priority
         board
             .foundation
             .iter()
             .map(|pile| pile.nb_cards() as i32)
             .sum(),
+        // Emptying crapette is the second priority
         -(board.crape[active_player].nb_cards() as i32),
+        // Having less cards in stock is the way to win
         -(board.stock[active_player].nb_cards() as i32),
+        // Having more empty tableau piles is better
         board
             .tableau
             .iter()
             .map(|pile| if pile.is_empty() { 1 } else { 0 })
             .sum(),
+        // Having longer suits in tableau piles is better
         sorted_tableau[0].nb_cards() as i32,
         sorted_tableau[1].nb_cards() as i32,
         sorted_tableau[2].nb_cards() as i32,
