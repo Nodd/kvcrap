@@ -1,4 +1,5 @@
 use colored::{ColoredString, Colorize};
+use log::trace;
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
@@ -94,6 +95,15 @@ impl Pile {
         }
     }
 
+    // Quickly fill a pile from a string of cards
+    // See Card::quick
+    pub fn quick(&mut self, str: &str) {
+        self.clear();
+        trace!("cards: '{}'", str);
+        self.cards
+            .extend(str.split_whitespace().map(|s| Card::quick(s)));
+    }
+
     pub fn str_display(&self, colored: bool) -> String {
         match &self.kind {
             PileType::Foundation { .. }
@@ -113,7 +123,6 @@ impl Pile {
             PileType::Tableau { id: 8..=u8::MAX } => panic!("PileType::Tableau.tableau_id > 7"),
         }
     }
-
     fn join_cards(&self, cards: &Vec<&Card>, colored: bool) -> String {
         cards
             .iter()

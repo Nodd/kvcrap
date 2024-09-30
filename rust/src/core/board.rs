@@ -1,3 +1,4 @@
+use core::panic;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 
@@ -80,6 +81,38 @@ impl Board {
 
         // Clear foundation
         self.clear_foundation();
+    }
+
+    // Quickly fill an empty board from a string of cards
+    // See Card::quick
+    pub fn quick(&mut self, str: &str) {
+        let mut player = Player::Player1;
+        for mut s in str.lines() {
+            s = s.trim();
+            if s.is_empty() {
+                continue;
+            }
+            let (mut pile_code, mut cards) =
+                s.split_once(":").expect("Needs a format <type>: cards...");
+            pile_code = pile_code.trim();
+            cards = cards.trim();
+            let mut pile_code_chars = pile_code.chars();
+            let code = pile_code_chars.next().expect("Empty pile code");
+            let number = pile_code_chars
+                .next()
+                .expect("Code too short")
+                .to_digit(10)
+                .expect("Code should be a letter and a number") as usize;
+            let pile = match code {
+                'X' => &mut self.waste[Player::from(number)],
+                'C' => &mut self.crape[Player::from(number)],
+                'S' => &mut self.stock[Player::from(number)],
+                'T' => &mut self.tableau[number],
+                'F' => &mut self.foundation[number],
+                _ => panic!("Unknown pile code: {}", pile_code),
+            };
+            pile.quick(cards);
+        }
     }
 
     fn prepare_deck(&self, player: Player, rng: &mut Pcg64) -> Vec<Card> {

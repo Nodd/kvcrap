@@ -28,6 +28,16 @@ impl From<u8> for Player {
         PLAYERS[item as usize]
     }
 }
+impl From<u32> for Player {
+    fn from(item: u32) -> Self {
+        PLAYERS[item as usize]
+    }
+}
+impl From<usize> for Player {
+    fn from(item: usize) -> Self {
+        PLAYERS[item]
+    }
+}
 
 // Index 2-element arrays with the Player enum
 impl<T> Index<Player> for [T; NB_PLAYERS] {
