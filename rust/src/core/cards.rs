@@ -35,16 +35,15 @@ impl Card {
     }
 
     pub fn quick(card_str: &str) -> Self {
-        let re: regex::Regex = Regex::new(r"^(?<rank>\d+)(?<suit>\w)(?<player>\d?)$").unwrap();
+        let re: regex::Regex = Regex::new(r"^(?<rank>\w+)(?<suit>\w)(?<player>\d?)$").unwrap();
         let (_full, [rank_str, suit_str, player_str]) = re.captures(card_str).unwrap().extract();
-        let rank: u8 = rank_str.parse::<u8>().expect("Can not parse rank");
         let suit: char = suit_str.chars().next().expect("string is empty");
         let player: u8 = if player_str.is_empty() {
             0
         } else {
             player_str.parse::<u8>().expect("Can not parse player")
         };
-        Card::new_up(Rank::from(rank), Suit::from(suit), Player::from(player))
+        Card::new_up(Rank::from(rank_str), Suit::from(suit), Player::from(player))
     }
 
     pub fn rank(&self) -> &Rank {

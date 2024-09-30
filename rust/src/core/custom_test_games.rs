@@ -49,8 +49,8 @@ fn multiple_moves(board: &mut Board) {
 fn massive_moves(board: &mut Board) {
     board.quick(
         r#"
-        T0: 13s
-        T1: 12h 11s 10h 9s 8h 7s 6h 5s 4h 3s 2h
+        T0: Ks
+        T1: Qh Js 0h 9s 8h 7s 6h 5s 4h 3s 2h As
     "#,
         // T2: 13c
         // T3: 12d 11c 10d 9c 8d 7c 6d 5c 4d 3c 2d

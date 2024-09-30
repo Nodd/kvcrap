@@ -23,6 +23,25 @@ impl From<u8> for Rank {
     }
 }
 
+impl From<&str> for Rank {
+    fn from(item: &str) -> Self {
+        match item.parse::<u8>() {
+            Ok(0) => Rank(10),
+            Ok(i) => Rank(i),
+            Err(_) => {
+                if item.len() != 1 {
+                    panic!("Card string must have exactly one character");
+                }
+                let c = item.chars().next().unwrap();
+                match SYMBOLS.iter().position(|x| *x == c) {
+                    Some(pos) => Rank(pos as u8 + 1),
+                    None => panic!("Incorrect card rank {item}"),
+                }
+            }
+        }
+    }
+}
+
 impl Rank {
     pub fn symbol(&self) -> char {
         SYMBOLS[(self.0 - 1) as usize]
