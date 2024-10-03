@@ -138,3 +138,4 @@ ignore = [
 python-source = "src"
 module-name = "crapette.rust_brain"
 features = ["pyo3/extension-module"]
+include = ["README.rst", "LICENSE"]

@@ -9,6 +9,7 @@ use core::suits::*;
 mod brain;
 use brain::djikstra::brain_djikstra;
 
+use brain::djikstra::compute_states;
 use pyo3::prelude::*;
 
 pub struct GameConfig<'a> {
@@ -103,6 +104,8 @@ fn compute(
 
     let board = parse_python_board(board);
     println!("{}", board.to_string(true));
+
+    compute_states(&board, Player::from(active_player), crapette_mode, "");
     Ok("toto".to_string())
 }
 

@@ -27,6 +27,8 @@ def empty_stock(board: Board):
     # Fill waste with Diamonds
     board.players_piles[0].waste.set_cards(deck[:13])
 
+    print(repr(rust_brain.compute(board, 0, False, "")))
+
 
 def empty_stock_and_waste(board: Board):
     """Set the game to check for empty stock and waste."""
@@ -45,6 +47,8 @@ def empty_stock_and_waste(board: Board):
 
     # TODO: The game should not be locked, add a button to end the turn
 
+    print(repr(rust_brain.compute(board, 0, False, "")))
+
 
 def brain_combination(board: Board):
     deck = new_deck(player=0, shuffle=False)
@@ -61,3 +65,5 @@ def brain_combination(board: Board):
         board.tableau_piles[1 - i % 2].add_card(card)
 
     board.players_piles[0].crape.add_card(diamonds[0])
+
+    print(repr(rust_brain.compute(board, 0, False, "")))

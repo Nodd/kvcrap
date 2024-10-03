@@ -11,6 +11,8 @@ from pathlib import Path
 from kivy.clock import Clock
 from kivy.logger import Logger
 
+from crapette import rust_brain
+
 from . import custom_test_games
 from .brain.brainforce import AIError, BrainForce
 from .core.board import Board
@@ -352,6 +354,13 @@ class GameManager:
                     target=brain.compute_states, daemon=True
                 )
                 self._brain_process.start()
+
+            rust_brain.compute(
+                self.game_config.board,
+                self.game_config.active_player,
+                False,
+                "",
+            )
 
             Clock.schedule_once(
                 lambda _dt: self.ai_play(moves),
