@@ -55,7 +55,7 @@ fn parse_python_board(py_board: &PyAny) -> Board {
 
     let rusty_board: RustyBoard = py_board.extract().expect("Invalid Board from Python");
 
-    // TODO : vérifier que les 2 itérateurs font bien la même taille
+    // TODO : Check that the iterators have the same size
     for player in PLAYERS {
         fill_pile(
             &mut board.stock[player],
