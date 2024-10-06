@@ -222,7 +222,7 @@ impl Board {
     /// Compute the first player at the start of the game.
     ///
     /// It's the player with the highest card on top of their crape pile.
-    /// In case of equality, it's the player with the highest card dealed on the tableau.
+    /// In case of equality, it's the player with the highest card dealt on the tableau.
     /// In case of equality, it's just player 0...
     ///
     /// Warning: this function panics if crape or tableau piles are empty
@@ -398,7 +398,6 @@ impl Ord for Board {
         // It could be implemented with tuples comparison but it would not short circuit :(
         // (self.crape, self.waste, self.stock, sorted(&self.tableau), sorted(&self.foundation))
         //    .cmp(&(other.crape, other.waste, other.stock, sorted(&other.tableau), sorted(&other.foundation)))
-
         match self.crape.cmp(&other.crape) {
             Ordering::Equal => match self.waste.cmp(&other.waste) {
                 Ordering::Equal => match self.stock.cmp(&other.stock) {
