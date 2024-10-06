@@ -93,6 +93,8 @@ pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usi
 fn finalize_moves(mut moves: CardActions, board: &Board, active_player: Player) -> CardActions {
     trace!("Finalize moves");
     let crape = &board.crape[active_player];
+    let stock = &board.stock[active_player];
+    let waste = &board.waste[active_player];
 
     if let Some(card) = board.crape[active_player].top_card() {
         if (!card.face_up) {
@@ -101,7 +103,6 @@ fn finalize_moves(mut moves: CardActions, board: &Board, active_player: Player) 
         }
     }
 
-    let stock = &board.stock[active_player];
     if let Some(card) = stock.top_card() {
         if !card.face_up {
             moves.push(CardAction::Flip { pile: stock.kind });
@@ -112,8 +113,9 @@ fn finalize_moves(mut moves: CardActions, board: &Board, active_player: Player) 
                 destination: board.waste[active_player].kind,
             });
         }
-    } else {
+    } else if !waste.is_empty() {
         moves.push(CardAction::FlipWaste {});
     }
+    // else: no cards left, win, nothing to do
     moves
 }
