@@ -237,7 +237,6 @@ impl BoardNode {
         );
         piles
     }
-
     fn get_piles_dest(&self) -> Vec<&Pile> {
         trace!("get_piles_dest: start, looking for destination pile candidates");
         let mut piles_dest = Vec::with_capacity(8 + 8 + 2);
