@@ -35,7 +35,10 @@ impl Card {
     }
 
     pub fn quick(card_str: &str) -> Self {
-        let re: regex::Regex = Regex::new(r"^(?<rank>\w+)(?<suit>\w)(?<player>\d?)$").unwrap();
+        // (?<rank>\w+?) : mandatory, non greedy (1 or more letters)
+        // (?<suit>\w) : mandatory (1 letter)
+        // (?<player>\d?) : optional (1 letter)
+        let re: regex::Regex = Regex::new(r"^(?<rank>\w+?)(?<suit>\w)(?<player>\d?)$").unwrap();
         let (_full, [rank_str, suit_str, player_str]) = re.captures(card_str).unwrap().extract();
         let suit: char = suit_str.chars().next().expect("string is empty");
         let player: u8 = if player_str.is_empty() {

@@ -29,13 +29,17 @@ impl From<&str> for Rank {
             Ok(0) => Rank(10),
             Ok(i) => Rank(i),
             Err(_) => {
-                if item.len() != 1 {
-                    panic!("Card string must have exactly one character");
-                }
+                if item.len() == 1 {
                 let c = item.chars().next().unwrap();
                 match SYMBOLS.iter().position(|x| *x == c) {
                     Some(pos) => Rank(pos as u8 + 1),
                     None => panic!("Incorrect card rank {item}"),
+                    }
+                } else {
+                    match NAMES.iter().position(|x| *x == item) {
+                        Some(pos) => Rank(pos as u8 + 1),
+                        None => panic!("Incorrect card rank {item}"),
+                    }
                 }
             }
         }

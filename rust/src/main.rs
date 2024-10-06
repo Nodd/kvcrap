@@ -3,6 +3,7 @@
 
 use clap::Parser;
 use env_logger;
+use env_logger::Env;
 
 use crate::core::game_manager::GameManager;
 
@@ -24,7 +25,8 @@ struct Args {
 }
 
 fn main() {
-    env_logger::init();
+    let env = Env::default().filter_or("RUST_LOG", "info");
+    env_logger::init_from_env(env);
 
     let cli = Args::parse();
 
@@ -38,7 +40,7 @@ fn main() {
     }
     println!("{}", game_manager.board.to_string(true));
     println!(
-        "{:?}",
+        "Starting: {:?}",
         game_manager
             .config
             .active_player
