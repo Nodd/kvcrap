@@ -81,9 +81,9 @@ pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usi
 
     moves = finalize_moves(moves, &best_node.board, active_player);
 
-    debug!("{:?}", moves);
-    debug!("Initial board:\n{}", board.to_string(true));
-    debug!("Final board:\n{}", best_node.board.to_string(true));
+    info!("{:?}", moves);
+    info!("Initial board:\n{}", board.to_string(true));
+    info!("Final board:\n{}", best_node.board.to_string(true));
 
     (moves, nb_nodes_visited)
 }
