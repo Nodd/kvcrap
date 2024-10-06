@@ -26,3 +26,6 @@ unsafe_code = "forbid"
 
 [lints.clippy]
 enum_glob_use = "deny"
+
+[profile.release]
+debug = true # Only for cargo flamegraph
