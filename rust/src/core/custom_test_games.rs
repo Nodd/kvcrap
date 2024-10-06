@@ -15,35 +15,32 @@ pub fn call_custom(name: &str, board: &mut Board) {
 }
 
 fn foundation_to_fill(board: &mut Board) {
-    let mut card: Card;
-    // Diamond Ace to Queen on Diamonds foundation pile
-    for rank in MIN_RANK..=MAX_RANK - 1 {
-        card = Card::new_up(Rank::from(rank), Suit::Diamond, Player::Player0);
-        board.foundation[0].add(card);
-    }
-
-    // Diamond King on a tableau pile
-    card = Card::new_up(Rank::from(MAX_RANK), Suit::Diamond, Player::Player0);
-    board.tableau[0].add(card)
+    board.quick(
+        r#"
+        F0: Ad 2d 3d 4d 5d 6d 7d 8d 9d 10d Jd Qd
+        T0: Kd
+    "#,
+    )
 }
 
 fn trivial_move(board: &mut Board) {
-    let mut card: Card;
-    card = Card::quick("5d0");
-    board.tableau[0].add(card);
-    card = Card::quick("6c0");
-    board.tableau[1].add(card);
+    board.quick(
+        r#"
+        T0: 5d
+        T1: 6c
+    "#,
+    )
 }
 
 fn multiple_moves(board: &mut Board) {
-    trivial_move(board);
-
-    let mut card: Card;
-
-    card = Card::quick("5h0");
-    board.tableau[2].add(card);
-    card = Card::quick("6s0");
-    board.tableau[3].add(card);
+    board.quick(
+        r#"
+        T0: 5d
+        T1: 6c
+        T2: 5h
+        T3: 6s
+    "#,
+    )
 }
 
 fn massive_moves(board: &mut Board) {
