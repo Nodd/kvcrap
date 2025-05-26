@@ -358,8 +358,8 @@ class GameManager:
             rust_brain.compute(
                 self.game_config.board,
                 self.game_config.active_player,
-                False,
-                "",
+                crapette_mode=False,
+                log_path="",
             )
 
             Clock.schedule_once(
