@@ -2,8 +2,10 @@
 
 Mostly used for initialisation and use of .kv file.
 """
+
 import argparse
 import dataclasses
+import sys
 from inspect import getmodule
 from pathlib import Path
 from pprint import pprint
@@ -156,7 +158,7 @@ def parse_args(argv):
     ai_group = parser.add_argument_group("AI", "Options to control the AI behavior.")
     for field in dataclasses.fields(BrainConfig):
         name_cli = field.name.replace("_", "-")
-        if field.type == bool:
+        if field.type is bool:
             ai_group.add_argument(
                 f"--{name_cli}",
                 action=argparse.BooleanOptionalAction,
@@ -175,6 +177,6 @@ def parse_args(argv):
     return app_config
 
 
-def main(argv):
-    app_config = parse_args(argv)
+def main():
+    app_config = parse_args(sys.argv[1:])
     CrapetteApp(app_config).run()
