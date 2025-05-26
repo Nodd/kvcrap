@@ -1,7 +1,6 @@
 use log::{debug, error, info, trace, warn};
 use std::collections::{BTreeSet, BinaryHeap, HashMap};
 use std::io::stdin;
-use std::rc::Rc;
 use std::time::Instant;
 
 use crate::core::board::Board;
@@ -43,43 +42,54 @@ pub fn compute_states(
 pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usize) {
     trace!("BrainDijkstra.search");
 
-    let mut known_nodes = HashMap::<Board, Rc<BoardNode>>::new();
-    let mut known_unvisited_nodes = BTreeSet::<Rc<BoardNode>>::new();
-    let mut moves = CardActions::new();
+    // Create tables
+    let mut known_nodes = HashMap::<Vec<u8>, BoardNode>::new();
+    let mut known_unvisited_nodes = BTreeSet::<Vec<u8>>::new();
 
-    let first_node = BoardNode::new(board.clone(), active_player, &moves);
-    let first_node_rc = Rc::new(first_node);
-    let mut best_node = first_node_rc.clone();
-    known_nodes.insert(board.clone(), first_node_rc.clone());
-    known_unvisited_nodes.insert(first_node_rc);
+    // Fill tables with first node
+    let first_node = BoardNode::new(board.clone(), active_player, &CardActions::new());
+    let encoding = board.encode();
+    known_unvisited_nodes.insert(encoding.clone());
+    known_nodes.insert(encoding, first_node.clone());
 
+    // Initialize the loop
     let mut max_score = WORSE_SCORE;
     let mut nb_nodes_visited = 0;
+    let mut best_node = first_node.clone();
+
+    // Look for the best attainable node
     loop {
         debug!("{} nodes to visit", known_unvisited_nodes.len());
         match known_unvisited_nodes.pop_first() {
             None => {
                 break;
             }
-            Some(mut next_node) => {
+            Some(next_node_encoding) => {
+                nb_nodes_visited += 1;
+
+                // Get node to process
+                let next_node = known_nodes[&next_node_encoding].clone();
                 debug!("Current moves:\n{:?}", next_node.moves);
                 debug!("Current board:\n{}", next_node.board.to_string(true));
 
-                nb_nodes_visited += 1;
+                // Update node tables
                 next_node.search_neighbors(&mut known_nodes, &mut known_unvisited_nodes);
-                Rc::make_mut(&mut next_node).index = nb_nodes_visited;
-                debug!("Score: {:?}", next_node.score);
-                if next_node.score > max_score {
-                    debug!("New best score: {:?}", next_node.score);
-                    max_score = next_node.score;
+
+                let mut next_node_mut = known_nodes
+                    .get_mut(&next_node_encoding)
+                    .expect("BoardNode disappeard from known_nodes!");
+                next_node_mut.index = nb_nodes_visited;
+                debug!("Score: {:?}", next_node_mut.score);
+                if next_node_mut.score > max_score {
+                    debug!("New best score: {:?}", next_node_mut.score);
+                    max_score = next_node_mut.score;
                     best_node = next_node;
-                    moves = best_node.moves.clone();
                 }
             }
         }
     }
 
-    moves = finalize_moves(moves, &best_node.board, active_player);
+    let moves = finalize_moves(best_node.moves, &best_node.board, active_player);
 
     info!("{:?}", moves);
     info!("Initial board:\n{}", board.to_string(true));

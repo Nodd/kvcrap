@@ -4,7 +4,6 @@ use std::cmp::Ordering;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
 
 use crate::core::moves::{CardAction, CardActions};
 use crate::core::{board::Board, piles::Pile, piles::PileType, players::Player, suits::NB_SUITS};
@@ -42,8 +41,8 @@ impl BoardNode {
 
     pub fn search_neighbors(
         &self,
-        known_nodes: &mut HashMap<Board, Rc<BoardNode>>,
-        known_unvisited_nodes: &mut BTreeSet<Rc<BoardNode>>,
+        known_nodes: &mut HashMap<Vec<u8>, BoardNode>,
+        known_unvisited_nodes: &mut BTreeSet<Vec<u8>>,
     ) {
         trace!("search_neighbors: start");
         // If last move was from a player pile, stop here
@@ -140,14 +139,15 @@ impl BoardNode {
     fn register_next_board<'a>(
         &self,
         r#move: CardAction,
-        known_nodes: &mut HashMap<Board, Rc<BoardNode>>,
-        known_unvisited_nodes: &mut BTreeSet<Rc<BoardNode>>,
+        known_nodes: &mut HashMap<Vec<u8>, BoardNode>,
+        known_unvisited_nodes: &mut BTreeSet<Vec<u8>>,
     ) {
         // Instantiate neighbor
         let next_board: Board = self.board.copy_with_action(&r#move);
+        let encoding = next_board.encode();
         let cost = self.compute_move_cost(&r#move);
 
-        if let Some(next_board_node) = known_nodes.get(&next_board) {
+        if let Some(next_board_node) = known_nodes.get(&encoding) {
             // Known board
             trace!("      Next board already known");
 
@@ -158,13 +158,13 @@ impl BoardNode {
                 return;
             }
             trace!("      Cost is lower, replacing");
-            let was_unknown = known_unvisited_nodes.remove(Rc::as_ref(&next_board_node));
+            let was_unknown = known_unvisited_nodes.remove(&encoding);
             if was_unknown {
                 trace!("      Previous board was unvisited, removed from unvisited list");
             } else {
                 error!("      Previous board was visited, not removed from unvisited list, it's not normal!!");
             }
-            known_nodes.remove(&next_board);
+            known_nodes.remove(&encoding);
         } else {
             trace!("      Next board not known");
         }
@@ -176,14 +176,14 @@ impl BoardNode {
         next_board_node.moves.push(r#move);
         next_board_node.cost = cost;
 
-        let next_board_node_rc = Rc::new(next_board_node);
-        if let Some(previous_node) = known_nodes.insert(next_board, next_board_node_rc.clone()) {
+        if !known_unvisited_nodes.insert(encoding.clone()) {
+            error!("      Node was already existing in known_unvisited_nodes");
+        }
+
+        if let Some(previous_node) = known_nodes.insert(encoding, next_board_node) {
             error!("      Node was already existing in known_nodes");
         }
 
-        if !known_unvisited_nodes.insert(next_board_node_rc) {
-            error!("      Node was already existing in known_unvisited_nodes");
-        }
         trace!("      {} known boards", known_nodes.len());
         trace!("      {} unvisited boards", known_unvisited_nodes.len());
     }
@@ -326,12 +326,6 @@ impl BoardNode {
         let cost: Cost = (self.moves.len(), move_costs);
 
         cost
-    }
-}
-
-impl Hash for BoardNode {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.board.hash(state);
     }
 }
 

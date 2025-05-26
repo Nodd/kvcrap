@@ -14,15 +14,24 @@ pub struct Card {
     suit: Suit,
     player: Player,
     pub face_up: bool,
+    id: u8,
+}
+
+// Represents the card rank and suit a an int for hashing / encoding
+// Note that player and face_up are not taken into account.
+fn rank_suit_to_id(&rank: &Rank, &suit: &Suit) -> u8 {
+    (rank.as_u8() & 0x0F) | ((suit as u8 & 0x03) << 4)
 }
 
 impl Card {
+    // hash goes up to 4*12+4 = 52
     pub fn new(rank: Rank, suit: Suit, player: Player) -> Self {
         Card {
             rank,
             suit,
             player,
             face_up: false,
+            id: rank_suit_to_id(&rank, &suit),
         }
     }
     pub fn new_up(rank: Rank, suit: Suit, player: Player) -> Self {
@@ -31,6 +40,7 @@ impl Card {
             suit,
             player,
             face_up: true,
+            id: rank_suit_to_id(&rank, &suit),
         }
     }
 
@@ -59,6 +69,10 @@ impl Card {
 
     pub fn player(&self) -> &Player {
         &self.player
+    }
+
+    pub fn id(&self) -> u8 {
+        self.id
     }
 
     pub fn set_face_up(&mut self) {
@@ -126,16 +140,7 @@ impl fmt::Display for Card {
     }
 }
 
-// Hash is need to store cards (actually, boards containing piles containing cards) in a HashSet
-// The IA implementation needs to differentiate the rank and suit only
-// Player and face up/down are mostly visual and seldom needed
-impl Hash for Card {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.rank.hash(state);
-        self.suit.hash(state);
-    }
-}
-
+// TODO: is it still needed ?
 // Eq is need to store cards (actually, boards containing piles containing cards) in a HashSet
 // Eq implementation can only be done in PartialEq
 // Implementing the Eq trait is just an information for the compiler.

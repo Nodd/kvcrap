@@ -30,10 +30,10 @@ impl From<&str> for Rank {
             Ok(i) => Rank(i),
             Err(_) => {
                 if item.len() == 1 {
-                let c = item.chars().next().unwrap();
-                match SYMBOLS.iter().position(|x| *x == c) {
-                    Some(pos) => Rank(pos as u8 + 1),
-                    None => panic!("Incorrect card rank {item}"),
+                    let c = item.chars().next().unwrap();
+                    match SYMBOLS.iter().position(|x| *x == c) {
+                        Some(pos) => Rank(pos as u8 + 1),
+                        None => panic!("Incorrect card rank {item}"),
                     }
                 } else {
                     match NAMES.iter().position(|x| *x == item) {
@@ -66,6 +66,10 @@ impl Rank {
 
     pub fn is_below(&self, other: &Rank) -> bool {
         self.0 == &other.0 - 1
+    }
+
+    pub fn as_u8(&self) -> u8 {
+        self.0
     }
 }
 

@@ -5,15 +5,16 @@ use std::hash::{Hash, Hasher};
 use rand_pcg::Pcg64;
 
 use super::cards::Card;
-use super::decks::{new_deck, shuffle};
+use super::decks::{new_deck, shuffle, NB_CARDS};
 use super::moves::CardAction;
 use super::piles::{Pile, PileType, NB_CRAPE_START};
 use super::players::{Player, NB_PLAYERS, PLAYERS};
 use super::ranks::NB_RANKS;
 use super::suits::Suit;
 
-pub const NB_PILES: usize = 8;
+pub const NB_PILES_CENTER: usize = 8;
 pub const NB_ROWS: usize = 4;
+const NB_PILES_TOTAL: usize = 2 * NB_PILES_CENTER + 3 * NB_PLAYERS;
 const PLAYER_SPACE: usize = NB_RANKS * 3;
 
 #[derive(Debug, Clone)]
@@ -21,8 +22,8 @@ pub struct Board {
     pub stock: [Pile; NB_PLAYERS],
     pub waste: [Pile; NB_PLAYERS],
     pub crape: [Pile; NB_PLAYERS],
-    pub foundation: [Pile; NB_PILES],
-    pub tableau: [Pile; NB_PILES],
+    pub foundation: [Pile; NB_PILES_CENTER],
+    pub tableau: [Pile; NB_PILES_CENTER],
 }
 
 impl Board {
@@ -350,26 +351,40 @@ impl Board {
         new_board.apply_action(&action);
         new_board
     }
-}
 
-// Hash is need to store cards (actually, boards containing piles) in a HashSet
-// The IA implementation needs to not differentiate the order of tableau and foundation
-// so they are sorted first
-impl Hash for Board {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.crape.hash(state);
-        self.waste.hash(state);
-        self.stock.hash(state);
-        hash_sorted(&self.tableau, state);
-        hash_sorted(&self.foundation, state);
+    pub fn encode(&self) -> Vec<u8> {
+        // An encoding contains each card and each pile size
+        // The capacity should be constant
+        let mut data = Vec::with_capacity(NB_PILES_TOTAL + 2 * NB_CARDS);
+        for pile in &self.stock {
+            pile.encode(&mut data);
+        }
+        for pile in &self.waste {
+            pile.encode(&mut data);
+        }
+        for pile in &self.crape {
+            pile.encode(&mut data);
+        }
+
+        // The IA implementation needs to not differentiate the order of tableau and foundation
+        // so they are sorted first
+        // TODO: sort the encodings rather than the piles if it is equivalent ?
+        let mut tableau = self.tableau.clone();
+        tableau.sort();
+        for pile in &tableau {
+            pile.encode(&mut data);
+        }
+        let mut foundation = self.foundation.clone();
+        foundation.sort();
+        for pile in &foundation {
+            pile.encode(&mut data);
+        }
+        data
     }
 }
-fn hash_sorted<H: Hasher>(piles: &[Pile; 8], state: &mut H) {
-    let mut piles = piles.clone();
-    piles.sort();
-    piles.hash(state);
-}
 
+// TODO: still needed ?
+// TODO: if needed, implement with encode ?
 // Eq is need to store boards in a HashSet
 // Eq implementation can only be done in PartialEq
 // Implementing the Eq trait is just an information for the compiler.

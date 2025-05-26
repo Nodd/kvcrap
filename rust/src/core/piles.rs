@@ -258,6 +258,22 @@ impl Pile {
     pub fn top_rank(&self) -> Option<&Rank> {
         self.cards.last().map(|card| card.rank())
     }
+
+    fn push_cards_as_u8(&self, output: &mut Vec<u8>) {
+        for card in &self.cards {
+            output.push(card.id());
+        }
+    }
+
+    // Encodes the pile at the end of an existing Vec<u8>
+    pub fn encode(&self, output: &mut Vec<u8>) {
+        // Encode the pile size
+        // It avoids encoding all empty slots
+        output.push(self.cards.len() as u8);
+
+        // Encode the content
+        self.push_cards_as_u8(output);
+    }
 }
 
 impl fmt::Display for Pile {
@@ -267,15 +283,18 @@ impl fmt::Display for Pile {
     }
 }
 
-// Hash is need to store cards (actually, boards containing piles) in a HashSet
-// The IA implementation needs to differentiate the kind and cards only
+// Hash is need to store piles in Sets
+// The implementation needs to differentiate the kind and cards only
 // PileType::Tableau and PileType::Foundation fields can be ignored here
 // PileType::Crape, PileType::Stock and PileType::Waste player field could be used
 // but it's not needed in practice (at worst it means a few hash misses for the HashSet)
 impl Hash for Pile {
     fn hash<H: Hasher>(&self, state: &mut H) {
         discriminant(&self.kind).hash(state);
-        self.cards.hash(state);
+
+        let mut data = Vec::<u8>::new();
+        self.push_cards_as_u8(&mut data);
+        data.hash(state);
     }
 }
 
