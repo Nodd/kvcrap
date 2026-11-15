@@ -79,7 +79,7 @@ impl Card {
         self.face_up = true;
     }
 
-    pub fn set_face_down(mut self) {
+    pub fn set_face_down(&mut self) {
         self.face_up = false;
     }
 
