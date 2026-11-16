@@ -11,7 +11,7 @@ const NAMES: [&str; NB_RANKS] = [
     "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King",
 ];
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy)] // , Hash
 pub struct Rank(u8);
 
 impl From<u8> for Rank {
