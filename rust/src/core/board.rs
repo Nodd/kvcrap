@@ -68,7 +68,7 @@ impl Board {
     /// Create a new game with a standard card deal.
     pub fn new_game(&mut self, mut rng: &mut Pcg64) {
         for player in PLAYERS {
-            let mut deck = self.prepare_deck(player, &mut rng);
+            let mut deck = self.prepare_deck(player, rng);
             let player = player;
 
             // Fill game components
@@ -282,13 +282,13 @@ impl Board {
             return Err("Unable to take card from origin");
         }
 
-        if !destination.can_add_card(&card, &origin_type, &player) {
+        if !destination.can_add_card(&card, origin_type, &player) {
             return Err("Unable to move card from origin to destination");
         }
 
         self.move_card(origin_type, destination_type);
         Ok(CardAction::Move {
-            card: card,
+            card,
             origin: *origin_type,
             destination: *destination_type,
         })
@@ -348,7 +348,7 @@ impl Board {
 
     pub fn copy_with_action(&self, action: &CardAction) -> Self {
         let mut new_board = self.clone();
-        new_board.apply_action(&action);
+        new_board.apply_action(action);
         new_board
     }
 

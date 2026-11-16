@@ -28,11 +28,11 @@ impl BoardNode {
     pub fn new(board: Board, active_player: Player, moves: &CardActions) -> Self {
         let score = board_score(&board, active_player);
         BoardNode {
-            board: board,
+            board,
             active_player,
             // ai_config,
             cost: (0, Vec::<[usize; 2]>::new()),
-            score: score,
+            score,
             //score_min,
             moves: moves.clone(),
             index: 0,

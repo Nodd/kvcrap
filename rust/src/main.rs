@@ -2,7 +2,6 @@
 #![allow(dead_code)]
 
 use clap::Parser;
-use env_logger;
 use env_logger::Env;
 
 use crate::core::game_manager::GameManager;
