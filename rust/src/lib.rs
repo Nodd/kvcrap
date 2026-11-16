@@ -45,7 +45,11 @@ fn fill_pile(pile: &mut Pile, py_pile: &RustyPile) {
             Suit::from(py_card.suit),
             Player::from(py_card.player),
         );
-        card.face_up = py_card._face_up;
+        if (py_card._face_up) {
+            card.set_face_up();
+        } else {
+            card.set_face_down();
+        };
         pile.add(card);
     }
 }

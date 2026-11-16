@@ -170,7 +170,7 @@ impl Pile {
                     && match self.top_card() {
                         None => false,
                         Some(top_card) => {
-                            top_card.face_up
+                            top_card.is_face_up()
                                 && card.suit() == top_card.suit()
                                 && card.is_above_or_below(top_card)
                         }
@@ -201,7 +201,7 @@ impl Pile {
                 player: self_player,
             } if player == self_player => {
                 if let Some(card) = self.top_card() {
-                    !card.face_up
+                    !card.is_face_up()
                 } else {
                     false
                 }

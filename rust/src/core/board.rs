@@ -273,7 +273,7 @@ impl Board {
             .top_card()
             .ok_or("Unable to take a card from empty pile")?;
 
-        if !card.face_up {
+        if !card.is_face_up() {
             return Err("Unable to move a card which faces down");
         }
 
@@ -455,7 +455,7 @@ mod tests {
             assert_eq!(board.stock[p].nb_cards(), 52 - 13 - 4);
             assert_eq!(board.waste[p].nb_cards(), 0);
             assert_eq!(board.crape[p].nb_cards(), 13);
-            assert_eq!(board.crape[p].top_card().unwrap().face_up, true);
+            assert_eq!(board.crape[p].top_card().unwrap().is_face_up(), true);
         }
         for tp in board.tableau.iter() {
             assert_eq!(tp.nb_cards(), 1);

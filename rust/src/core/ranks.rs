@@ -41,6 +41,12 @@ impl From<&str> for Rank {
     }
 }
 
+impl From<char> for Rank {
+    fn from(item: char) -> Self {
+        Rank::from(item.to_string().as_str())
+    }
+}
+
 impl Rank {
     pub fn symbol(self) -> char {
         RANK_TEXTS[(self.0 - 1) as usize].0

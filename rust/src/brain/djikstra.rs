@@ -107,14 +107,14 @@ fn finalize_moves(mut moves: CardActions, board: &Board, active_player: Player) 
     let waste = &board.waste[active_player];
 
     if let Some(card) = board.crape[active_player].top_card() {
-        if (!card.face_up) {
+        if (!card.is_face_up()) {
             moves.push(CardAction::Flip { pile: crape.kind });
             return moves;
         }
     }
 
     if let Some(card) = stock.top_card() {
-        if card.face_up {
+        if card.is_face_up() {
             moves.push(CardAction::Move {
                 card: *card,
                 origin: stock.kind,

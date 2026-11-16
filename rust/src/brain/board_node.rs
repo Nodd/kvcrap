@@ -211,7 +211,7 @@ impl BoardNode {
 
         // Player piles
         if let Some(card) = self.board.crape[self.active_player].top_card() {
-            if card.face_up {
+            if card.is_face_up() {
                 piles.push(&self.board.crape[self.active_player]);
                 trace!("  Player Crape is not empty and top card is face up, added to origin pile candidates");
             } else {
@@ -221,7 +221,7 @@ impl BoardNode {
             trace!("  Player Crape is empty, pile skipped from origin pile candidates");
         }
         if let Some(card) = self.board.stock[self.active_player].top_card() {
-            if card.face_up {
+            if card.is_face_up() {
                 piles.push(&self.board.stock[self.active_player]);
                 trace!("  Player Stock is not empty and top card is face up, added to origin pile candidates");
             } else {

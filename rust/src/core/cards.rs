@@ -1,8 +1,6 @@
-use colored::{ColoredString, Colorize};
-use regex::Regex;
+use colored::Colorize;
 use std::cmp::Ordering;
 use std::fmt;
-use std::hash::{Hash, Hasher};
 
 use super::players::Player;
 use super::ranks::Rank;
@@ -13,25 +11,25 @@ pub struct Card {
     rank: Rank,
     suit: Suit,
     player: Player,
-    pub face_up: bool,
+    face_up: bool,
     id: u8,
 }
 
 // Represents the card rank and suit a an int for hashing / encoding
 // Note that player and face_up are not taken into account.
-fn rank_suit_to_id(&rank: &Rank, &suit: &Suit) -> u8 {
-    (rank.as_u8() & 0x0F) | ((suit as u8 & 0x03) << 4)
+// id goes up to 60 on 6 bits (2 bits for the suite and 4 for the rank)
+fn rank_suit_to_id(rank: Rank, suit: Suit) -> u8 {
+    ((suit as u8) << 4) | (rank.as_u8() - 1)
 }
 
 impl Card {
-    // hash goes up to 4*12+4 = 52
     pub fn new(rank: Rank, suit: Suit, player: Player) -> Self {
         Card {
             rank,
             suit,
             player,
             face_up: false,
-            id: rank_suit_to_id(&rank, &suit),
+            id: rank_suit_to_id(rank, suit),
         }
     }
     pub fn new_up(rank: Rank, suit: Suit, player: Player) -> Self {
@@ -40,23 +38,26 @@ impl Card {
             suit,
             player,
             face_up: true,
-            id: rank_suit_to_id(&rank, &suit),
+            id: rank_suit_to_id(rank, suit),
         }
     }
 
+    /// Returns the card from a short string representation
     pub fn quick(card_str: &str) -> Self {
-        // (?<rank>\w+?) : mandatory, non greedy (1 or more letters)
-        // (?<suit>\w) : mandatory (1 letter)
-        // (?<player>\d?) : optional (1 letter)
-        let re: regex::Regex = Regex::new(r"^(?<rank>\w+?)(?<suit>\w)(?<player>\d?)$").unwrap();
-        let (_full, [rank_str, suit_str, player_str]) = re.captures(card_str).unwrap().extract();
-        let suit: char = suit_str.chars().next().expect("string is empty");
-        let player: u8 = if player_str.is_empty() {
-            0
-        } else {
-            player_str.parse::<u8>().expect("Can not parse player")
+        let chars: Vec<char> = card_str.chars().collect();
+
+        // 2 chars, or 3 with the player
+        let (rank, suit, player) = match chars[..] {
+            [r, s] => (r, s, '0'),
+            [r, s, p] => (r, s, p),
+            _ => panic!("Invalid card string: {card_str}"),
         };
-        Card::new_up(Rank::from(rank_str), Suit::from(suit), Player::from(player))
+
+        Card::new_up(
+            Rank::from(rank),
+            Suit::from(suit),
+            Player::from(player.to_digit(10).expect("Can not parse player") as u8),
+        )
     }
 
     pub fn rank(&self) -> Rank {
@@ -73,6 +74,10 @@ impl Card {
 
     pub fn id(&self) -> u8 {
         self.id
+    }
+
+    pub fn is_face_up(&self) -> bool {
+        self.face_up
     }
 
     pub fn set_face_up(&mut self) {
@@ -202,29 +207,29 @@ mod tests {
     #[test]
     fn test_ord() {
         let c = Card::quick("Ad0");
-        assert_eq!(c < c, false);
-        assert_eq!(c > c, false);
-        assert_eq!(c <= c, true);
-        assert_eq!(c >= c, true);
+        assert!(!(c < c));
+        assert!(!(c > c));
+        assert!(c <= c);
+        assert!(c >= c);
         let cc = Card::quick("Ad0");
-        assert_eq!(c < cc, false);
-        assert_eq!(c > cc, false);
-        assert_eq!(c <= cc, true);
-        assert_eq!(c >= cc, true);
+        assert!(!(c < cc));
+        assert!(!(c > cc));
+        assert!(c <= cc);
+        assert!(c >= cc);
         let cc = Card::quick("Ad1");
-        assert_eq!(c < cc, false);
-        assert_eq!(c > cc, false);
-        assert_eq!(c <= cc, true);
-        assert_eq!(c >= cc, true);
+        assert!(!(c < cc));
+        assert!(!(c > cc));
+        assert!(c <= cc);
+        assert!(c >= cc);
         let cc = Card::quick("2d0");
-        assert_eq!(c < cc, true);
-        assert_eq!(c > cc, false);
-        assert_eq!(c <= cc, true);
-        assert_eq!(c >= cc, false);
+        assert!(c < cc);
+        assert!(!(c > cc));
+        assert!(c <= cc);
+        assert!(!(c >= cc));
         let cc = Card::quick("As0");
-        assert_eq!(c < cc, true);
-        assert_eq!(c > cc, false);
-        assert_eq!(c <= cc, true);
-        assert_eq!(c >= cc, false);
+        assert!(c < cc);
+        assert!(!(c > cc));
+        assert!(c <= cc);
+        assert!(!(c >= cc));
     }
 }
