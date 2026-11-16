@@ -321,7 +321,7 @@ impl Board {
         let waste = &mut self.waste[*player];
         let stock = &mut self.stock[*player];
         while !waste.is_empty() {
-            let card = waste.pop().unwrap();
+            let mut card = waste.pop().unwrap();
             card.set_face_down();
             stock.add(card);
         }
