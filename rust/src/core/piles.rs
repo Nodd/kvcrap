@@ -46,10 +46,10 @@ impl fmt::Display for PileType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             PileType::Foundation { id, suit } => write!(f, "Foundation{}{}", id, suit.symbol()),
-            PileType::Tableau { id } => write!(f, "Tableau{}", id),
-            PileType::Stock { player } => write!(f, "Stock{}", player),
-            PileType::Waste { player } => write!(f, "Waste{}", player),
-            PileType::Crape { player } => write!(f, "Crape{}", player),
+            PileType::Tableau { id } => write!(f, "Tableau{id}"),
+            PileType::Stock { player } => write!(f, "Stock{player}"),
+            PileType::Waste { player } => write!(f, "Waste{player}"),
+            PileType::Crape { player } => write!(f, "Crape{player}"),
         }
     }
 }
@@ -99,7 +99,7 @@ impl Pile {
     // See Card::quick
     pub fn quick(&mut self, str: &str) {
         self.clear();
-        trace!("cards: '{}'", str);
+        trace!("cards: '{str}'");
         self.cards.extend(str.split_whitespace().map(Card::quick));
     }
 
@@ -255,7 +255,7 @@ impl Pile {
     }
 
     pub fn top_rank(&self) -> Option<&Rank> {
-        self.cards.last().map(|card| card.rank())
+        self.cards.last().map(super::cards::Card::rank)
     }
 
     fn push_cards_as_u8(&self, output: &mut Vec<u8>) {

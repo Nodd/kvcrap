@@ -24,8 +24,8 @@ impl fmt::Display for CardAction {
                 card,
                 origin,
                 destination,
-            } => write!(f, "Move {} from {} to {}", card, origin, destination),
-            CardAction::Flip { pile } => write!(f, "Flip {} top card", pile),
+            } => write!(f, "Move {card} from {origin} to {destination}"),
+            CardAction::Flip { pile } => write!(f, "Flip {pile} top card"),
             CardAction::FlipWaste => write!(f, "Flip waste"),
         }
     }
@@ -80,8 +80,8 @@ impl fmt::Debug for CardActions {
             1 => write!(f, "1 action:\n  {}", self.actions[0]),
             _ => {
                 write!(f, "{} actions:", self.actions.len())?;
-                for action in self.actions.iter() {
-                    write!(f, "\n  {}", action)?;
+                for action in &self.actions {
+                    write!(f, "\n  {action}")?;
                 }
                 Ok(())
             }

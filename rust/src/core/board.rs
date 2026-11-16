@@ -93,7 +93,7 @@ impl Board {
                 continue;
             }
             let (mut pile_code, mut cards) =
-                s.split_once(":").expect("Needs a format <type>: cards...");
+                s.split_once(':').expect("Needs a format <type>: cards...");
             pile_code = pile_code.trim();
             cards = cards.trim();
             let mut pile_code_chars = pile_code.chars();
@@ -130,7 +130,7 @@ impl Board {
 
     fn fill_tableau(&mut self, player: Player, deck: &mut Vec<Card>) {
         let player = player as usize;
-        for tp in self.tableau[(NB_ROWS * player)..(NB_ROWS * (player + 1))].iter_mut() {
+        for tp in &mut self.tableau[(NB_ROWS * player)..(NB_ROWS * (player + 1))] {
             tp.clear();
             let mut card = deck.pop().unwrap();
             card.set_face_up();
@@ -143,7 +143,7 @@ impl Board {
     }
 
     fn clear_foundation(&mut self) {
-        for fp in self.foundation.iter_mut() {
+        for fp in &mut self.foundation {
             fp.clear();
         }
     }

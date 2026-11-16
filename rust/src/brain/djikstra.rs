@@ -30,8 +30,8 @@ pub fn compute_states(
     let (moves, nb_nodes_visited) = brain_djikstra(board, active_player);
 
     let duration = start_time.elapsed();
-    println!("nb_nodes_visited: {}", nb_nodes_visited);
-    println!("duration: {:#?}", duration);
+    println!("nb_nodes_visited: {nb_nodes_visited}");
+    println!("duration: {duration:#?}");
     println!(
         "duration per node: {:#?}/node",
         duration / nb_nodes_visited as u32
@@ -91,7 +91,7 @@ pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usi
 
     let moves = finalize_moves(best_node.moves, &best_node.board, active_player);
 
-    info!("{:?}", moves);
+    info!("{moves:?}");
     info!("Initial board:\n{}", board.to_string(true));
     info!("Final board:\n{}", best_node.board.to_string(true));
 
@@ -114,14 +114,14 @@ fn finalize_moves(mut moves: CardActions, board: &Board, active_player: Player) 
     }
 
     if let Some(card) = stock.top_card() {
-        if !card.face_up {
-            moves.push(CardAction::Flip { pile: stock.kind });
-        } else {
+        if card.face_up {
             moves.push(CardAction::Move {
                 card: *card,
                 origin: stock.kind,
                 destination: board.waste[active_player].kind,
             });
+        } else {
+            moves.push(CardAction::Flip { pile: stock.kind });
         }
     } else if !waste.is_empty() {
         moves.push(CardAction::FlipWaste {});

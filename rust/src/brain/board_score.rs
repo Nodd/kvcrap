@@ -27,7 +27,7 @@ pub fn board_score(board: &Board, active_player: Player) -> BoardScore {
         board
             .tableau
             .iter()
-            .map(|pile| if pile.is_empty() { 1 } else { 0 })
+            .map(|pile| i32::from(pile.is_empty()))
             .sum(),
         // Having longer suits in tableau piles is better
         sorted_tableau[0].nb_cards() as i32,

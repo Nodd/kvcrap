@@ -1,10 +1,10 @@
 mod core;
-use core::board::*;
-use core::cards::*;
-use core::piles::*;
-use core::players::*;
-use core::ranks::*;
-use core::suits::*;
+use core::board::Board;
+use core::cards::Card;
+use core::piles::Pile;
+use core::players::{Player, PLAYERS};
+use core::ranks::Rank;
+use core::suits::Suit;
 
 mod brain;
 use brain::djikstra::brain_djikstra;
@@ -39,14 +39,14 @@ struct RustyBoard {
 }
 
 fn fill_pile(pile: &mut Pile, py_pile: &RustyPile) {
-    for py_card in py_pile._cards.iter() {
+    for py_card in &py_pile._cards {
         let mut card = Card::new(
             Rank::from(py_card.rank),
             Suit::from(py_card.suit),
             Player::from(py_card.player),
         );
         card.face_up = py_card._face_up;
-        pile.add(card)
+        pile.add(card);
     }
 }
 
@@ -75,14 +75,14 @@ fn parse_python_board(py_board: &PyAny) -> Board {
         .iter_mut()
         .zip(rusty_board.foundation_piles.iter());
     for (pile, py_pile) in it {
-        fill_pile(pile, py_pile)
+        fill_pile(pile, py_pile);
     }
     let it = board
         .tableau
         .iter_mut()
         .zip(rusty_board.tableau_piles.iter());
     for (pile, py_pile) in it {
-        fill_pile(pile, py_pile)
+        fill_pile(pile, py_pile);
     }
 
     board

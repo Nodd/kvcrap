@@ -131,7 +131,7 @@ impl BoardNode {
                     },
                     known_nodes,
                     known_unvisited_nodes,
-                )
+                );
             }
         }
     }
@@ -218,7 +218,7 @@ impl BoardNode {
                 trace!("  Player Crape is not empty but top card is face down, pile skipped from origin pile candidates");
             }
         } else {
-            trace!("  Player Crape is empty, pile skipped from origin pile candidates")
+            trace!("  Player Crape is empty, pile skipped from origin pile candidates");
         }
         if let Some(card) = self.board.stock[self.active_player].top_card() {
             if card.face_up {
@@ -228,7 +228,7 @@ impl BoardNode {
                 trace!("  Player Stock is not empty but top card is face down, pile skipped from origin pile candidates");
             }
         } else {
-            trace!("  Player Stock is empty, pile skipped from origin pile candidates")
+            trace!("  Player Stock is empty, pile skipped from origin pile candidates");
         }
 
         trace!(
@@ -263,7 +263,7 @@ impl BoardNode {
                 .filter(|pile| !pile.is_full())
                 .collect::<Vec<_>>(),
         );
-        trace!("  4 Foundation piles initially added to destination pile candidates",);
+        trace!("  4 Foundation piles initially added to destination pile candidates");
         for i in 0..4 {
             let pile1 = &self.board.foundation[i];
             let pile2 = &self.board.foundation[NB_SUITS - 1 - i];

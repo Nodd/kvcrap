@@ -35,7 +35,7 @@ fn main() {
     let game_manager = GameManager::new(seed, custom);
     println!("Seed: {}", game_manager.config.seed);
     if let Some(custom_game) = custom {
-        println!("Custom game: {}", custom_game);
+        println!("Custom game: {custom_game}");
     }
     println!("{}", game_manager.board.to_string(true));
     println!(

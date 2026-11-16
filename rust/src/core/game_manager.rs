@@ -33,7 +33,7 @@ impl GameConfig {
             last_move: None,
             crapette_mode: false,
             start_time: None,
-            log_path: "".to_string(), // Path(__file__).parent / "log"
+            log_path: String::new(), // Path(__file__).parent / "log"
         }
     }
 
@@ -78,7 +78,7 @@ impl GameManager {
                 call_custom(custom, &mut game_manager.board);
                 game_manager.set_active_player(Some(Player::Player0));
             }
-        };
+        }
         game_manager
     }
 
@@ -115,7 +115,7 @@ impl GameManager {
             return false;
         }
 
-        println!("Player {:?} wins !!!", active_player);
+        println!("Player {active_player:?} wins !!!");
 
         // Callback GUI
         // label.text = "Player {active_player} wins !!!"
@@ -162,7 +162,7 @@ impl GameManager {
                     // TODO: AI moves
                 }
             }
-            Err(e) => println!("Error: {}", e),
+            Err(e) => println!("Error: {e}"),
         }
         card_move
     }
@@ -182,7 +182,7 @@ impl GameManager {
 
     pub fn flip_waste_to_stock(&mut self) {
         self.board
-            .flip_waste_to_stock(&self.config.active_player.expect("No active player"))
+            .flip_waste_to_stock(&self.config.active_player.expect("No active player"));
     }
 }
 
