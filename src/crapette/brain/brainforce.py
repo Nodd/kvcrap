@@ -76,9 +76,9 @@ class BrainForce:
 
         elapsed = timeit.default_timer() - start_time
         Logger.info(
-            "AI time #%d: %gs for %d possibilities (%.3fms each on avearge)",
+            "AI time #%d: %gms for %d possibilities (%.3fms each on avearge)",
             self.game_config.step,
-            elapsed,
+            elapsed * 1000,
             nb_nodes_visited,
             elapsed / nb_nodes_visited * 1000,
         )
