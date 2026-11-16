@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 pub const MIN_RANK: u8 = 1;
 pub const MAX_RANK: u8 = 13;
 pub const NB_RANKS: usize = MAX_RANK as usize;
@@ -11,7 +9,7 @@ const NAMES: [&str; NB_RANKS] = [
     "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King",
 ];
 
-#[derive(Debug, Clone, Copy)] // , Hash
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Rank(u8);
 
 impl From<u8> for Rank {
@@ -73,26 +71,9 @@ impl Rank {
     }
 }
 
-impl PartialEq for Rank {
-    fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
-    }
-}
 impl PartialEq<usize> for Rank {
     fn eq(&self, other: &usize) -> bool {
         self.0 as usize == *other
-    }
-}
-impl Eq for Rank {}
-
-impl PartialOrd for Rank {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.0.partial_cmp(&other.0)
-    }
-}
-impl Ord for Rank {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.0.cmp(&other.0)
     }
 }
 
