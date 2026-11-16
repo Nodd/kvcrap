@@ -125,7 +125,7 @@ impl BoardNode {
                 );
                 self.register_next_board(
                     CardAction::Move {
-                        card: card.clone(),
+                        card: *card,
                         origin: pile_orig.kind,
                         destination: pile_dest.kind,
                     },
@@ -136,7 +136,7 @@ impl BoardNode {
         }
     }
 
-    fn register_next_board<'a>(
+    fn register_next_board(
         &self,
         r#move: CardAction,
         known_nodes: &mut HashMap<Vec<u8>, BoardNode>,

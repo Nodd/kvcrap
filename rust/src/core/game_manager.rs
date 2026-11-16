@@ -107,26 +107,25 @@ impl GameManager {
 
     /// End the game if the current player has won.
     pub fn check_and_apply_win(&mut self) -> bool {
-        match self.config.active_player {
-            Some(active_player) => {
-                if self.board.check_win(active_player) {
-                    println!("Player {:?} wins !!!", active_player);
+        let Some(active_player) = self.config.active_player else {
+            return false;
+        };
 
-                    // Callback GUI
-                    // label.text = "Player {active_player} wins !!!"
-
-                    // Freeze board
-                    self.set_active_player(None);
-                    //for card_widget in self.board_widget.card_widgets.values():
-                    //    card_widget.do_translation = False
-                    //self.board_widget.update_crapette_button_status()
-                    true
-                } else {
-                    false
-                }
-            }
-            None => false,
+        if !self.board.check_win(active_player) {
+            return false;
         }
+
+        println!("Player {:?} wins !!!", active_player);
+
+        // Callback GUI
+        // label.text = "Player {active_player} wins !!!"
+
+        // Freeze board
+        self.set_active_player(None);
+        //for card_widget in self.board_widget.card_widgets.values():
+        //    card_widget.do_translation = False
+        //self.board_widget.update_crapette_button_status()
+        true
     }
 
     pub fn set_crapette_last_move(&mut self, card_move: Option<CardAction>) {
@@ -159,7 +158,7 @@ impl GameManager {
                         _ => None,
                     });
 
-                    let _end = self.check_and_apply_end_of_turn(&destination_type);
+                    let _end = self.check_and_apply_end_of_turn(destination_type);
                     // TODO: AI moves
                 }
             }

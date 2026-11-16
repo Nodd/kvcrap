@@ -85,7 +85,7 @@ fn parse_python_board(py_board: &PyAny) -> Board {
         fill_pile(pile, py_pile)
     }
 
-    return board;
+    board
 }
 
 /// Compute the best series of moves given a game state

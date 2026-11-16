@@ -118,7 +118,7 @@ fn finalize_moves(mut moves: CardActions, board: &Board, active_player: Player) 
             moves.push(CardAction::Flip { pile: stock.kind });
         } else {
             moves.push(CardAction::Move {
-                card: card.clone(),
+                card: *card,
                 origin: stock.kind,
                 destination: board.waste[active_player].kind,
             });

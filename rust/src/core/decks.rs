@@ -27,7 +27,7 @@ pub fn new_deck(player: Player) -> Vec<Card> {
 /// Shuffle a deck of cards with a given random generator.
 ///
 /// The generator is typically created with `new_rng()`.
-pub fn shuffle(deck: &mut Vec<Card>, rng: &mut Pcg64) {
+pub fn shuffle(deck: &mut [Card], rng: &mut Pcg64) {
     deck.shuffle(rng);
 }
 

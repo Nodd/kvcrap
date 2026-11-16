@@ -100,8 +100,7 @@ impl Pile {
     pub fn quick(&mut self, str: &str) {
         self.clear();
         trace!("cards: '{}'", str);
-        self.cards
-            .extend(str.split_whitespace().map(|s| Card::quick(s)));
+        self.cards.extend(str.split_whitespace().map(Card::quick));
     }
 
     pub fn str_display(&self, colored: bool) -> String {
