@@ -46,13 +46,13 @@ impl BoardNode {
     ) {
         trace!("search_neighbors: start");
         // If last move was from a player pile, stop here
-        if let Some(last_move) = self.moves.last() {
-            if let CardAction::Move { origin, .. } = last_move {
-                if matches!(origin, PileType::Crape { .. } | PileType::Stock { .. }) {
-                    trace!("Last move was from a player pile, stop here");
-                    return;
-                }
-            }
+        if let Some(CardAction::Move {
+            origin: PileType::Crape { .. } | PileType::Stock { .. },
+            ..
+        }) = self.moves.last()
+        {
+            trace!("Last move was from a player pile, stop here");
+            return;
         }
 
         // Get origin and destination piles

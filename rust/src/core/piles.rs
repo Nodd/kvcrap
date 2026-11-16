@@ -337,9 +337,6 @@ impl Ord for Pile {
 }
 impl PartialOrd for Pile {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        if discriminant(&self.kind) != discriminant(&other.kind) {
-            return None;
-        }
         Some(self.cmp(other))
     }
 }

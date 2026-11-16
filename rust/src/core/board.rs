@@ -69,7 +69,6 @@ impl Board {
     pub fn new_game(&mut self, mut rng: &mut Pcg64) {
         for player in PLAYERS {
             let mut deck = self.prepare_deck(player, rng);
-            let player = player;
 
             // Fill game components
             self.fill_crape(player, &mut deck);
