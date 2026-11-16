@@ -97,9 +97,9 @@ fn compute(
     log_path: &str,
 ) -> PyResult<String> {
     let game_config = GameConfig {
-        active_player: active_player,
-        crapette_mode: crapette_mode,
-        log_path: log_path,
+        active_player,
+        crapette_mode,
+        log_path,
     };
 
     let board = parse_python_board(board);
