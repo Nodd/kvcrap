@@ -16,7 +16,7 @@ pub const NB_CARDS: usize = NB_RANKS * NB_SUITS;
 /// Use `shuffle()` to shuffle the deck.
 pub fn new_deck(player: Player) -> Vec<Card> {
     let mut deck = Vec::new();
-    for suit in Suit::into_iter() {
+    for suit in Suit::ALL {
         for rank in MIN_RANK..=MAX_RANK {
             deck.push(Card::new(Rank::from(rank), suit, player));
         }
