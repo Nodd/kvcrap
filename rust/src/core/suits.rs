@@ -35,7 +35,7 @@ impl From<char> for Suit {
 
 impl Suit {
     /// Returns the symbol associated with the suit
-    pub fn symbol(&self) -> char {
+    pub fn symbol(self) -> char {
         match self {
             Suit::Club => '\u{2663}',
             Suit::Diamond => '\u{2666}',
@@ -44,7 +44,7 @@ impl Suit {
         }
     }
     /// Returns the letter associated with the suit
-    pub fn letter(&self) -> char {
+    pub fn letter(self) -> char {
         match self {
             Suit::Club => 'c',
             Suit::Diamond => 'd',
@@ -54,7 +54,7 @@ impl Suit {
     }
 
     /// Returns the color of the suit
-    pub fn color(&self) -> Color {
+    pub fn color(self) -> Color {
         match self {
             Suit::Club => Color::Black,
             Suit::Diamond => Color::Red,

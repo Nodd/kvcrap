@@ -2,11 +2,20 @@ pub const MIN_RANK: u8 = 1;
 pub const MAX_RANK: u8 = 13;
 pub const NB_RANKS: usize = MAX_RANK as usize;
 
-const SYMBOLS: [char; NB_RANKS] = [
-    'A', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'J', 'Q', 'K',
-];
-const NAMES: [&str; NB_RANKS] = [
-    "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King",
+const RANK_TEXTS: [(char, &str); NB_RANKS] = [
+    ('A', "Ace"),
+    ('2', "2"),
+    ('3', "3"),
+    ('4', "4"),
+    ('5', "5"),
+    ('6', "6"),
+    ('7', "7"),
+    ('8', "8"),
+    ('9', "9"),
+    ('0', "10"),
+    ('J', "Jack"),
+    ('Q', "Queen"),
+    ('K', "King"),
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -23,50 +32,38 @@ impl From<u8> for Rank {
 
 impl From<&str> for Rank {
     fn from(item: &str) -> Self {
-        match item.parse::<u8>() {
-            Ok(0) => Rank(10),
-            Ok(i) => Rank(i),
-            Err(_) => {
-                if item.len() == 1 {
-                    let c = item.chars().next().unwrap();
-                    match SYMBOLS.iter().position(|x| *x == c) {
-                        Some(pos) => Rank(pos as u8 + 1),
-                        None => panic!("Incorrect card rank {item}"),
-                    }
-                } else {
-                    match NAMES.iter().position(|x| *x == item) {
-                        Some(pos) => Rank(pos as u8 + 1),
-                        None => panic!("Incorrect card rank {item}"),
-                    }
-                }
-            }
-        }
+        let index = RANK_TEXTS
+            .iter()
+            .position(|&(symbol, name)| name == item || item.chars().eq([symbol]))
+            .unwrap_or_else(|| panic!("Incorrect card rank {item}"));
+
+        Rank(index as u8 + 1)
     }
 }
 
 impl Rank {
-    pub fn symbol(&self) -> char {
-        SYMBOLS[(self.0 - 1) as usize]
+    pub fn symbol(self) -> char {
+        RANK_TEXTS[(self.0 - 1) as usize].0
     }
 
-    pub fn name(&self) -> &'static str {
-        NAMES[(self.0 - 1) as usize]
+    pub fn name(self) -> &'static str {
+        RANK_TEXTS[(self.0 - 1) as usize].1
     }
 
     /// Check if the rank is just above or just below the other rank
-    pub fn is_above_or_below(&self, other: &Rank) -> bool {
-        self.0 == &other.0 - 1 || self.0 == &other.0 + 1
+    pub fn is_above_or_below(self, other: Rank) -> bool {
+        self.0.abs_diff(other.0) == 1
     }
 
-    pub fn is_above(&self, other: &Rank) -> bool {
-        self.0 == &other.0 + 1
+    pub fn is_above(self, other: Rank) -> bool {
+        self.0 == other.0 + 1
     }
 
-    pub fn is_below(&self, other: &Rank) -> bool {
-        self.0 == &other.0 - 1
+    pub fn is_below(self, other: Rank) -> bool {
+        self.0 == other.0 - 1
     }
 
-    pub fn as_u8(&self) -> u8 {
+    pub fn as_u8(self) -> u8 {
         self.0
     }
 }
@@ -117,5 +114,13 @@ mod tests {
         assert_eq!(Rank::from(11).name(), "Jack");
         assert_eq!(Rank::from(12).name(), "Queen");
         assert_eq!(Rank::from(13).name(), "King");
+    }
+
+    #[test]
+    fn test_from_str() {
+        assert_eq!(Rank::from("A"), Rank(1));
+        assert_eq!(Rank::from("2"), Rank(2));
+        assert_eq!(Rank::from("0"), Rank(10));
+        assert_eq!(Rank::from("K"), Rank(13));
     }
 }

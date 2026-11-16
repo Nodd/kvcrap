@@ -17,7 +17,7 @@ pub fn call_custom(name: &str, board: &mut Board) {
 fn foundation_to_fill(board: &mut Board) {
     board.quick(
         r"
-        F0: Ad 2d 3d 4d 5d 6d 7d 8d 9d 10d Jd Qd
+        F0: Ad 2d 3d 4d 5d 6d 7d 8d 9d 0d Jd Qd
         T0: Kd
     ",
     );
@@ -50,8 +50,6 @@ fn massive_moves(board: &mut Board) {
         T1: Qh Js 0h 9s 8h 7s 6h 5s 4h 3s 2h As
         T2: 5c 4d 3c 2d
     ",
-        // T2: 13c
-        // T3: 12d 11c 10d 9c 8d 7c 6d 5c 4d 3c 2d
     );
 }
 

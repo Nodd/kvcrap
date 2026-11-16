@@ -135,7 +135,7 @@ impl Pile {
             PileType::Foundation {
                 suit: foundation_suit,
                 ..
-            } => card.suit() == foundation_suit && card.rank() == &(self.nb_cards() + 1),
+            } => card.suit() == *foundation_suit && card.rank() == (self.nb_cards() + 1),
             PileType::Tableau { .. } => match self.top_card() {
                 None => true,
                 Some(top_card) => {
@@ -254,7 +254,7 @@ impl Pile {
         self.cards.last_mut()
     }
 
-    pub fn top_rank(&self) -> Option<&Rank> {
+    pub fn top_rank(&self) -> Option<Rank> {
         self.cards.last().map(super::cards::Card::rank)
     }
 

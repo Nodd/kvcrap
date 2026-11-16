@@ -59,16 +59,16 @@ impl Card {
         Card::new_up(Rank::from(rank_str), Suit::from(suit), Player::from(player))
     }
 
-    pub fn rank(&self) -> &Rank {
-        &self.rank
+    pub fn rank(&self) -> Rank {
+        self.rank
     }
 
-    pub fn suit(&self) -> &Suit {
-        &self.suit
+    pub fn suit(&self) -> Suit {
+        self.suit
     }
 
-    pub fn player(&self) -> &Player {
-        &self.player
+    pub fn player(&self) -> Player {
+        self.player
     }
 
     pub fn id(&self) -> u8 {
@@ -100,7 +100,7 @@ impl Card {
 
     /// Check if the rank is above or below the other card's rank
     pub fn is_above_or_below(&self, other: &Card) -> bool {
-        self.rank.is_above_or_below(&other.rank)
+        self.rank.is_above_or_below(other.rank)
     }
 
     pub fn str_rank_suit(&self, colored: bool) -> String {
@@ -181,19 +181,19 @@ mod tests {
 
     #[test]
     fn test_quick() {
-        Card::quick("1d0");
+        Card::quick("Ad0");
         Card::quick("2s1");
-        Card::quick("10h0");
-        Card::quick("13c1");
+        Card::quick("0h0");
+        Card::quick("Kc1");
     }
 
     #[test]
     fn test_eq() {
-        let c = Card::quick("1d0");
+        let c = Card::quick("Ad0");
         assert_eq!(c, c);
-        let cc = Card::quick("1d0");
+        let cc = Card::quick("Ad0");
         assert_eq!(c, cc);
-        let cc = Card::quick("1d1");
+        let cc = Card::quick("Ad1");
         assert_eq!(c, cc);
         let cc = Card::quick("2s1");
         assert_ne!(c, cc);
@@ -201,17 +201,17 @@ mod tests {
 
     #[test]
     fn test_ord() {
-        let c = Card::quick("1d0");
+        let c = Card::quick("Ad0");
         assert_eq!(c < c, false);
         assert_eq!(c > c, false);
         assert_eq!(c <= c, true);
         assert_eq!(c >= c, true);
-        let cc = Card::quick("1d0");
+        let cc = Card::quick("Ad0");
         assert_eq!(c < cc, false);
         assert_eq!(c > cc, false);
         assert_eq!(c <= cc, true);
         assert_eq!(c >= cc, true);
-        let cc = Card::quick("1d1");
+        let cc = Card::quick("Ad1");
         assert_eq!(c < cc, false);
         assert_eq!(c > cc, false);
         assert_eq!(c <= cc, true);
@@ -221,7 +221,7 @@ mod tests {
         assert_eq!(c > cc, false);
         assert_eq!(c <= cc, true);
         assert_eq!(c >= cc, false);
-        let cc = Card::quick("1s0");
+        let cc = Card::quick("As0");
         assert_eq!(c < cc, true);
         assert_eq!(c > cc, false);
         assert_eq!(c <= cc, true);
