@@ -23,7 +23,7 @@ pub enum PileType {
 }
 
 impl PileType {
-    pub fn is_same(&self, other: &PileType) -> bool {
+    pub fn is_same(self, other: PileType) -> bool {
         if let (PileType::Crape { player: p1 }, PileType::Crape { player: p2 })
         | (PileType::Waste { player: p1 }, PileType::Waste { player: p2 })
         | (PileType::Stock { player: p1 }, PileType::Stock { player: p2 }) = (&self, &other)
@@ -111,18 +111,19 @@ impl Pile {
             | PileType::Crape { .. } => self
                 .top_card()
                 .map_or("[]".to_string(), |top_card| top_card.str_display(colored)),
-            PileType::Tableau { id: 0..=3 } => {
-                // Right side
-                self.join_cards(&self.cards.iter().collect::<Vec<_>>(), colored)
-            }
-            PileType::Tableau { id: 4..=7 } => {
-                // Left side
-                self.join_cards(&self.cards.iter().rev().collect::<Vec<_>>(), colored)
-            }
-            PileType::Tableau { id: 8..=u8::MAX } => panic!("PileType::Tableau.tableau_id > 7"),
+            PileType::Tableau { .. } => self.join_cards(colored),
         }
     }
-    fn join_cards(&self, cards: &Vec<&Card>, colored: bool) -> String {
+
+    fn join_cards(&self, colored: bool) -> String {
+        // Right side (ids 0..=3) : normal order, left side (ids 4..=7) : reversed order
+        let cards: Vec<&Card> = match &self.kind {
+            PileType::Tableau { id: 0..=3 } => self.cards.iter().collect(),
+            PileType::Tableau { id: 4..=7 } => self.cards.iter().rev().collect(),
+            PileType::Tableau { id: 8..=u8::MAX } => panic!("PileType::Tableau.tableau_id > 7"),
+            _ => unreachable!("join_cards ne doit être appelée que sur une pile de tableau"),
+        };
+
         cards
             .iter()
             .map(|card| card.str_display(colored))
@@ -130,7 +131,7 @@ impl Pile {
             .join(" ")
     }
 
-    pub fn can_add_card(&self, card: &Card, origin: &PileType, player: &Player) -> bool {
+    pub fn can_add_card(&self, card: Card, origin: PileType, player: Player) -> bool {
         match &self.kind {
             PileType::Foundation {
                 suit: foundation_suit,
@@ -139,14 +140,14 @@ impl Pile {
             PileType::Tableau { .. } => match self.top_card() {
                 None => true,
                 Some(top_card) => {
-                    card.rank().is_below(top_card.rank()) && !card.is_same_color(top_card)
+                    card.rank().is_below(top_card.rank()) && !card.is_same_color(*top_card)
                 }
             },
             PileType::Stock { .. } => false,
             PileType::Waste {
                 player: self_player,
             } => {
-                if self_player == player {
+                if *self_player == player {
                     // TODO : not in crapette mode
                     match origin {
                         PileType::Stock {
@@ -158,7 +159,7 @@ impl Pile {
                     match self.top_card() {
                         None => false,
                         Some(top_card) => {
-                            card.suit() == top_card.suit() && card.is_above_or_below(top_card)
+                            card.suit() == top_card.suit() && card.is_above_or_below(*top_card)
                         }
                     }
                 }
@@ -166,20 +167,20 @@ impl Pile {
             PileType::Crape {
                 player: self_player,
             } => {
-                self_player != player
+                *self_player != player
                     && match self.top_card() {
                         None => false,
                         Some(top_card) => {
                             top_card.is_face_up()
                                 && card.suit() == top_card.suit()
-                                && card.is_above_or_below(top_card)
+                                && card.is_above_or_below(*top_card)
                         }
                     }
             }
         }
     }
 
-    pub fn can_pop_card(&self, player: &Player) -> bool {
+    pub fn can_pop_card(&self, player: Player) -> bool {
         match &self.kind {
             PileType::Foundation { .. } | PileType::Waste { .. } => false,
             PileType::Tableau { .. } => true,
@@ -188,18 +189,18 @@ impl Pile {
             }
             | PileType::Crape {
                 player: self_player,
-            } => player == self_player,
+            } => player == *self_player,
         }
     }
 
-    pub fn can_flip_card_up(&self, player: &Player) -> bool {
+    pub fn can_flip_card_up(&self, player: Player) -> bool {
         match &self.kind {
             PileType::Stock {
                 player: self_player,
             }
             | PileType::Crape {
                 player: self_player,
-            } if player == self_player => {
+            } if player == *self_player => {
                 if let Some(card) = self.top_card() {
                     !card.is_face_up()
                 } else {
@@ -239,7 +240,7 @@ impl Pile {
     }
 
     pub fn is_same(&self, other: &Pile) -> bool {
-        self.kind.is_same(&other.kind)
+        self.kind.is_same(other.kind)
     }
 
     pub fn nb_cards(&self) -> usize {
@@ -255,7 +256,7 @@ impl Pile {
     }
 
     pub fn top_rank(&self) -> Option<Rank> {
-        self.cards.last().map(super::cards::Card::rank)
+        self.cards.last().copied().map(Card::rank)
     }
 
     fn push_cards_as_u8(&self, output: &mut Vec<u8>) {

@@ -69,7 +69,7 @@ impl BoardNode {
                 ..
             }) = self.moves.last()
             {
-                if previous_destination.is_same(&pile_orig.kind) {
+                if previous_destination.is_same(pile_orig.kind) {
                     trace!(
                         "    Move from {} would move the same card again, skipping",
                         pile_orig.kind
@@ -78,7 +78,7 @@ impl BoardNode {
                 }
             }
 
-            let card = pile_orig.top_card().expect("Pile should not be empty");
+            let card = *pile_orig.top_card().expect("Pile should not be empty");
 
             // Pre computation
             let is_pile_orig_one_card_tableau =
@@ -99,7 +99,7 @@ impl BoardNode {
                 }
 
                 // Check if the move is possible
-                if !pile_dest.can_add_card(card, &pile_orig.kind, &self.active_player) {
+                if !pile_dest.can_add_card(card, pile_orig.kind, self.active_player) {
                     trace!("    Move to {} is not possible, skipping", pile_dest.kind);
                     continue;
                 }
@@ -125,7 +125,7 @@ impl BoardNode {
                 );
                 self.register_next_board(
                     CardAction::Move {
-                        card: *card,
+                        card,
                         origin: pile_orig.kind,
                         destination: pile_dest.kind,
                     },

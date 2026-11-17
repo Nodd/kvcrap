@@ -1,3 +1,5 @@
+#![allow(clippy::used_underscore_binding, clippy::unnecessary_wraps)]
+
 mod core;
 use core::board::Board;
 use core::cards::Card;

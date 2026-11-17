@@ -56,7 +56,7 @@ impl<T> IndexMut<Player> for [T; NB_PLAYERS] {
 
 impl Player {
     /// Returns the other player.
-    pub fn other(&self) -> Self {
+    pub fn other(self) -> Self {
         match self {
             Player::Player0 => Player::Player1,
             Player::Player1 => Player::Player0,

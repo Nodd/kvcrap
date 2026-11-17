@@ -68,7 +68,8 @@ impl Board {
     /// Create a new game with a standard card deal.
     pub fn new_game(&mut self, mut rng: &mut Pcg64) {
         for player in PLAYERS {
-            let mut deck = self.prepare_deck(player, rng);
+            let mut deck = new_deck(player);
+            shuffle(&mut deck, rng);
 
             // Fill game components
             self.fill_crape(player, &mut deck);
@@ -115,12 +116,6 @@ impl Board {
         }
     }
 
-    fn prepare_deck(&self, player: Player, rng: &mut Pcg64) -> Vec<Card> {
-        let mut deck = new_deck(player);
-        shuffle(&mut deck, rng);
-        deck
-    }
-
     fn fill_crape(&mut self, player: Player, deck: &mut Vec<Card>) {
         let crape = deck.split_off(deck.len() - NB_CRAPE_START);
         self.crape[player].set(crape);
@@ -148,27 +143,27 @@ impl Board {
         }
     }
 
-    fn pile_from_type(&self, pile_type: &PileType) -> &Pile {
+    fn pile_from_type(&self, pile_type: PileType) -> &Pile {
         match pile_type {
             PileType::Foundation {
                 id: foundation_id, ..
-            } => &self.foundation[*foundation_id as usize],
-            PileType::Tableau { id: tableau_id } => &self.tableau[*tableau_id as usize],
-            PileType::Stock { player } => &self.stock[*player],
-            PileType::Waste { player } => &self.waste[*player],
-            PileType::Crape { player } => &self.crape[*player],
+            } => &self.foundation[foundation_id as usize],
+            PileType::Tableau { id: tableau_id } => &self.tableau[tableau_id as usize],
+            PileType::Stock { player } => &self.stock[player],
+            PileType::Waste { player } => &self.waste[player],
+            PileType::Crape { player } => &self.crape[player],
         }
     }
 
-    fn pile_from_type_mut(&mut self, pile_type: &PileType) -> &mut Pile {
+    fn pile_from_type_mut(&mut self, pile_type: PileType) -> &mut Pile {
         match pile_type {
             PileType::Foundation {
                 id: foundation_id, ..
-            } => &mut self.foundation[*foundation_id as usize],
-            PileType::Tableau { id: tableau_id } => &mut self.tableau[*tableau_id as usize],
-            PileType::Stock { player } => &mut self.stock[*player],
-            PileType::Waste { player } => &mut self.waste[*player],
-            PileType::Crape { player } => &mut self.crape[*player],
+            } => &mut self.foundation[foundation_id as usize],
+            PileType::Tableau { id: tableau_id } => &mut self.tableau[tableau_id as usize],
+            PileType::Stock { player } => &mut self.stock[player],
+            PileType::Waste { player } => &mut self.waste[player],
+            PileType::Crape { player } => &mut self.crape[player],
         }
     }
 
@@ -234,25 +229,25 @@ impl Board {
             .top_rank()
             .expect("Crape should not be empty on start");
 
-        if crape_rank_p0 > crape_rank_p1 {
-            Player::Player0
-        } else if crape_rank_p0 < crape_rank_p1 {
-            Player::Player1
-        } else {
-            let max_p0 = self.tableau[..NB_ROWS]
-                .iter()
-                .map(|pile| pile.top_rank().unwrap())
-                .max()
-                .unwrap();
-            let max_p1 = self.tableau[NB_ROWS..]
-                .iter()
-                .map(|pile| pile.top_rank().unwrap())
-                .max()
-                .unwrap();
-            if max_p0 > max_p1 {
-                Player::Player0
-            } else {
-                Player::Player1
+        match crape_rank_p0.cmp(&crape_rank_p1) {
+            Ordering::Greater => Player::Player0,
+            Ordering::Less => Player::Player1,
+            Ordering::Equal => {
+                let max_p0 = self.tableau[..NB_ROWS]
+                    .iter()
+                    .map(|pile| pile.top_rank().unwrap())
+                    .max()
+                    .unwrap();
+                let max_p1 = self.tableau[NB_ROWS..]
+                    .iter()
+                    .map(|pile| pile.top_rank().unwrap())
+                    .max()
+                    .unwrap();
+                if max_p0 > max_p1 {
+                    Player::Player0
+                } else {
+                    Player::Player1
+                }
             }
         }
     }
@@ -262,8 +257,8 @@ impl Board {
     /// All checks are done to ensure that the move is valid.
     pub fn move_card_checked(
         &mut self,
-        origin_type: &PileType,
-        destination_type: &PileType,
+        origin_type: PileType,
+        destination_type: PileType,
         player: Player,
     ) -> Result<CardAction, &'static str> {
         let origin = self.pile_from_type(origin_type);
@@ -277,19 +272,19 @@ impl Board {
             return Err("Unable to move a card which faces down");
         }
 
-        if !origin.can_pop_card(&player) {
+        if !origin.can_pop_card(player) {
             return Err("Unable to take card from origin");
         }
 
-        if !destination.can_add_card(&card, origin_type, &player) {
+        if !destination.can_add_card(card, origin_type, player) {
             return Err("Unable to move card from origin to destination");
         }
 
         self.move_card(origin_type, destination_type);
         Ok(CardAction::Move {
             card,
-            origin: *origin_type,
-            destination: *destination_type,
+            origin: origin_type,
+            destination: destination_type,
         })
     }
 
@@ -298,7 +293,7 @@ impl Board {
     /// This is a low level move, nothing is checked:
     ///   - the origin pile must not be empty, otherwise it panics
     ///   - game-wise, the move may be valid or not
-    fn move_card(&mut self, origin_type: &PileType, destination_type: &PileType) {
+    fn move_card(&mut self, origin_type: PileType, destination_type: PileType) {
         // Actually apply the move
         let card = self
             .pile_from_type_mut(origin_type)
@@ -307,7 +302,7 @@ impl Board {
         self.pile_from_type_mut(destination_type).add(card);
     }
 
-    pub fn flip_card_up(&mut self, pile_type: &PileType, player: &Player) {
+    pub fn flip_card_up(&mut self, pile_type: PileType, player: Player) {
         let pile = self.pile_from_type_mut(pile_type);
         if pile.can_flip_card_up(player) {
             if let Some(card) = pile.top_card_mut() {
@@ -316,9 +311,9 @@ impl Board {
         }
     }
 
-    pub fn flip_waste_to_stock(&mut self, player: &Player) {
-        let waste = &mut self.waste[*player];
-        let stock = &mut self.stock[*player];
+    pub fn flip_waste_to_stock(&mut self, player: Player) {
+        let waste = &mut self.waste[player];
+        let stock = &mut self.stock[player];
         while !waste.is_empty() {
             let mut card = waste.pop().unwrap();
             card.set_face_down();
@@ -339,9 +334,9 @@ impl Board {
                 origin,
                 destination,
                 ..
-            } => self.move_card(origin, destination),
-            CardAction::Flip { pile } => self.flip_card_up(pile, &Player::Player0),
-            CardAction::FlipWaste => self.flip_waste_to_stock(&Player::Player0),
+            } => self.move_card(*origin, *destination),
+            CardAction::Flip { pile } => self.flip_card_up(*pile, Player::Player0),
+            CardAction::FlipWaste => self.flip_waste_to_stock(Player::Player0),
         }
     }
 

@@ -91,12 +91,12 @@ impl GameManager {
     }
 
     /// End the player turn if conditions are met when moving a card on a pile.
-    pub fn check_and_apply_end_of_turn(&mut self, pile: &PileType) -> bool {
+    pub fn check_and_apply_end_of_turn(&mut self, pile: PileType) -> bool {
         assert!(!self.config.crapette_mode);
 
         if let PileType::Waste { player } = pile {
             if let Some(active_player) = self.config.active_player {
-                if player == &active_player {
+                if player == active_player {
                     self.set_active_player(Some(active_player.other()));
                     return true;
                 }
@@ -140,8 +140,8 @@ impl GameManager {
 
     pub fn move_card(
         &mut self,
-        origin_type: &PileType,
-        destination_type: &PileType,
+        origin_type: PileType,
+        destination_type: PileType,
     ) -> Result<CardAction, &'static str> {
         let card_move = self.board.move_card_checked(
             origin_type,
@@ -167,14 +167,14 @@ impl GameManager {
         card_move
     }
 
-    pub fn flip_card_up(&mut self, pile_type: &PileType) {
+    pub fn flip_card_up(&mut self, pile_type: PileType) {
         if self.config.crapette_mode {
             // TODO
         }
 
         self.board.flip_card_up(
             pile_type,
-            &self.config.active_player.expect("No active player"),
+            self.config.active_player.expect("No active player"),
         );
 
         // TODO Crapette checks
@@ -182,7 +182,7 @@ impl GameManager {
 
     pub fn flip_waste_to_stock(&mut self) {
         self.board
-            .flip_waste_to_stock(&self.config.active_player.expect("No active player"));
+            .flip_waste_to_stock(self.config.active_player.expect("No active player"));
     }
 }
 
@@ -195,7 +195,7 @@ mod tests {
         let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
         let tableau0 = PileType::Tableau { id: 0 };
         let tableau1 = PileType::Tableau { id: 1 };
-        let result = game_manager.move_card(&tableau0, &tableau1);
+        let result = game_manager.move_card(tableau0, tableau1);
         result.unwrap();
         assert_eq!(game_manager.board.tableau[0].nb_cards(), 0);
         assert_eq!(game_manager.board.tableau[1].nb_cards(), 1);
@@ -206,7 +206,7 @@ mod tests {
         let mut game_manager = GameManager::new(None, Some("foundation_to_fill"));
         let tableau0 = PileType::Tableau { id: 2 };
         let tableau1 = PileType::Tableau { id: 1 };
-        let card_move = game_manager.move_card(&tableau0, &tableau1);
+        let card_move = game_manager.move_card(tableau0, tableau1);
         assert_eq!(card_move.is_err(), true);
     }
 
@@ -216,6 +216,6 @@ mod tests {
         let crape = PileType::Crape {
             player: Player::Player0,
         };
-        game_manager.flip_card_up(&crape);
+        game_manager.flip_card_up(crape);
     }
 }

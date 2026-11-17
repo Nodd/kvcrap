@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_wrap)]
+
 use crate::core::{board::Board, board::NB_PILES_CENTER, players::Player};
 
 const NB_SCORE_VALUES: usize = 12;

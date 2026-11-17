@@ -60,23 +60,23 @@ impl Card {
         )
     }
 
-    pub fn rank(&self) -> Rank {
+    pub fn rank(self) -> Rank {
         self.rank
     }
 
-    pub fn suit(&self) -> Suit {
+    pub fn suit(self) -> Suit {
         self.suit
     }
 
-    pub fn player(&self) -> Player {
+    pub fn player(self) -> Player {
         self.player
     }
 
-    pub fn id(&self) -> u8 {
+    pub fn id(self) -> u8 {
         self.id
     }
 
-    pub fn is_face_up(&self) -> bool {
+    pub fn is_face_up(self) -> bool {
         self.face_up
     }
 
@@ -89,26 +89,26 @@ impl Card {
     }
 
     /// Returns the symbol associated with the suit
-    pub fn suit_symbol(&self) -> char {
+    pub fn suit_symbol(self) -> char {
         self.suit.symbol()
     }
 
     /// Returns the color of the card
-    pub fn color(&self) -> Color {
+    pub fn color(self) -> Color {
         self.suit.color()
     }
 
     /// Check if the color is the same as another Card
-    pub fn is_same_color(&self, other: &Card) -> bool {
+    pub fn is_same_color(self, other: Card) -> bool {
         self.suit.color() == other.suit.color()
     }
 
     /// Check if the rank is above or below the other card's rank
-    pub fn is_above_or_below(&self, other: &Card) -> bool {
+    pub fn is_above_or_below(self, other: Card) -> bool {
         self.rank.is_above_or_below(other.rank)
     }
 
-    pub fn str_rank_suit(&self, colored: bool) -> String {
+    pub fn str_rank_suit(self, colored: bool) -> String {
         let mut str = format!("{}{}", self.rank.symbol(), self.suit.symbol());
         if colored {
             str = match self.suit.color() {
@@ -121,7 +121,7 @@ impl Card {
         str
     }
 
-    pub fn str_display(&self, colored: bool) -> String {
+    pub fn str_display(self, colored: bool) -> String {
         if self.face_up {
             self.str_rank_suit(colored)
         } else {

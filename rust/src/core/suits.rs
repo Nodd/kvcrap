@@ -18,14 +18,10 @@ pub enum Color {
 impl From<char> for Suit {
     fn from(item: char) -> Self {
         match item {
-            'c' => Suit::Club,
-            'd' => Suit::Diamond,
-            'h' => Suit::Heart,
-            's' => Suit::Spade,
-            '♣' => Suit::Club,
-            '♦' => Suit::Diamond,
-            '♥' => Suit::Heart,
-            '♠' => Suit::Spade,
+            'c' | '♣' => Suit::Club,
+            'd' | '♦' => Suit::Diamond,
+            'h' | '♥' => Suit::Heart,
+            's' | '♠' => Suit::Spade,
             _ => panic!("Incorrect letter {item} for suit"),
         }
     }
