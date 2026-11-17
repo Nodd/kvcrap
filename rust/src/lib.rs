@@ -49,7 +49,7 @@ fn fill_pile(pile: &mut Pile, py_pile: &RustyPile) {
             card.set_face_up();
         } else {
             card.set_face_down();
-        };
+        }
         pile.add(card);
     }
 }
