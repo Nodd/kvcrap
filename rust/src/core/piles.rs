@@ -24,21 +24,14 @@ pub enum PileType {
 
 impl PileType {
     pub fn is_same(self, other: PileType) -> bool {
-        if let (PileType::Crape { player: p1 }, PileType::Crape { player: p2 })
-        | (PileType::Waste { player: p1 }, PileType::Waste { player: p2 })
-        | (PileType::Stock { player: p1 }, PileType::Stock { player: p2 }) = (&self, &other)
-        {
-            return p1 == p2;
+        match (self, other) {
+            (PileType::Crape { player: p1 }, PileType::Crape { player: p2 })
+            | (PileType::Waste { player: p1 }, PileType::Waste { player: p2 })
+            | (PileType::Stock { player: p1 }, PileType::Stock { player: p2 }) => p1 == p2,
+            (PileType::Foundation { id: id1, .. }, PileType::Foundation { id: id2, .. })
+            | (PileType::Tableau { id: id1 }, PileType::Tableau { id: id2 }) => id1 == id2,
+            _ => false,
         }
-
-        if let (PileType::Foundation { id: id1, .. }, PileType::Foundation { id: id2, .. })
-        | (PileType::Tableau { id: id1, .. }, PileType::Tableau { id: id2, .. }) =
-            (&self, &other)
-        {
-            return id1 == id2;
-        }
-
-        false
     }
 }
 
@@ -97,38 +90,36 @@ impl Pile {
 
     // Quickly fill a pile from a string of cards
     // See Card::quick
-    pub fn quick(&mut self, str: &str) {
+    pub fn quick(&mut self, card_str: &str) {
         self.clear();
-        trace!("cards: '{str}'");
-        self.cards.extend(str.split_whitespace().map(Card::quick));
+        trace!("cards: '{card_str}'");
+        self.cards
+            .extend(card_str.split_whitespace().map(Card::quick));
     }
 
     pub fn str_display(&self, colored: bool) -> String {
-        match &self.kind {
+        match self.kind {
             PileType::Foundation { .. }
             | PileType::Stock { .. }
             | PileType::Waste { .. }
             | PileType::Crape { .. } => self
                 .top_card()
                 .map_or("[]".to_string(), |top_card| top_card.str_display(colored)),
-            PileType::Tableau { .. } => self.join_cards(colored),
+            PileType::Tableau { id } => {
+                // Côté droit (id 0..=3) : ordre normal, côté gauche (id 4..=7) : ordre inversé
+                let cards: Vec<&Card> = match id {
+                    0..=3 => self.cards.iter().collect(),
+                    4..=7 => self.cards.iter().rev().collect(),
+                    _ => panic!("PileType::Tableau.tableau_id > 7"),
+                };
+
+                cards
+                    .iter()
+                    .map(|card| card.str_display(colored))
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            }
         }
-    }
-
-    fn join_cards(&self, colored: bool) -> String {
-        // Right side (ids 0..=3) : normal order, left side (ids 4..=7) : reversed order
-        let cards: Vec<&Card> = match &self.kind {
-            PileType::Tableau { id: 0..=3 } => self.cards.iter().collect(),
-            PileType::Tableau { id: 4..=7 } => self.cards.iter().rev().collect(),
-            PileType::Tableau { id: 8..=u8::MAX } => panic!("PileType::Tableau.tableau_id > 7"),
-            _ => unreachable!("join_cards ne doit être appelée que sur une pile de tableau"),
-        };
-
-        cards
-            .iter()
-            .map(|card| card.str_display(colored))
-            .collect::<Vec<_>>()
-            .join(" ")
     }
 
     pub fn can_add_card(&self, card: Card, origin: PileType, player: Player) -> bool {
