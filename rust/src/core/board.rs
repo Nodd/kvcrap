@@ -328,21 +328,21 @@ impl Board {
             && self.crape[player].is_empty()
     }
 
-    pub fn apply_action(&mut self, action: &CardAction) {
+    pub fn apply_action(&mut self, action: &CardAction, player: Player) {
         match action {
             CardAction::Move {
                 origin,
                 destination,
                 ..
             } => self.move_card(*origin, *destination),
-            CardAction::Flip { pile } => self.flip_card_up(*pile, Player::Player0),
-            CardAction::FlipWaste => self.flip_waste_to_stock(Player::Player0),
+            CardAction::Flip { pile } => self.flip_card_up(*pile, player),
+            CardAction::FlipWaste => self.flip_waste_to_stock(player),
         }
     }
 
-    pub fn copy_with_action(&self, action: &CardAction) -> Self {
+    pub fn copy_with_action(&self, action: &CardAction, player: Player) -> Self {
         let mut new_board = self.clone();
-        new_board.apply_action(action);
+        new_board.apply_action(action, player);
         new_board
     }
 

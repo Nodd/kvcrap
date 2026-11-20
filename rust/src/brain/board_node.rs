@@ -143,7 +143,7 @@ impl BoardNode {
         known_unvisited_nodes: &mut BTreeSet<Vec<u8>>,
     ) {
         // Instantiate neighbor
-        let next_board: Board = self.board.copy_with_action(&r#move);
+        let next_board: Board = self.board.copy_with_action(&r#move, self.active_player);
         let encoding = next_board.encode();
         let cost = self.compute_move_cost(&r#move);
 
