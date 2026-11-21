@@ -27,7 +27,7 @@ pub fn compute_states(
 ) -> CardActions {
     let start_time = Instant::now();
 
-    let (moves, nb_nodes_visited) = brain_djikstra(board, active_player);
+    let (moves, nb_nodes_visited) = brain_dijkstra(board, active_player);
 
     let duration = start_time.elapsed();
     println!("nb_nodes_visited: {nb_nodes_visited}");
@@ -39,7 +39,7 @@ pub fn compute_states(
     moves
 }
 
-pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usize) {
+pub fn brain_dijkstra(board: &Board, active_player: Player) -> (CardActions, usize) {
     trace!("BrainDijkstra.search");
 
     // Create tables

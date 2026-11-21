@@ -9,7 +9,7 @@ use crate::core::game_manager::GameManager;
 mod core;
 
 mod brain;
-use brain::djikstra::compute_states;
+use brain::dijkstra::compute_states;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

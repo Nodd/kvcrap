@@ -9,9 +9,9 @@ use core::ranks::Rank;
 use core::suits::Suit;
 
 mod brain;
-use brain::djikstra::brain_djikstra;
+use brain::dijkstra::brain_dijkstra;
 
-use brain::djikstra::compute_states;
+use brain::dijkstra::compute_states;
 use pyo3::prelude::*;
 
 pub struct GameConfig<'a> {
