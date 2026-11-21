@@ -108,7 +108,7 @@ impl Board {
                 'S' => &mut self.stock[Player::from(number)],
                 'T' => &mut self.tableau[number],
                 'F' => &mut self.foundation[number],
-                _ => panic!("Unknown pile code: {}", pile_code),
+                _ => panic!("Unknown pile code: {pile_code}"),
             };
             pile.quick(cards);
         }
