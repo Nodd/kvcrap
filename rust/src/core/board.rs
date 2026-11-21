@@ -241,7 +241,7 @@ impl Board {
                     .map(|pile| pile.top_rank().unwrap())
                     .max()
                     .unwrap();
-                if max_p0 > max_p1 {
+                if max_p0 >= max_p1 {
                     Player::Player0
                 } else {
                     Player::Player1
