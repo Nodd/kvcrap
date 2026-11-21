@@ -5,6 +5,7 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
 
+use crate::core::board::NB_PILES_CENTER;
 use crate::core::moves::{CardAction, CardActions};
 use crate::core::{board::Board, piles::Pile, piles::PileType, players::Player, suits::NB_SUITS};
 
@@ -267,7 +268,7 @@ impl BoardNode {
         trace!("  4 Foundation piles initially added to destination pile candidates");
         for i in 0..4 {
             let pile1 = &self.board.foundation[i];
-            let pile2 = &self.board.foundation[NB_SUITS - 1 - i];
+            let pile2 = &self.board.foundation[NB_PILES_CENTER - 1 - i];
             if pile2.nb_cards() != pile1.nb_cards() && !pile2.is_full() {
                 piles_dest.push(pile2);
                 trace!("  {} also added to destination pile candidates", pile2.kind);
