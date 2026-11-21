@@ -68,7 +68,7 @@ pub fn brain_dijkstra(board: &Board, active_player: Player) -> (CardActions, usi
                 // Get node to process
                 let next_node = known_nodes[&next_node_encoding].clone();
                 debug!("Current moves:\n{:?}", next_node.moves);
-                debug!("Current board:\n{}", next_node.board.to_string(true));
+                debug!("Current board:\n{}", next_node.board.render(true));
 
                 // Update node tables
                 next_node.search_neighbors(&mut known_nodes, &mut known_unvisited_nodes);
@@ -90,8 +90,8 @@ pub fn brain_dijkstra(board: &Board, active_player: Player) -> (CardActions, usi
     let moves = finalize_moves(best_node.moves, &best_node.board, active_player);
 
     info!("{moves:?}");
-    info!("Initial board:\n{}", board.to_string(true));
-    info!("Final board:\n{}", best_node.board.to_string(true));
+    info!("Initial board:\n{}", board.render(true));
+    info!("Final board:\n{}", best_node.board.render(true));
 
     (moves, nb_nodes_visited)
 }

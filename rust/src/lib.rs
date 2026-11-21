@@ -109,7 +109,7 @@ fn compute(
     };
 
     let board = parse_python_board(board);
-    println!("{}", board.to_string(true));
+    println!("{}", board.render(true));
 
     compute_states(&board, Player::from(active_player), crapette_mode, "");
     Ok("toto".to_string())

@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt;
 use std::hash::{Hash, Hasher};
 
 use rand_pcg::Pcg64;
@@ -166,7 +167,7 @@ impl Board {
     }
 
     /// Display the board as a multiline String.
-    pub fn to_string(&self, colored: bool) -> String {
+    pub fn render(&self, colored: bool) -> String {
         let player_space = " ".repeat(PLAYER_SPACE);
 
         let mut str_lines = vec![format!(
@@ -372,6 +373,12 @@ impl Board {
             pile.encode(&mut data);
         }
         data
+    }
+}
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.render(false))
     }
 }
 
