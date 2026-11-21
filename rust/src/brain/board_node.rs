@@ -10,14 +10,14 @@ use crate::core::{board::Board, piles::Pile, piles::PileType, players::Player, s
 
 use super::board_score::{board_score, BoardScore};
 
-type Cost = (usize, Vec<[usize; 2]>);
+pub type Cost = (usize, Vec<[usize; 2]>);
 
 #[derive(Clone)]
 pub struct BoardNode {
     pub board: Board,
     active_player: Player,
     // ai_config,
-    cost: Cost,
+    pub cost: Cost,
     pub score: BoardScore,
     //score_min,
     pub moves: CardActions,
@@ -42,7 +42,7 @@ impl BoardNode {
     pub fn search_neighbors(
         &self,
         known_nodes: &mut HashMap<Vec<u8>, BoardNode>,
-        known_unvisited_nodes: &mut BTreeSet<Vec<u8>>,
+        known_unvisited_nodes: &mut BTreeSet<(Cost, Vec<u8>)>,
     ) {
         trace!("search_neighbors: start");
         // If last move was from a player pile, stop here
@@ -140,7 +140,7 @@ impl BoardNode {
         &self,
         r#move: CardAction,
         known_nodes: &mut HashMap<Vec<u8>, BoardNode>,
-        known_unvisited_nodes: &mut BTreeSet<Vec<u8>>,
+        known_unvisited_nodes: &mut BTreeSet<(Cost, Vec<u8>)>,
     ) {
         // Instantiate neighbor
         let next_board: Board = self.board.copy_with_action(&r#move, self.active_player);
@@ -158,7 +158,8 @@ impl BoardNode {
                 return;
             }
             trace!("      Cost is lower, replacing");
-            let was_unknown = known_unvisited_nodes.remove(&encoding);
+            let was_unknown =
+                known_unvisited_nodes.remove(&(next_board_node.cost.clone(), encoding.clone()));
             if was_unknown {
                 trace!("      Previous board was unvisited, removed from unvisited list");
             } else {
@@ -174,9 +175,9 @@ impl BoardNode {
         let mut next_board_node =
             BoardNode::new(next_board.clone(), self.active_player, &self.moves);
         next_board_node.moves.push(r#move);
-        next_board_node.cost = cost;
+        next_board_node.cost = cost.clone();
 
-        if !known_unvisited_nodes.insert(encoding.clone()) {
+        if !known_unvisited_nodes.insert((cost, encoding.clone())) {
             error!("      Node was already existing in known_unvisited_nodes");
         }
 

@@ -7,7 +7,7 @@ use crate::core::board::Board;
 use crate::core::moves::{self, CardAction, CardActions};
 use crate::core::players::Player;
 
-use super::board_node::BoardNode;
+use super::board_node::{BoardNode, Cost};
 use super::board_score::{board_score, WORSE_SCORE};
 
 pub struct RustBrainConfig {
@@ -44,12 +44,12 @@ pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usi
 
     // Create tables
     let mut known_nodes = HashMap::<Vec<u8>, BoardNode>::new();
-    let mut known_unvisited_nodes = BTreeSet::<Vec<u8>>::new();
+    let mut known_unvisited_nodes = BTreeSet::<(Cost, Vec<u8>)>::new();
 
     // Fill tables with first node
     let first_node = BoardNode::new(board.clone(), active_player, &CardActions::new());
     let encoding = board.encode();
-    known_unvisited_nodes.insert(encoding.clone());
+    known_unvisited_nodes.insert((first_node.cost.clone(), encoding.clone()));
     known_nodes.insert(encoding, first_node.clone());
 
     // Initialize the loop
@@ -61,10 +61,8 @@ pub fn brain_djikstra(board: &Board, active_player: Player) -> (CardActions, usi
     loop {
         debug!("{} nodes to visit", known_unvisited_nodes.len());
         match known_unvisited_nodes.pop_first() {
-            None => {
-                break;
-            }
-            Some(next_node_encoding) => {
+            None => break,
+            Some((_cost, next_node_encoding)) => {
                 nb_nodes_visited += 1;
 
                 // Get node to process
