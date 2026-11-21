@@ -1,4 +1,3 @@
-use core::panic;
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 
@@ -87,7 +86,6 @@ impl Board {
     // Quickly fill an empty board from a string of cards
     // See Card::quick
     pub fn quick(&mut self, cards_str: &str) {
-        let mut player = Player::Player1;
         for mut s in cards_str.lines() {
             s = s.trim();
             if s.is_empty() {
